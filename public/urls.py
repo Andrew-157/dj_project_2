@@ -3,7 +3,7 @@ from . import views
 
 
 app_name = 'public'
-public = [
+urlpatterns = [
     path('public/articles/<int:article_id>/',
          views.public_article, name='public-article'),
     path('public/articles/<int:article_id>/like/',

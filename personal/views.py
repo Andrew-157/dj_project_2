@@ -346,6 +346,9 @@ def recommended_articles(request):
             continue
         else:
             articles.append(article)
-    message_to_display = 'Here are the articles recommended for you'
+    if len(articles) == 0:
+        message_to_display = 'We cannot recommend you any articles as you are not subscribed to any authors'
+    else:
+        message_to_display = 'Here are the articles recommended for you'
     return render(request, 'public/public_articles.html', {'message_to_display': message_to_display,
                                                            'articles': articles})
