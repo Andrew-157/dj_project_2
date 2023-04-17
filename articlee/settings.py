@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -133,9 +134,16 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
 MEDIA_URL = '/media/'
 
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_URL = reverse_lazy('core:become-user')
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-secondary',
@@ -144,5 +152,6 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+
 
 TAGGIT_CASE_INSENSITIVE = True
