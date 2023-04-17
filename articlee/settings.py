@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap4',
     'taggit',
     'core',
-    'users'
+    'users',
+    'personal',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
