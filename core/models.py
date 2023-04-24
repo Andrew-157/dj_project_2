@@ -29,7 +29,7 @@ class Article(models.Model):
     content = models.TextField()
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     image = models.ImageField(
-        upload_to='articles/images/articles/', null=False)
+        upload_to='articlee/images/articles/', null=False)
     times_read = models.BigIntegerField(default=0)
     tags = TaggableManager(help_text='Use comma to separate tags')
     pub_date = models.DateTimeField(auto_now_add=True)
