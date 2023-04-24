@@ -4,11 +4,11 @@ from users.models import CustomUser
 
 
 class SocialMedia(models.Model):
-    FACEBOOK = 'Facebook'
-    INSTAGRAM = 'Instagram'
-    TIKTOK = 'TikTok'
-    TWITTER = 'Twitter'
-    YOUTUBE = 'Youtube'
+    FACEBOOK = 'FB'
+    INSTAGRAM = 'IM'
+    TIKTOK = 'TT'
+    TWITTER = 'TW'
+    YOUTUBE = 'YB'
     SOCIAL_MEDIA_TITLES = [
         (FACEBOOK, 'Facebook'),
         (INSTAGRAM, 'Instagram'),
@@ -18,8 +18,8 @@ class SocialMedia(models.Model):
     ]
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     link = models.URLField(max_length=128, unique=True)
-    social_media_title = models.CharField(
-        max_length=16,
+    title = models.CharField(
+        max_length=2,
         choices=SOCIAL_MEDIA_TITLES
     )
 

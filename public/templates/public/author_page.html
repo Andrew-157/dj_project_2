@@ -22,7 +22,7 @@
         <div class="container py-5">
             <h2>Follow this author on different media</h2>
             {% for sm in social_media %}
-                <a href="{{ sm.link }}">{{ sm.social_media_title}}</a>
+                <a href="{{ sm.link }}">{{ sm.get_title_display}}</a>
             {% endfor %}
         </div>
     {% endif %}

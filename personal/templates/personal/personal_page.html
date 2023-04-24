@@ -27,7 +27,7 @@
         {% else %}
             <h2>Your social media you shared:</h2>
             {% for sm in social_media %}
-                <a href="{{sm.link}}">{{ sm.social_media_title }}</a>
+                <a href="{{sm.link}}">{{ sm.get_title_display }}</a>
                 <p>Click <a href="{% url 'personal:delete-social-media' sm.id %}">here</a> to delete the link</p>
             {% endfor %}
             <a href="{% url 'personal:add-social-media' %}">Add more if you want</a>   
