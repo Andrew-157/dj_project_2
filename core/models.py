@@ -7,7 +7,7 @@ class Article(models.Model):
     content = models.TextField()
     author = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     image = models.ImageField(
-        upload_to='core/images/core', null=False
+        upload_to='core/images', null=False
     )
     times_read = models.BigIntegerField(default=0)
     tags = TaggableManager(help_text='Use comma to separate tags')
