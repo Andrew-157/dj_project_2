@@ -24,7 +24,7 @@ class RegisterUserView(UserBaseView):
     template_name = 'users/register.html'
 
     def post(self, request):
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -68,7 +68,8 @@ class ChangeUserView(View):
 
     def post(self, request):
         current_user = request.user
-        form = self.form_class(request.POST, instance=current_user)
+        form = self.form_class(
+            request.POST, request.FILES, instance=current_user)
         if form.is_valid():
             user = form.save()
             login(request, user)
