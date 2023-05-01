@@ -13,7 +13,7 @@
         <p>Published: {{ article.pub_date.date }}</p>
         <p>Was read {{ article.times_read }} times</p>
         {% for tag in article.tags.all %}
-            <a href="{% url 'public:tag-article' tag %}">#{{ tag }}</a>
+            <a href="{% url 'public:tag-article' tag.slug %}">#{{ tag }}</a>
         {% endfor %}
         <p><strong>Content:</strong></p>
         <p> {{ article.content }} </p>

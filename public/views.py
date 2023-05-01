@@ -201,7 +201,7 @@ def comment_article(request, article_id):
 
 
 def find_articles_through_tag(request, tag):
-    tag_object = Tag.objects.filter(name=tag).first()
+    tag_object = Tag.objects.filter(slug=tag).first()
     if not tag_object:
         return render(request, 'core/nonexistent.html')
     articles = Article.objects.prefetch_related('tags').\
