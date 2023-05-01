@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'core',
     'users',
+    'personal',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
