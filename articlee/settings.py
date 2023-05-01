@@ -45,7 +45,10 @@ INSTALLED_APPS = [
     'taggit',
     'django_cleanup.apps.CleanupConfig',
     'core',
+    'users',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -110,6 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -144,5 +148,7 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+
+LOGIN_URL = reverse_lazy('core:become-user')
 
 TAGGIT_CASE_INSENSITIVE = True
