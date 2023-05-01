@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap4',
     'taggit',
     'django_cleanup.apps.CleanupConfig',
+    'core',
 ]
 
 MIDDLEWARE = [
