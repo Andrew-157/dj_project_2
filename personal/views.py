@@ -77,6 +77,7 @@ class AboutPageView(View):
     template_name = 'personal/about_page.html'
     form_class = PublishSocialMediaForm
     success_message = 'You successfully added new link to your social media'
+    redirect_to = 'personal:about-page'
 
     def get_social_media(self, user):
         return SocialMedia.objects.\
@@ -98,7 +99,7 @@ class AboutPageView(View):
             form.instance.user = current_user
             form.save()
             messages.success(request, self.success_message)
-            return redirect('personal:about-page')
+            return redirect(self.redirect_to)
         social_media_list = self.get_social_media(current_user)
         return render(request, self.template_name, {'form': form,
                                                     'social_media_list': social_media_list})
@@ -112,6 +113,7 @@ class DeleteSocialMediaView(View):
     success_message = 'You successfully deleted this social media link'
     nonexistent_template = 'core/nonexistent.html'
     not_yours_template = 'core/not_yours.html'
+    redirect_to = 'personal:about-page'
 
     def get_social_media(self, pk):
         return SocialMedia.objects.\
@@ -126,7 +128,7 @@ class DeleteSocialMediaView(View):
             return render(request, self.not_yours_template)
         social_media.delete()
         messages.success(request, self.success_message)
-        return redirect('personal:about-page')
+        return redirect(self.redirect_to)
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
