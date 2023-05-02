@@ -4,8 +4,10 @@ from . import views
 
 app_name = 'personal'
 urlpatterns = [
-    path('personal/', views.PersonalPageView.as_view(), name='personal-page'),
-    path('personal/social_media/<int:pk>/delete/',
+    path('personal/', TemplateView.as_view(template_name='personal/personal_page.html'),
+         name='personal-page'),
+    path('personal/about/', views.AboutPageView.as_view(), name='about-page'),
+    path('personal/about/social_media/<int:pk>/delete/',
          views.DeleteSocialMediaView.as_view(), name='social_media-delete'),
     path('personal/articles/publish/',
          views.PublishArticleView.as_view(), name='publish-article'),

@@ -1,0 +1,29 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <div class="container py-5">
+        <h1>Your about page, {{ user.username }}</h1>
+        <div class="container py-5">
+            {% if not social_media_list %}
+                <h2>Let your readers follow you on different media</h2>
+                <form action="{% url 'personal:about-page' %}" method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button class="btn btn-primary" type="submit">Add link</button>
+                </form>
+            {% else %}
+                <h2>Social media links you added: </h2>
+                {% for sm in social_media_list %}
+                    <p><strong>{{sm.get_title_display}}:</strong> <a href="{{sm.link}}">{{sm.link}}</a>
+                    | <a href="{% url 'personal:social_media-delete' sm.id %}">Delete link</a></p>
+                {% endfor %}
+                <form action="{% url 'personal:about-page' %}" method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button class="btn btn-primary" type="submit">Add link</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

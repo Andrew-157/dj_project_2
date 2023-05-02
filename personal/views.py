@@ -73,26 +73,10 @@ class UpdateArticleView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
-class PersonalPageView(View):
-    template_name = 'personal/personal_page.html'
+class AboutPageView(View):
+    template_name = 'personal/about_page.html'
     form_class = PublishSocialMediaForm
     success_message = 'You successfully added new link to your social media'
-    articles = None
-    social_media_list = None
-
-    def get_subscriptions(self, user_id):
-        ...
-
-    def get_favorites(self, user_id):
-        ...
-
-    def get_articles(self, author):
-        return Article.objects.\
-            filter(author=author).\
-            select_related('author').\
-            prefetch_related('tags').\
-            order_by('-pub_date').\
-            all()
 
     def get_social_media(self, user):
         return SocialMedia.objects.\
@@ -102,12 +86,10 @@ class PersonalPageView(View):
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
-        self.articles = self.get_articles(current_user)
-        self.social_media_list = self.get_social_media(current_user)
+        social_media_list = self.get_social_media(current_user)
         form = self.form_class()
         return render(request, self.template_name, {'form': form,
-                                                    'articles': self.articles,
-                                                    'social_media_list': self.social_media_list})
+                                                    'social_media_list': social_media_list})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -116,10 +98,10 @@ class PersonalPageView(View):
             form.instance.user = current_user
             form.save()
             messages.success(request, self.success_message)
-            return redirect('personal:personal-page')
+            return redirect('personal:about-page')
+        social_media_list = self.get_social_media(current_user)
         return render(request, self.template_name, {'form': form,
-                                                    'articles': self.articles,
-                                                    'social_media': self.social_media_list})
+                                                    'social_media_list': social_media_list})
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -144,7 +126,7 @@ class DeleteSocialMediaView(View):
             return render(request, self.not_yours_template)
         social_media.delete()
         messages.success(request, self.success_message)
-        return redirect('personal:personal-page')
+        return redirect('personal:about-page')
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
