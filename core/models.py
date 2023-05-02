@@ -33,3 +33,8 @@ class SocialMedia(models.Model):
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     link = models.URLField(max_length=128, unique=True)
     title = models.CharField(max_length=2, choices=SOCIAL_MEDIA_TITLES)
+
+
+class UserDescription(models.Model):
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    content = models.TextField()
