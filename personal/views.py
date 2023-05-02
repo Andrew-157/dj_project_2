@@ -120,3 +120,32 @@ class PersonalPageView(View):
         return render(request, self.template_name, {'form': form,
                                                     'articles': self.articles,
                                                     'social_media': self.social_media_list})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DeleteSocialMediaView(View):
+    success_message = 'You successfully deleted this social media link'
+    nonexistent_template = 'core/nonexistent.html'
+    not_yours_template = 'core/not_yours.html'
+
+    def get_social_media(self, pk):
+        return SocialMedia.objects.\
+            select_related('user').filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        social_media = self.get_social_media(self.kwargs['pk'])
+        if not social_media:
+            return render(request, self.nonexistent_template)
+        if social_media.user != current_user:
+            return render(request, self.not_yours_template)
+        social_media.delete()
+        messages.success(request, self.success_message)
+        return redirect('personal:personal-page')
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
