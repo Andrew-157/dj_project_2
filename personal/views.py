@@ -5,8 +5,8 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
-from core.models import Article
-from personal.forms import PublishUpdateArticleForm
+from core.models import Article, SocialMedia
+from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm
 
 
 class PublishArticleView(View):
@@ -71,3 +71,52 @@ class UpdateArticleView(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class PersonalPageView(View):
+    template_name = 'personal/personal_page.html'
+    form_class = PublishSocialMediaForm
+    success_message = 'You successfully added new link to your social media'
+    articles = None
+    social_media_list = None
+
+    def get_subscriptions(self, user_id):
+        ...
+
+    def get_favorites(self, user_id):
+        ...
+
+    def get_articles(self, author):
+        return Article.objects.\
+            filter(author=author).\
+            select_related('author').\
+            prefetch_related('tags').\
+            order_by('-pub_date').\
+            all()
+
+    def get_social_media(self, user):
+        return SocialMedia.objects.\
+            filter(user=user).\
+            order_by('title').\
+            all()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        self.articles = self.get_articles(current_user)
+        self.social_media_list = self.get_social_media(current_user)
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form,
+                                                    'articles': self.articles,
+                                                    'social_media_list': self.social_media_list})
+
+    def post(self, request, *args, **kwargs):
+        current_user = request.user
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.instance.user = current_user
+            form.save()
+            messages.success(request, self.success_message)
+            return redirect('personal:personal-page')
+        return render(request, self.template_name, {'form': form,
+                                                    'articles': self.articles,
+                                                    'social_media': self.social_media_list})
