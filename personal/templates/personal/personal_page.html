@@ -28,7 +28,7 @@
             <a href="{% url 'personal:publish-article' %}">Publish your first article</a>
         {% else %}
             <a href="{% url 'personal:publish-article' %}">Publish new article</a>
-            {% for article in article %}
+            {% for article in articles %}
                 <p>{{ article.title }}</p>
             {% endfor %}
         {% endif %}
