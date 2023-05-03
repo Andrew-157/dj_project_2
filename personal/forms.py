@@ -1,5 +1,6 @@
 from django import forms
-from core.models import Article, SocialMedia, UserDescription, PersonalArticlesCollection
+from core.models import Article, SocialMedia, \
+    UserDescription, PersonalArticlesCollection, PublicArticlesCollection
 
 
 class PublishUpdateArticleForm(forms.ModelForm):
@@ -20,3 +21,17 @@ class PublishUpdateUserDescriptionForm(forms.ModelForm):
     class Meta:
         model = UserDescription
         fields = ['content']
+
+
+class CreateUpdatePersonalArticlesCollection(forms.ModelForm):
+
+    class Meta:
+        model = PersonalArticlesCollection
+        fields = ['title']
+
+
+class CreateUpdatePublicArticlesCollection(forms.ModelForm):
+
+    class Meta:
+        model = PublicArticlesCollection
+        fields = ['title']
