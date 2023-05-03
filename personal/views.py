@@ -88,7 +88,8 @@ class AboutPageView(View):
             all()
 
     def get_description(self, user):
-        return UserDescription.objects.filter(user=user).first()
+        return UserDescription.objects.\
+            select_related('user').filter(user=user).first()
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
@@ -152,7 +153,8 @@ class PublishUserDescriptionView(View):
     template_name = 'personal/publish_description.html'
 
     def get_description(self, user):
-        return UserDescription.objects.select_related('user').filter(user__id=user.id).first()
+        return UserDescription.objects.\
+            select_related('user').filter(user=user).first()
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
@@ -172,6 +174,10 @@ class PublishUserDescriptionView(View):
             return redirect(self.redirect_to)
         return render(request, self.template_name, {'form': form})
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
 
 class UpdateUserDescriptionView(View):
     form_class = PublishUpdateUserDescriptionForm
@@ -181,7 +187,8 @@ class UpdateUserDescriptionView(View):
     redirect_to = 'personal:about-page'
 
     def get_description(self, user):
-        return UserDescription.objects.filter(user=user).first()
+        return UserDescription.objects.\
+            select_related('user').filter(user=user).first()
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
@@ -201,3 +208,31 @@ class UpdateUserDescriptionView(View):
             messages.success(request, self.success_message)
             return redirect(self.redirect_to)
         return render(request, self.template_name, {'form': form})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DeleteUserDescriptionView(View):
+    success_message = 'You successfully deleted your description'
+    warning_message = 'You do not have a description, you cannot delete it'
+    redirect_to = 'personal:about-page'
+
+    def get_description(self, user):
+        return UserDescription.objects.\
+            select_related('user').filter(user=user).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        description = self.get_description(current_user)
+        if not description:
+            messages.warning(request, self.warning_message)
+            return redirect(self.redirect_to)
+        description.delete()
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_to)
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)

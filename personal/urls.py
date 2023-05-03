@@ -14,7 +14,9 @@ urlpatterns = [
     path('personal/about/social_media/<int:pk>/delete/',
          views.DeleteSocialMediaView.as_view(), name='social_media-delete'),
     path('personal/about/description/add/',
-         views.PublishUserDescriptionView.as_view(), name='user-description'),
+         views.PublishUserDescriptionView.as_view(), name='add-user-description'),
     path('personal/about/description/update/', views.UpdateUserDescriptionView.as_view(),
          name='update-user-description'),
+    path('personal/about/description/delete/', views.DeleteUserDescriptionView.as_view(),
+         name='delete-user-description')
 ]

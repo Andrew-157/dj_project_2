@@ -9,9 +9,9 @@
                 <p>Your description about yourself:</p>
                 <p>{{ description }}</p>
                 <a href="{% url 'personal:update-user-description' %}">Update your description</a><br>
-                <a href="">Delete your description</a>
+                <a href="{% url 'personal:delete-user-description' %}">Delete your description</a>
             {% else %}
-                <a href="{% url 'personal:user-description' %}">Add description about yourself</a>
+                <a href="{% url 'personal:add-user-description' %}">Add description about yourself</a>
             {% endif %}
         </div>
         <div class="container py-5">
