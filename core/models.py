@@ -38,3 +38,6 @@ class SocialMedia(models.Model):
 class UserDescription(models.Model):
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     content = models.TextField()
+
+    def __str__(self):
+        return self.content

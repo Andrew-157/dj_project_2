@@ -1,5 +1,5 @@
 from django import forms
-from core.models import Article, SocialMedia
+from core.models import Article, SocialMedia, UserDescription
 
 
 class PublishUpdateArticleForm(forms.ModelForm):
@@ -14,3 +14,9 @@ class PublishSocialMediaForm(forms.ModelForm):
     class Meta:
         model = SocialMedia
         exclude = ['user']
+
+
+class PublishUpdateUserDescriptionForm(forms.ModelForm):
+    class Meta:
+        model = UserDescription
+        fields = ['content']

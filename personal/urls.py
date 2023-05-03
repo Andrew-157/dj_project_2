@@ -6,11 +6,15 @@ app_name = 'personal'
 urlpatterns = [
     path('personal/', TemplateView.as_view(template_name='personal/personal_page.html'),
          name='personal-page'),
-    path('personal/about/', views.AboutPageView.as_view(), name='about-page'),
-    path('personal/about/social_media/<int:pk>/delete/',
-         views.DeleteSocialMediaView.as_view(), name='social_media-delete'),
     path('personal/articles/publish/',
          views.PublishArticleView.as_view(), name='publish-article'),
     path('personal/articles/<int:pk>/update/',
-         views.UpdateArticleView.as_view(), name='update-article')
+         views.UpdateArticleView.as_view(), name='update-article'),
+    path('personal/about/', views.AboutPageView.as_view(), name='about-page'),
+    path('personal/about/social_media/<int:pk>/delete/',
+         views.DeleteSocialMediaView.as_view(), name='social_media-delete'),
+    path('personal/about/description/add/',
+         views.PublishUserDescriptionView.as_view(), name='user-description'),
+    path('personal/about/description/update/', views.UpdateUserDescriptionView.as_view(),
+         name='update-user-description'),
 ]

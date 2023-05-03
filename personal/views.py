@@ -1,12 +1,14 @@
+from typing import Any, Dict
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
-from core.models import Article, SocialMedia
-from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm
+from django.views.generic.edit import CreateView
+from core.models import Article, SocialMedia, UserDescription
+from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm, PublishUpdateUserDescriptionForm
 
 
 class PublishArticleView(View):
@@ -85,12 +87,17 @@ class AboutPageView(View):
             order_by('title').\
             all()
 
+    def get_description(self, user):
+        return UserDescription.objects.filter(user=user).first()
+
     def get(self, request, *args, **kwargs):
         current_user = request.user
         social_media_list = self.get_social_media(current_user)
+        description = self.get_description(current_user)
         form = self.form_class()
         return render(request, self.template_name, {'form': form,
-                                                    'social_media_list': social_media_list})
+                                                    'social_media_list': social_media_list,
+                                                    'description': description})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -101,8 +108,10 @@ class AboutPageView(View):
             messages.success(request, self.success_message)
             return redirect(self.redirect_to)
         social_media_list = self.get_social_media(current_user)
+        description = self.get_description(current_user)
         return render(request, self.template_name, {'form': form,
-                                                    'social_media_list': social_media_list})
+                                                    'social_media_list': social_media_list,
+                                                    'description': description})
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -133,3 +142,62 @@ class DeleteSocialMediaView(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class PublishUserDescriptionView(View):
+    warning_message = 'You already have a description, you can either delete or update it'
+    success_message = 'You successfully published your description'
+    redirect_to = 'personal:about-page'
+    form_class = PublishUpdateUserDescriptionForm
+    template_name = 'personal/publish_description.html'
+
+    def get_description(self, user):
+        return UserDescription.objects.select_related('user').filter(user__id=user.id).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        if self.get_description(current_user):
+            messages.warning(request, self.warning_message)
+            return redirect(self.redirect_to)
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        current_user = request.user
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.instance.user = current_user
+            form.save()
+            messages.success(request, self.success_message)
+            return redirect(self.redirect_to)
+        return render(request, self.template_name, {'form': form})
+
+
+class UpdateUserDescriptionView(View):
+    form_class = PublishUpdateUserDescriptionForm
+    template_name = 'personal/update_description.html'
+    success_message = 'You successfully updated your description'
+    warning_message = 'You cannot update your description, as you do not have one'
+    redirect_to = 'personal:about-page'
+
+    def get_description(self, user):
+        return UserDescription.objects.filter(user=user).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        description = self.get_description(current_user)
+        if not description:
+            messages.warning(request, self.warning_message)
+            return redirect(self.redirect_to)
+        form = self.form_class(instance=description)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        current_user = request.user
+        description = self.get_description(current_user)
+        form = self.form_class(request.POST, instance=description)
+        if form.is_valid():
+            form.save()
+            messages.success(request, self.success_message)
+            return redirect(self.redirect_to)
+        return render(request, self.template_name, {'form': form})

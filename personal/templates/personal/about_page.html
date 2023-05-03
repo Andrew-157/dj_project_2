@@ -3,7 +3,17 @@
 {% block content %}
     {% load crispy_forms_tags %}
     <div class="container py-5">
-        <h1>Your about page, {{ user.username }}</h1>
+        <h1>Your --About-- page, {{ user.username }}</h1>
+        <div class="container py-5">
+            {% if description %}
+                <p>Your description about yourself:</p>
+                <p>{{ description }}</p>
+                <a href="{% url 'personal:update-user-description' %}">Update your description</a><br>
+                <a href="">Delete your description</a>
+            {% else %}
+                <a href="{% url 'personal:user-description' %}">Add description about yourself</a>
+            {% endif %}
+        </div>
         <div class="container py-5">
             {% if not social_media_list %}
                 <h2>Let your readers follow you on different media</h2>
