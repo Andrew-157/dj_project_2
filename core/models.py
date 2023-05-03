@@ -41,3 +41,9 @@ class UserDescription(models.Model):
 
     def __str__(self):
         return self.content
+
+
+class ArticlesCollection(models.Model):
+    title = models.CharField(max_length=155)
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    articles = models.ManyToManyField('core.Article')
