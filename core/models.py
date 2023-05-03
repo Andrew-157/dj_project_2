@@ -36,7 +36,7 @@ class SocialMedia(models.Model):
 
 
 class UserDescription(models.Model):
-    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    user = models.OneToOneField('users.CustomUser', on_delete=models.CASCADE)
     content = models.TextField()
 
     def __str__(self):
@@ -44,7 +44,7 @@ class UserDescription(models.Model):
 
 
 class FavoriteArticles(models.Model):
-    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    user = models.OneToOneField('users.CustomUser', on_delete=models.CASCADE)
     articles = models.ManyToManyField('core.Article')
 
 
