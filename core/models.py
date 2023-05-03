@@ -59,3 +59,8 @@ class PublicArticlesCollection(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class FavoriteArticles(models.Model):
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    articles = models.ManyToManyField('core.Article')
