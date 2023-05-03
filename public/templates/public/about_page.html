@@ -1,0 +1,24 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+    <div class="container py-5">
+        <h1>This is --About-- page of {{ author }}</h1>
+        <div class="container py-5">
+            {% if description %}
+                <p><strong>{{ author }}'s</strong> description:</p>
+                <p>{{ description }}</p>
+            {% else %}
+                <p><strong>{{ author }}</strong> has not left any description yet</p>
+            {% endif %}
+        </div>
+        {% if social_media_list %}
+            <div class="container py-5">
+                <h2>Follow <strong>{{ author }}</strong> on different social media</h2>
+                {% for sm in social_media_list %}
+                    <p><strong>{{sm.get_title_display}}:</strong> <a href="{{sm.link}}">{{sm.link}}</a></p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}
