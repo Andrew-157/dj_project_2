@@ -1,3 +1,5 @@
+from typing import Any, Optional
+from django.db import models
 from django.db.models import Avg
 from django.db.models.query_utils import Q
 from django.contrib import messages
@@ -9,7 +11,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from django.views import View
 from users.models import CustomUser
-from core.models import SocialMedia, UserDescription
+from core.models import SocialMedia, UserDescription, Article
 
 
 class AboutPageView(View):
@@ -36,3 +38,20 @@ class AboutPageView(View):
         return render(request, self.template_name, {'description': description,
                                                     'social_media_list': social_media_list,
                                                     'author': author})
+
+
+class ArticleDetail(DetailView):
+    template_name = 'public/article_detail.html'
+    model = Article
+    context_object_name = 'article'
+    queryset = Article.objects.\
+        select_related('author').\
+        prefetch_related('tags').all()
+
+    def get_object(self):
+        article_pk = self.kwargs['pk']
+        article = Article.objects.filter(pk=article_pk).first()
+        if not article:
+            self.template_name = 'core/nonexistent.html'
+            return None
+        return super().get_object()
