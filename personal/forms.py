@@ -1,5 +1,5 @@
 from django import forms
-from core.models import Article, SocialMedia, UserDescription
+from core.models import Article, SocialMedia, UserDescription, PersonalArticlesCollection
 
 
 class PublishUpdateArticleForm(forms.ModelForm):
