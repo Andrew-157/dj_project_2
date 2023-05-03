@@ -16,5 +16,16 @@
             {% csrf_token %}
             <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
         </form>
+        {% if reaction_status %}
+            <p>{{ reaction_status }}</p>
+        {% endif %}
+        <form action="{% url 'public:like-article' article.id %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Like</button>
+        </form>
+        <form action="{% url 'public:dislike-article' article.id %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Dislike</button>
+        </form>
     </div>
 {% endblock%}

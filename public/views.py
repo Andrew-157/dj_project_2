@@ -43,15 +43,24 @@ class ArticleDetailView(View):
     nonexistent_template = 'core/nonexistent.html'
     template_name = 'public/article_detail.html'
 
-    def get_favorite(self, user):
-        return FavoriteArticles.objects.\
-            filter(user=user).prefetch_related('articles').first()
-
     def get_article(self, pk):
         return Article.objects.\
             select_related('author').\
             prefetch_related('tags').\
             filter(pk=pk).first()
+
+    def get_favorite(self, user):
+        return FavoriteArticles.objects.\
+            filter(user=user).prefetch_related('articles').first()
+
+    def get_reaction(self, user, article):
+        return Reaction.objects.\
+            select_related('user').\
+            select_related('article').\
+            filter(
+                Q(article=article) &
+                Q(user=user)
+            ).first()
 
     def set_favorite_status(self, user, article):
         if not user.is_authenticated:
@@ -62,15 +71,28 @@ class ArticleDetailView(View):
         else:
             return 'Remove from Favorites'
 
+    def set_reaction_status(self, user, article):
+        if not user.is_authenticated:
+            return None
+        reaction = self.get_reaction(user, article)
+        if not reaction:
+            return None
+        if reaction.value == 1:
+            return 'You liked this article'
+        else:
+            return 'You disliked this article'
+
     def get(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
             return render(request, self.nonexistent_template)
         favorite_status = self.set_favorite_status(current_user, article)
+        reaction_status = self.set_reaction_status(current_user, article)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
-                                                    'show_content': False})
+                                                    'show_content': False,
+                                                    'reaction_status': reaction_status})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -79,9 +101,11 @@ class ArticleDetailView(View):
             article.times_read += 1
             article.save()
         favorite_status = self.set_favorite_status(current_user, article)
+        reaction_status = self.set_reaction_status(current_user, article)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
-                                                    'show_content': True})
+                                                    'show_content': True,
+                                                    'reaction_status': reaction_status})
 
 
 class LeaveReactionBaseClass(View):
