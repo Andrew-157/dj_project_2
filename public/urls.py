@@ -4,5 +4,7 @@ from public import views
 app_name = 'public'
 urlpatterns = [
     path('public/authors/<int:pk>/about/',
-         views.AboutPageView.as_view(), name='about-page')
+         views.AboutPageView.as_view(), name='about-page'),
+    path('public/articles/<int:pk>/',
+         views.ArticleDetail.as_view(), name='article-detail'),
 ]
