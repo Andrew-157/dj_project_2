@@ -57,5 +57,6 @@ class Reaction(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     article = models.ForeignKey('core.Article', on_delete=models.CASCADE)
+    is_article_author = models.BooleanField()
     content = models.TextField()
     pub_date = models.DateTimeField(auto_now_add=True)
