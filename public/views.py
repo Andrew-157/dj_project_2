@@ -1,4 +1,3 @@
-from typing import Any, Optional
 from django.db import models
 from django.db.models import Avg
 from django.db.models.query_utils import Q
@@ -11,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from django.views import View
 from users.models import CustomUser
-from core.models import SocialMedia, UserDescription, Article
+from core.models import SocialMedia, UserDescription, Article, FavoriteArticles
 
 
 class AboutPageView(View):
@@ -48,10 +47,28 @@ class ArticleDetail(DetailView):
         select_related('author').\
         prefetch_related('tags').all()
 
+    def get_favorite(self, user):
+        return FavoriteArticles.objects.prefetch_related('articles').first()
+
     def get_object(self):
         article_pk = self.kwargs['pk']
         article = Article.objects.filter(pk=article_pk).first()
         if not article:
             self.template_name = 'core/nonexistent.html'
             return None
+        self.kwargs['article'] = article
         return super().get_object()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_user = self.request.user
+        if not current_user.is_authenticated:
+            context['favorite_status'] = 'Add to Favorites'
+            return context
+        favorite = self.get_favorite(current_user)
+        article = self.kwargs['article']
+        if not favorite or article not in favorite.articles.all():
+            context['favorite_status'] = 'Add to Favorites'
+        else:
+            context['favorite_status'] = 'Remove from favorites'
+        return context

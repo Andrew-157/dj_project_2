@@ -3,5 +3,9 @@
 {% block content %}
     <div class="container py-5">
         <p>{{ article }}</p>
+        <form action="{% url 'personal:manage-favorites' article.id %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
+        </form>
     </div>
 {% endblock%}

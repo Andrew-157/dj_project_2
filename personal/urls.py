@@ -18,5 +18,7 @@ urlpatterns = [
     path('personal/about/description/update/', views.UpdateUserDescriptionView.as_view(),
          name='update-user-description'),
     path('personal/about/description/delete/', views.DeleteUserDescriptionView.as_view(),
-         name='delete-user-description')
+         name='delete-user-description'),
+    path('personal/articles/<int:pk>/favorites/manage/',
+         views.AddRemoveFavoriteArticle.as_view(), name='manage-favorites')
 ]
