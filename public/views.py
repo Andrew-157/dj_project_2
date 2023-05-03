@@ -3,7 +3,7 @@ from django.db.models import Avg
 from django.db.models.query_utils import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.shortcuts import render, redirect
@@ -39,36 +39,46 @@ class AboutPageView(View):
                                                     'author': author})
 
 
-class ArticleDetail(DetailView):
+class ArticleDetailView(View):
+    nonexistent_template = 'core/nonexistent.html'
     template_name = 'public/article_detail.html'
-    model = Article
-    context_object_name = 'article'
-    queryset = Article.objects.\
-        select_related('author').\
-        prefetch_related('tags').all()
 
     def get_favorite(self, user):
-        return FavoriteArticles.objects.prefetch_related('articles').first()
+        return FavoriteArticles.objects.\
+            filter(user=user).prefetch_related('articles').first()
 
-    def get_object(self):
-        article_pk = self.kwargs['pk']
-        article = Article.objects.filter(pk=article_pk).first()
-        if not article:
-            self.template_name = 'core/nonexistent.html'
-            return None
-        self.kwargs['article'] = article
-        return super().get_object()
+    def get_article(self, pk):
+        return Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(pk=pk).first()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        current_user = self.request.user
-        if not current_user.is_authenticated:
-            context['favorite_status'] = 'Add to Favorites'
-            return context
-        favorite = self.get_favorite(current_user)
-        article = self.kwargs['article']
-        if not favorite or article not in favorite.articles.all():
-            context['favorite_status'] = 'Add to Favorites'
+    def set_favorite_status(self, user, article):
+        if not user.is_authenticated:
+            return 'Add to Favorites'
+        favorite = self.get_favorite(user)
+        if (not favorite) or (article not in favorite.articles.all()):
+            return 'Add to Favorites'
         else:
-            context['favorite_status'] = 'Remove from favorites'
-        return context
+            return 'Remove from Favorites'
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(request, self.nonexistent_template)
+        favorite_status = self.set_favorite_status(current_user, article)
+        return render(request, self.template_name, {'article': article,
+                                                    'favorite_status': favorite_status,
+                                                    'show_content': False})
+
+    def post(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        if current_user.is_authenticated:
+            article.times_read += 1
+            article.save()
+        favorite_status = self.set_favorite_status(current_user, article)
+        return render(request, self.template_name, {'article': article,
+                                                    'favorite_status': favorite_status,
+                                                    'show_content': True})

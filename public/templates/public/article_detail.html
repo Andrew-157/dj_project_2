@@ -3,6 +3,15 @@
 {% block content %}
     <div class="container py-5">
         <p>{{ article }}</p>
+        <p>{{ article.times_read }}</p>
+        {% if not show_content %}
+            <form action="{% url 'public:article-detail' article.id %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Read</button>
+            </form>
+        {% else %}
+            <p>{{ article.content }}</p>
+        {% endif %}
         <form action="{% url 'personal:manage-favorites' article.id %}">
             {% csrf_token %}
             <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
