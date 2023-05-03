@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from django.views import View
 from users.models import CustomUser
-from core.models import SocialMedia, UserDescription, Article, FavoriteArticles
+from core.models import SocialMedia, UserDescription, Article, FavoriteArticles, Reaction
 
 
 class AboutPageView(View):
@@ -82,3 +82,74 @@ class ArticleDetailView(View):
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': True})
+
+
+class LeaveReactionBaseClass(View):
+    is_dislike = False
+    is_like = False
+    info_message = ''
+    redirect_to = 'public:article-detail'
+    nonexistent_template = 'core/nonexistent.html'
+
+    def get_article(self, pk):
+        return Article.objects.filter(pk=pk).first()
+
+    def get_reaction(self, user, article):
+        return Reaction.objects.\
+            select_related('user').\
+            select_related('article').\
+            filter(
+                Q(article=article) &
+                Q(user=user)
+            ).first()
+
+    def leave_dislike(self, user, article: Article, reaction: Reaction):
+        if reaction:
+            if reaction.value == 1:
+                reaction.value = -1
+                reaction.save()
+            elif reaction.value == -1:
+                reaction.delete()
+        else:
+            reaction = Reaction(user=user,
+                                article=article,
+                                value=-1)
+            reaction.save()
+
+    def leave_like(self, user, article: Article, reaction: Reaction):
+        if reaction:
+            if reaction.value == -1:
+                reaction.value = 1
+                reaction.save()
+            elif reaction.value == 1:
+                reaction.delete()
+        else:
+            reaction = Reaction(user=user,
+                                article=article,
+                                value=1)
+            reaction.save()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(self.nonexistent_template)
+        if not current_user.is_authenticated:
+            messages.info(request, self.info_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
+        reaction = self.get_reaction(current_user, article)
+        if self.is_dislike:
+            self.leave_dislike(current_user, article, reaction)
+        if self.is_like:
+            self.leave_like(current_user, article, reaction)
+        return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
+
+
+class LeaveLikeView(LeaveReactionBaseClass):
+    is_like = True
+    info_message = 'You cannot leave like while you are not authenticated'
+
+
+class LeaveDislikeView(LeaveReactionBaseClass):
+    is_dislike = True
+    info_message = 'You cannot leave dislike while you are not authenticated'
