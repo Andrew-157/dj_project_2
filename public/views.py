@@ -11,6 +11,7 @@ from django.views.generic import ListView, DetailView
 from django.views import View
 from users.models import CustomUser
 from core.models import SocialMedia, UserDescription, Article, FavoriteArticles, Reaction
+from public.forms import CommentArticleForm
 
 
 class AboutPageView(View):
@@ -177,3 +178,40 @@ class LeaveLikeView(LeaveReactionBaseClass):
 class LeaveDislikeView(LeaveReactionBaseClass):
     is_dislike = True
     info_message = 'You cannot leave dislike while you are not authenticated'
+
+
+class CommentArticleView(View):
+    nonexistent_template = 'core/nonexistent.html'
+    redirect_to = 'public:article-detail'
+    form_class = CommentArticleForm
+    info_message = 'To leave a comment on this article,please become an authenticated user.'
+    success_message = 'You successfully published a comment on this article.'
+    template_name = 'public/comment_article.html'
+
+    def get_article(self, pk):
+        return Article.objects.select_related('author').filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(self.nonexistent_template)
+        if not current_user.is_authenticated:
+            messages.info(request, self.info_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form, 'article': article})
+
+    def post(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.instance.article = article
+            form.instance.user = current_user
+            if current_user == article.author:
+                form.instance.is_article_author = True
+            form.save()
+            messages.success(request, self.success_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
+        return render(request, self.template_name, {'form': form, 'article': article})

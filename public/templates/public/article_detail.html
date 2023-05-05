@@ -27,5 +27,6 @@
             {% csrf_token %}
             <button class="btn btn-primary" type="submit">Dislike</button>
         </form>
+        <a href="{% url 'public:comment-article' article.id %}">Leave comment</a>
     </div>
 {% endblock%}

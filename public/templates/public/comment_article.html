@@ -1,0 +1,13 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <div class="container py-5">
+        <h1>You are leaving comment on article "{{article.title}}"</h1>
+        <form action="{% url 'public:comment-article' article.id %}" method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="btn btn-primary" type="submit">Comment</button>
+        </form>
+    </div>
+{% endblock %}

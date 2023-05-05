@@ -10,5 +10,7 @@ urlpatterns = [
     path('public/articles/<int:pk>/like/',
          views.LeaveLikeView.as_view(), name='like-article'),
     path('public/articles/<int:pk>/dislike/',
-         views.LeaveDislikeView.as_view(), name='dislike-article')
+         views.LeaveDislikeView.as_view(), name='dislike-article'),
+    path('public/articles/<int:pk>/comment/',
+         views.CommentArticleView.as_view(), name='comment-article')
 ]
