@@ -416,3 +416,36 @@ class ClearDislikesView(ClearReactionsBaseClass):
     reaction_value = -1
     success_message = 'You successfully cleared your dislikes'
     redirect_to = 'personal:disliked-articles'
+
+
+class DeleteSingleReactionBaseClass(View):
+    redirect_to = ''
+    success_message = ''
+    nonexistent_template = 'core/nonexistent.html'
+    not_yours_template = 'core/not_yours.html'
+
+    def get_reaction(self, pk):
+        return Reaction.objects.\
+            select_related('user').\
+            filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        reaction = self.get_reaction(self.kwargs['pk'])
+        if not reaction:
+            return render(request, self.nonexistent_template)
+        if reaction.user != current_user:
+            return render(request, self.not_yours_template)
+        reaction.delete()
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_to)
+
+
+class DeleteLikeView(DeleteSingleReactionBaseClass):
+    redirect_to = 'personal:liked-articles'
+    success_message = 'You successfully deleted one like reaction'
+
+
+class DeleteDislikeView(DeleteSingleReactionBaseClass):
+    redirect_to = 'personal:disliked-articles'
+    success_message = 'You successfully deleted one dislike reaction'

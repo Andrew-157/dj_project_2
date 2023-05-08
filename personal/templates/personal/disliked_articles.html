@@ -19,7 +19,7 @@
     </form>
     {% for ro in reaction_objects %}
     <p>You disliked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
-        on {{ro.reaction_date.date }}</p>
+        on {{ro.reaction_date.date }} <a href="{% url 'personal:delete-dislike' ro.id %}">Delete dislike</a></p>
     {% endfor %}
 </div>
 {% endblock %}

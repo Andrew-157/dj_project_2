@@ -35,5 +35,9 @@ urlpatterns = [
          views.ClearLikesView.as_view(), name='clear-likes'),
     path('personal/articles/disliked/clear/',
          views.ClearDislikesView.as_view(), name='clear-dislikes'),
+    path('personal/likes/<int:pk>/delete/',
+         views.DeleteLikeView.as_view(), name='delete-like'),
+    path('personal/dislikes/<int:pk>/delete/',
+         views.DeleteDislikeView.as_view(), name='delete-dislike')
 
 ]
