@@ -27,8 +27,6 @@
             {% csrf_token %}
             <button class="btn btn-primary" type="submit">Dislike</button>
         </form>
-    </div>
-    <div class="container py-5">
         <a href="{% url 'public:comment-article' article.id %}">Leave comment</a>
         {% if not comments %}
             <p>No comments were left on this article </p>
@@ -38,17 +36,19 @@
             {% else %}
                 <p>{{ comments|length }} comments were left on this article</p>
             {% endif %}
-            {% for comment in comments %}
-                <p>{{ comment.content }}</p>
-                {% if user == comment.user %}
-                    <p>Comment was left by you on {{ comment.pub_date.date }}</p>
-                    <a href="{% url 'public:delete-comment' comment.id %}">Delete your comment</a>
-                {% elif comment.is_article_author %}
-                    <p>Comment was left by <strong>author</strong> on {{ comment.pub_date.date }}</p>
-                {% else %}
-                    <p>Comment was left by {{ comment.user }} on {{ comment.pub_date.date }}</p>
-                {% endif %}
-            {% endfor %}
+            <div class="container py-5">
+                {% for comment in comments %}
+                    <p><strong>Comment:</strong> {{ comment.content }}</p>
+                    {% if user == comment.user %}
+                        <p>Comment was left by you on {{ comment.pub_date.date }}</p>
+                        <a href="{% url 'public:delete-comment' comment.id %}">Delete your comment</a>
+                    {% elif comment.is_article_author %}
+                        <p>Comment was left by <strong>author</strong> on {{ comment.pub_date.date }}</p>
+                    {% else %}
+                        <p>Comment was left by {{ comment.user }} on {{ comment.pub_date.date }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
         {% endif %}
     </div>
 {% endblock%}
