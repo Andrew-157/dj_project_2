@@ -2,6 +2,7 @@ from typing import Any, Dict
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
+from django.db.models import Count
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, redirect
@@ -352,29 +353,35 @@ class ReactedArticlesBaseClass(ListView):
     LikedArticlesView and DislikedArticlesView,
     both views will be using the same template,
     but with different message_to_user shown
-    and depending on boolean variables liked_articles and disliked_article,
+    and depending on boolean variables liked and disliked,
     buttons to delete liked or disliked article
     """
     reaction_value = None
     model = Reaction
-    context_object_name = 'articles'
-    message_to_user = ''
-    template_name = 'personal/reacted_articles.html'
-    liked_articles = False
-    disliked_articles = False
+    context_object_name = 'reaction_objects'
+    template_name = ''
 
     def get_queryset(self):
         current_user = self.request.user
         return Reaction.objects.\
             select_related('user').\
             select_related('article').\
+            order_by('-reaction_date').\
             filter(
                 Q(user=current_user) &
                 Q(value=self.reaction_value)
             ).all()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['liked_articles'] = self.liked_articles
-        context['disliked_articles'] = self.disliked_articles
-        context['message_to_user'] = self.message_to_user
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class LikedArticlesView(ReactedArticlesBaseClass):
+    reaction_value = 1
+    template_name = 'personal/liked_articles.html'
+
+
+class DislikedArticlesView(ReactedArticlesBaseClass):
+    reaction_value = -1
+    template_name = 'personal/disliked_articles.html'
