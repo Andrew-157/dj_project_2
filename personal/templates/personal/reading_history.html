@@ -10,7 +10,7 @@
         {% if user_readings %}
             {% for ur in user_readings %}
                 <p>-- You read article <a href="{% url 'public:article-detail' ur.article.id%}">"{{ur.article.title}}"</a>
-                on {{ ur.date_read.date }}</p>
+                on {{ ur.date_read.date }} <a href="{% url 'personal:delete-reading' ur.id %}">Delete from history</a></p>
             {% endfor %}
         {% else %}
             <p>Your reading history is empty</p>

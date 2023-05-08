@@ -316,3 +316,30 @@ class ClearReadingHistory(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class DeleteUserReading(View):
+    success_message = 'You successfully deleted info about reading this article\
+        from your reading history'
+    not_yours_template = 'core/not_yours.html'
+    redirect_to = 'personal:reading-history'
+    nonexistent_template = 'core/nonexistent.html'
+
+    def get_user_reading(self, pk):
+        return UserReading.objects.select_related('user').\
+            filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        user_reading = self.get_user_reading(self.kwargs['pk'])
+        if not user_reading:
+            return render(request, self.nonexistent_template)
+        if user_reading.user != current_user:
+            return render(request, self.not_yours_template)
+        user_reading.delete()
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_to)
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)

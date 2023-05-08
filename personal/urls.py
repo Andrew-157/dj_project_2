@@ -24,5 +24,7 @@ urlpatterns = [
     path('personal/reading_history/', views.ReadingHistory.as_view(),
          name='reading-history'),
     path('personal/reading_history/clear/', views.ClearReadingHistory.as_view(),
-         name='clear-reading-history')
+         name='clear-reading-history'),
+    path('personal/reading_history/<int:pk>/delete/', views.DeleteUserReading.as_view(),
+         name='delete-reading')
 ]
