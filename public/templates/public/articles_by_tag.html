@@ -1,0 +1,8 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+<p>{{ tag }}</p>
+{% for article in articles %}
+<p>{{article.title}}</p>
+{% endfor %}
+{% endblock %}

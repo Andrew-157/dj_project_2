@@ -18,5 +18,7 @@ urlpatterns = [
     path('public/articles/<int:pk>/favorites/manage/',
          views.AddRemoveFavoriteArticle.as_view(), name='manage-favorites'),
     path('public/articles/<int:pk>/author/subscribe/',
-         views.SubscribeUnsubscribeThroughArticleDetail.as_view(), name='subscription-manage')
+         views.SubscribeUnsubscribeThroughArticleDetail.as_view(), name='subscription-manage'),
+    path('public/articles/tags/<str:tag>/',
+         views.ArticlesByTag.as_view(), name='articles-tag')
 ]

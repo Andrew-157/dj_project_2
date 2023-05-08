@@ -1,5 +1,7 @@
+from typing import Any, Dict
 from django.db import models
 from django.db.models import Avg
+from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,6 +12,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from django.views import View
+from taggit.models import Tag
 from users.models import CustomUser
 from core.models import Subscription, SocialMedia, UserDescription, Article, FavoriteArticles, Reaction, Comment, UserReading
 from public.forms import CommentArticleForm
@@ -389,3 +392,24 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
             success_message = self.success_message_unsubscribed
         messages.success(request, success_message)
         return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id,)))
+
+
+class ArticlesByTag(ListView):
+    model = Article
+    context_object_name = 'articles'
+    template_name = 'public/articles_by_tag.html'
+
+    def get_queryset(self):
+        tag = self.kwargs['tag']
+        tag_object = Tag.objects.filter(slug=tag).first()
+        articles = Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(tags=tag_object).\
+            order_by('-times_read').all()
+        return articles
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = ' '.join(self.kwargs['tag'].split('-'))
+        return context
