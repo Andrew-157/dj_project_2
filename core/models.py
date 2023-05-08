@@ -52,6 +52,7 @@ class Reaction(models.Model):
     value = models.SmallIntegerField()
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     article = models.ForeignKey('core.Article', on_delete=models.CASCADE)
+    reaction_date = models.DateTimeField(auto_now_add=True)
 
 
 class Comment(models.Model):
