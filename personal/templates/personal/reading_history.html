@@ -3,9 +3,17 @@
 {% block content %}
     <div class="container py-5">
         <h1>Your reading history</h1>
-        {% for ur in user_readings %}
-            <p>-- You read article <a href="{% url 'public:article-detail' ur.article.id%}">"{{ur.article.title}}"</a>
-            on {{ ur.date_read.date }}</p>
-        {% endfor %}
+        <form action="{% url 'personal:clear-reading-history' %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">Clear your reading history</button>
+        </form>
+        {% if user_readings %}
+            {% for ur in user_readings %}
+                <p>-- You read article <a href="{% url 'public:article-detail' ur.article.id%}">"{{ur.article.title}}"</a>
+                on {{ ur.date_read.date }}</p>
+            {% endfor %}
+        {% else %}
+            <p>Your reading history is empty</p>
+        {% endif %}
     </div>
 {% endblock %}

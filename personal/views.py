@@ -299,3 +299,20 @@ class ReadingHistory(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class ClearReadingHistory(View):
+    success_message = 'You successfully cleared your reading history'
+    redirect_to = 'personal:reading-history'
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        user_readings = UserReading.objects.\
+            select_related('user').filter(user=current_user).all()
+        user_readings.delete()
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_to)
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
