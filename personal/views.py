@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic.edit import CreateView
-from core.models import Article, SocialMedia, UserDescription, FavoriteArticles
+from core.models import Article, SocialMedia, UserDescription, FavoriteArticles, UserReading
 from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm, PublishUpdateUserDescriptionForm
 
 
@@ -282,3 +282,20 @@ class AddRemoveFavoriteArticle(View):
             favorite.articles.remove(article)
             messages.success(request, self.success_remove)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
+
+
+class ReadingHistory(View):
+    template_name = 'personal/reading_history.html'
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        user_readings = UserReading.objects.\
+            select_related('user').\
+            select_related('article').\
+            filter(user=current_user).\
+            order_by('-date_read').all()
+        return render(request, self.template_name, {'user_readings': user_readings})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)

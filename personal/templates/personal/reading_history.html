@@ -1,0 +1,11 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+    <div class="container py-5">
+        <h1>Your reading history</h1>
+        {% for ur in user_readings %}
+            <p>-- You read article <a href="{% url 'public:article-detail' ur.article.id%}">"{{ur.article.title}}"</a>
+            on {{ ur.date_read.date }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}
