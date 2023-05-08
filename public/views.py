@@ -3,14 +3,14 @@ from django.db.models import Avg
 from django.db.models.query_utils import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from django.views import View
 from users.models import CustomUser
-from core.models import SocialMedia, UserDescription, Article, FavoriteArticles, Reaction
+from core.models import SocialMedia, UserDescription, Article, FavoriteArticles, Reaction, Comment
 from public.forms import CommentArticleForm
 
 
@@ -49,6 +49,12 @@ class ArticleDetailView(View):
             select_related('author').\
             prefetch_related('tags').\
             filter(pk=pk).first()
+
+    def get_comments(self, article):
+        return Comment.objects.\
+            select_related('article').\
+            select_related('user').\
+            filter(article=article).all()
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
@@ -90,10 +96,12 @@ class ArticleDetailView(View):
             return render(request, self.nonexistent_template)
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
+        comments = self.get_comments(article)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': False,
-                                                    'reaction_status': reaction_status})
+                                                    'reaction_status': reaction_status,
+                                                    'comments': comments})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -103,10 +111,12 @@ class ArticleDetailView(View):
             article.save()
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
+        comments = self.get_comments(article)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': True,
-                                                    'reaction_status': reaction_status})
+                                                    'reaction_status': reaction_status,
+                                                    'comments': comments})
 
 
 class LeaveReactionBaseClass(View):
@@ -215,3 +225,30 @@ class CommentArticleView(View):
             messages.success(request, self.success_message)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
         return render(request, self.template_name, {'form': form, 'article': article})
+
+
+class DeleteCommentView(View):
+    nonexistent_template = 'core/nonexistent.html'
+    not_yours_template = 'core/not_yours.html'
+    redirect_to = 'public:article-detail'
+    success_message = 'You successfully deleted your comment on this article'
+
+    def get_comment(self, pk):
+        return Comment.objects.\
+            select_related('article').\
+            select_related('user').filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        comment = self.get_comment(self.kwargs['pk'])
+        if not comment:
+            return render(request, self.nonexistent_template)
+        if comment.user != current_user:
+            return render(request, self.not_yours_template)
+        article_id = comment.article.id
+        comment.delete()
+        return HttpResponseRedirect(reverse(self.redirect_to, args=(article_id, )))
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
