@@ -1,54 +1,54 @@
 {% extends 'core/header.html' %}
 
 {% block content %}
+<div class="container py-5">
+    <p>{{ article }}</p>
+    <p>{{ article.times_read }}</p>
+    {% if not show_content %}
+    <form action="{% url 'public:article-detail' article.id %}" method="post">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Read</button>
+    </form>
+    {% else %}
+    <p>{{ article.content }}</p>
+    {% endif %}
+    <form action="{% url 'public:manage-favorites' article.id %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
+    </form>
+    {% if reaction_status %}
+    <p>{{ reaction_status }}</p>
+    {% endif %}
+    <form action="{% url 'public:like-article' article.id %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Like</button>
+    </form>
+    <form action="{% url 'public:dislike-article' article.id %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Dislike</button>
+    </form>
+    <a href="{% url 'public:comment-article' article.id %}">Leave comment</a>
+    {% if not comments %}
+    <p>No comments were left on this article </p>
+    {% else %}
+    {% if comments|length == 1 %}
+    <p>1 comment was left on this article </p>
+    {% else %}
+    <p>{{ comments|length }} comments were left on this article</p>
+    {% endif %}
     <div class="container py-5">
-        <p>{{ article }}</p>
-        <p>{{ article.times_read }}</p>
-        {% if not show_content %}
-            <form action="{% url 'public:article-detail' article.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-primary" type="submit">Read</button>
-            </form>
+        {% for comment in comments %}
+        <p><strong>Comment:</strong> {{ comment.content }}</p>
+        {% if user == comment.user %}
+        <p>Comment was left by you on {{ comment.pub_date.date }}</p>
+        <a href="{% url 'public:delete-comment' comment.id %}">Delete your comment</a>
+        {% elif comment.is_article_author %}
+        <p>Comment was left by <strong>author</strong> on {{ comment.pub_date.date }}</p>
         {% else %}
-            <p>{{ article.content }}</p>
+        <p>Comment was left by {{ comment.user }} on {{ comment.pub_date.date }}</p>
         {% endif %}
-        <form action="{% url 'personal:manage-favorites' article.id %}">
-            {% csrf_token %}
-            <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
-        </form>
-        {% if reaction_status %}
-            <p>{{ reaction_status }}</p>
-        {% endif %}
-        <form action="{% url 'public:like-article' article.id %}">
-            {% csrf_token %}
-            <button class="btn btn-primary" type="submit">Like</button>
-        </form>
-        <form action="{% url 'public:dislike-article' article.id %}">
-            {% csrf_token %}
-            <button class="btn btn-primary" type="submit">Dislike</button>
-        </form>
-        <a href="{% url 'public:comment-article' article.id %}">Leave comment</a>
-        {% if not comments %}
-            <p>No comments were left on this article </p>
-        {% else %}
-            {% if comments|length == 1 %}
-                <p>1 comment was left on this article </p>
-            {% else %}
-                <p>{{ comments|length }} comments were left on this article</p>
-            {% endif %}
-            <div class="container py-5">
-                {% for comment in comments %}
-                    <p><strong>Comment:</strong> {{ comment.content }}</p>
-                    {% if user == comment.user %}
-                        <p>Comment was left by you on {{ comment.pub_date.date }}</p>
-                        <a href="{% url 'public:delete-comment' comment.id %}">Delete your comment</a>
-                    {% elif comment.is_article_author %}
-                        <p>Comment was left by <strong>author</strong> on {{ comment.pub_date.date }}</p>
-                    {% else %}
-                        <p>Comment was left by {{ comment.user }} on {{ comment.pub_date.date }}</p>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        {% endif %}
+        {% endfor %}
     </div>
+    {% endif %}
+</div>
 {% endblock%}

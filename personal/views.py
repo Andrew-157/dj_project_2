@@ -240,52 +240,6 @@ class DeleteUserDescriptionView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
-class AddRemoveFavoriteArticle(View):
-    nonexistent_template = 'core/nonexistent.html'
-    redirect_to = 'public:article-detail'
-    success_remove = 'You successfully removed this article from your favorites'
-    success_add = 'You successfully added this article to your favorites'
-    info_message = 'Please, become an authenticated user to add this article to your favorites'
-
-    def get_favorite(self, user):
-        return FavoriteArticles.objects.\
-            prefetch_related('articles').filter(user=user).first()
-
-    def get_article(self, pk):
-        return Article.objects.filter(pk=pk).first()
-
-    def get(self, request, *args, **kwargs):
-        current_user = request.user
-        article = self.get_article(self.kwargs['pk'])
-        if not article:
-            return render(request, self.nonexistent_template)
-        if not current_user.is_authenticated:
-            messages.info(request, self.info_message)
-            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
-        favorite = self.get_favorite(current_user)
-        if not favorite:
-            # If user have never added any articles to favorites
-            # then when they hit this view we both create new instance of
-            # FavoriteArticles and add new article in many-to-many relationship
-            # between FavoriteArticles and Article models
-            favorite = FavoriteArticles(user=current_user).save()
-            favorite.articles.add(article)
-            messages.success(request, self.success_add)
-            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
-        # If user already has FavoriteArticles instance
-        # we check if article in many-to-many relationship
-        if article not in favorite.articles.all():
-            # If not we add and return appropriate message about it
-            favorite.articles.add(article)
-            messages.success(request, self.success_add)
-            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
-        else:
-            # If it article is there, we remove it and return appropriate message about it
-            favorite.articles.remove(article)
-            messages.success(request, self.success_remove)
-            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
-
-
 class ReadingHistory(View):
     template_name = 'personal/reading_history.html'
 
