@@ -31,4 +31,9 @@ urlpatterns = [
          views.LikedArticlesView.as_view(), name='liked-articles'),
     path('personal/articles/disliked/',
          views.DislikedArticlesView.as_view(), name='disliked-articles'),
+    path('personal/articles/liked/clear/',
+         views.ClearLikesView.as_view(), name='clear-likes'),
+    path('personal/articles/disliked/clear/',
+         views.ClearDislikesView.as_view(), name='clear-dislikes'),
+
 ]

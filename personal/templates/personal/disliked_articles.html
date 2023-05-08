@@ -2,6 +2,10 @@
 
 {% block content %}
 <div class="container py-5">
+    <form action="{% url 'personal:clear-dislikes' %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Clear all your dislikes</button>
+    </form>
     {% if not reaction_objects %}
     <h1>You have not disliked any articles yet</h1>
     {% elif reaction_objects|length == 1 %}
@@ -9,6 +13,10 @@
     {% else %}
     <h1>You disliked {{ reaction_objects|length }} articles </h1>
     {% endif %}
+    <form action="{% url 'personal:clear-dislikes' %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Clear all your dislikes</button>
+    </form>
     {% for ro in reaction_objects %}
     <p>You disliked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
         on {{ro.reaction_date.date }}</p>

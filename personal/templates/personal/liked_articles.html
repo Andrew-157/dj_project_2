@@ -9,6 +9,10 @@
     {% else %}
     <h1>You liked {{ reaction_objects|length }} articles </h1>
     {% endif %}
+    <form action="{% url 'personal:clear-likes' %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">Clear all your likes</button>
+    </form>
     {% for ro in reaction_objects %}
     <p>You liked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
         on {{ro.reaction_date.date }}</p>

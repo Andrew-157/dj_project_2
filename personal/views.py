@@ -348,14 +348,6 @@ class DeleteUserReading(View):
 
 
 class ReactedArticlesBaseClass(ListView):
-    """
-    This class will be used as parent class for
-    LikedArticlesView and DislikedArticlesView,
-    both views will be using the same template,
-    but with different message_to_user shown
-    and depending on boolean variables liked and disliked,
-    buttons to delete liked or disliked article
-    """
     reaction_value = None
     model = Reaction
     context_object_name = 'reaction_objects'
@@ -385,3 +377,42 @@ class LikedArticlesView(ReactedArticlesBaseClass):
 class DislikedArticlesView(ReactedArticlesBaseClass):
     reaction_value = -1
     template_name = 'personal/disliked_articles.html'
+
+
+class ClearReactionsBaseClass(View):
+    success_message = ''
+    reaction_value = None
+    redirect_to = ''
+
+    def get_reactions(self, user):
+        return Reaction.objects.\
+            select_related('user').\
+            select_related('article').\
+            order_by('-reaction_date').\
+            filter(
+                Q(user=user) &
+                Q(value=self.reaction_value)
+            ).all()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        reactions = self.get_reactions(current_user)
+        reactions.delete()
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_to)
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ClearLikesView(ClearReactionsBaseClass):
+    reaction_value = 1
+    success_message = 'You successfully cleared your likes'
+    redirect_to = 'personal:liked-articles'
+
+
+class ClearDislikesView(ClearReactionsBaseClass):
+    reaction_value = -1
+    success_message = 'You successfully cleared your dislikes'
+    redirect_to = 'personal:disliked-articles'
