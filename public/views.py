@@ -6,11 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from django.views import View
 from users.models import CustomUser
-from core.models import SocialMedia, UserDescription, Article, FavoriteArticles, Reaction, Comment
+from core.models import SocialMedia, UserDescription, Article, FavoriteArticles, Reaction, Comment, UserReading
 from public.forms import CommentArticleForm
 
 
@@ -54,11 +55,21 @@ class ArticleDetailView(View):
         return Comment.objects.\
             select_related('article').\
             select_related('user').\
+            order_by('-pub_date').\
             filter(article=article).all()
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
             filter(user=user).prefetch_related('articles').first()
+
+    def get_user_reading(self, article, user):
+        return UserReading.objects.\
+            select_related('user').\
+            select_related('article').\
+            filter(
+                Q(article=article) &
+                Q(user=user)
+            ).first()
 
     def get_reaction(self, user, article):
         return Reaction.objects.\
@@ -112,6 +123,16 @@ class ArticleDetailView(View):
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
         comments = self.get_comments(article)
+        if current_user.is_authenticated:
+            user_reading = self.get_user_reading(article, current_user)
+            if not user_reading:
+                user_reading = UserReading(user=current_user,
+                                           article=article,
+                                           date_read=timezone.now())
+                user_reading.save()
+            else:
+                user_reading.date_read = timezone.now()
+                user_reading.save()
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': True,
