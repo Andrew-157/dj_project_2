@@ -62,7 +62,7 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
 
-class UserReadings(models.Model):
+class UserReading(models.Model):
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     article = models.ForeignKey('core.Article', on_delete=models.CASCADE)
     date_read = models.DateTimeField()
