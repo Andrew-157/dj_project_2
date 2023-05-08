@@ -67,3 +67,10 @@ class UserReading(models.Model):
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     article = models.ForeignKey('core.Article', on_delete=models.CASCADE)
     date_read = models.DateTimeField()
+
+
+class Subscription(models.Model):
+    subscriber = models.ForeignKey(
+        'users.CustomUser', related_name='subscriber', on_delete=models.CASCADE)
+    subscribe_to = models.ForeignKey(
+        'users.CustomUser', related_name='subscribe_to', on_delete=models.CASCADE)
