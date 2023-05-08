@@ -2,7 +2,11 @@
 
 {% block content %}
 <div class="container py-5">
+    <form action="{% url 'public:subscription-manage' article.id %}" method="get">
+        <button class="btn btn-primary" type="submit">{{subscription_status}}</button>
+    </form>
     <p>{{ article }}</p>
+    <p>{{article.author}}</p>
     <p>{{ article.times_read }}</p>
     {% if not show_content %}
     <form action="{% url 'public:article-detail' article.id %}" method="post">

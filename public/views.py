@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from django.views import View
 from users.models import CustomUser
-from core.models import SocialMedia, UserDescription, Article, FavoriteArticles, Reaction, Comment, UserReading
+from core.models import Subscription, SocialMedia, UserDescription, Article, FavoriteArticles, Reaction, Comment, UserReading
 from public.forms import CommentArticleForm
 
 
@@ -62,6 +62,12 @@ class ArticleDetailView(View):
         return FavoriteArticles.objects.\
             filter(user=user).prefetch_related('articles').first()
 
+    def get_subscription(self, user, author):
+        return Subscription.objects.filter(
+            Q(subscriber=user) &
+            Q(subscribe_to=author)
+        ).first()
+
     def get_user_reading(self, article, user):
         return UserReading.objects.\
             select_related('user').\
@@ -100,6 +106,15 @@ class ArticleDetailView(View):
         else:
             return 'You disliked this article'
 
+    def set_subscription_status(self, user, author):
+        if not user.is_authenticated:
+            return 'Subscribe'
+        subscription = self.get_subscription(user, author)
+        if not subscription:
+            return 'Subscribe'
+        else:
+            return 'Unsubscribe'
+
     def get(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
@@ -107,12 +122,15 @@ class ArticleDetailView(View):
             return render(request, self.nonexistent_template)
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
+        subscription_status = self.set_subscription_status(
+            current_user, article.author)
         comments = self.get_comments(article)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': False,
                                                     'reaction_status': reaction_status,
-                                                    'comments': comments})
+                                                    'comments': comments,
+                                                    'subscription_status': subscription_status})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -123,6 +141,8 @@ class ArticleDetailView(View):
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
         comments = self.get_comments(article)
+        subscription_status = self.get_subscription(
+            current_user, article.author)
         if current_user.is_authenticated:
             user_reading = self.get_user_reading(article, current_user)
             if not user_reading:
@@ -137,7 +157,8 @@ class ArticleDetailView(View):
                                                     'favorite_status': favorite_status,
                                                     'show_content': True,
                                                     'reaction_status': reaction_status,
-                                                    'comments': comments})
+                                                    'comments': comments,
+                                                    'subscription_status': subscription_status})
 
 
 class AddRemoveFavoriteArticle(View):
@@ -184,8 +205,8 @@ class AddRemoveFavoriteArticle(View):
             favorite.articles.remove(article)
             messages.success(request, self.success_remove)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
-        
-        
+
+
 class LeaveReactionBaseClass(View):
     is_dislike = False
     is_like = False
@@ -319,3 +340,52 @@ class DeleteCommentView(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class SubscribeUnsubscribeThroughArticleDetail(View):
+    """
+    This view is called in 'article_detail.html' template,
+    and it redirects back to 'public:article-detail' view
+    """
+    nonexistent_template = 'core/nonexistent.html'
+    info_message_to_anonymous_user = 'You cannot subscribe while you are not authenticated'
+    info_message_to_auth_user = 'You cannot subscribe to yourself'
+    redirect_to = 'public:article-detail'
+    success_message_subscribed = 'You successfully subscribed to this author'
+    success_message_unsubscribed = 'You successfully unsubscribed from this author'
+
+    def get_article(self, pk):
+        return Article.objects.select_related('author').\
+            filter(pk=pk).first()
+
+    def get_subscription(self, user, author):
+        return Subscription.objects.filter(
+            Q(subscriber=user) &
+            Q(subscribe_to=author)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(request, self.nonexistent_template)
+        if not current_user.is_authenticated:
+            messages.info(request, self.info_message_to_anonymous_user)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id,)))
+        author = article.author
+        if author == current_user:
+            messages.info(request, self.info_message_to_auth_user)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id,)))
+        subscription = self.get_subscription(current_user, author)
+        if not subscription:
+            subscription = Subscription(
+                subscriber=current_user,
+                subscribe_to=author
+            )
+            subscription.save()
+            success_message = self.success_message_subscribed
+        else:
+            subscription.delete()
+            success_message = self.success_message_unsubscribed
+        messages.success(request, success_message)
+        return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id,)))

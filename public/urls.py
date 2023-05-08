@@ -15,6 +15,8 @@ urlpatterns = [
          views.CommentArticleView.as_view(), name='comment-article'),
     path('public/comments/<int:pk>/delete/',
          views.DeleteCommentView.as_view(), name='delete-comment'),
-    path('personal/articles/<int:pk>/favorites/manage/',
+    path('public/articles/<int:pk>/favorites/manage/',
          views.AddRemoveFavoriteArticle.as_view(), name='manage-favorites'),
+    path('public/articles/<int:pk>/author/subscribe/',
+         views.SubscribeUnsubscribeThroughArticleDetail.as_view(), name='subscription-manage')
 ]
