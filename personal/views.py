@@ -1,6 +1,7 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import models
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.db.models import Sum
@@ -9,7 +10,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from core.models import Subscription, Article, SocialMedia, UserDescription, FavoriteArticles, UserReading, Reaction
 from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm, PublishUpdateUserDescriptionForm
 
@@ -114,6 +115,52 @@ class SubscriptionsListView(ListView):
             select_related('subscribe_to').\
             filter(subscriber=current_user).all()
         return subscriptions
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ArticlesListView(ListView):
+    model = Article
+    template_name = 'personal/articles_list.html'
+    context_object_name = 'articles'
+
+    def get_queryset(self):
+        current_user = self.request.user
+        articles = Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(author=current_user).\
+            order_by('-pub_date').all()
+        return articles
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ArticleDetailView(DetailView):
+    model = Article
+    template_name = 'personal/article_detail.html'
+    context_object_name = 'article'
+    nonexistent_template = 'core/nonexistent.html'
+    not_yours_template = 'core/not_yours.html'
+    queryset = Article.objects.\
+        select_related('author').\
+        prefetch_related('tags').all()
+
+    def get_object(self):
+        article_pk = self.kwargs['pk']
+        article = Article.objects.select_related('author').\
+            filter(pk=article_pk).first()
+        if not article:
+            self.template_name = self.nonexistent_template
+            return None
+        elif article.author != self.request.user:
+            self.template_name = self.not_yours_template
+            return None
+        return super().get_object()
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

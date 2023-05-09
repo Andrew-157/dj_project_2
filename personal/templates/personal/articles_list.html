@@ -1,0 +1,19 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+<div class="container py-5">
+    {% if not articles %}
+    <h1>You have not published any articles yet</h1>
+    {% elif articles|length == 1 %}
+    <h1>You published one article </h1>
+    {% else %}
+    <h1>You published {{ articles|length }} articles </h1>
+    {% endif %}
+    <a href="">Publish new article</a>
+    <div class="container py-5">
+        {% for article in articles %}
+        {{ article.title }}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
