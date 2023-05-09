@@ -2,14 +2,17 @@
 
 {% block content %}
 <div class="container py-5">
-    <a href="{% url 'personal:about-page' %}">Your about page</a><br>
-    <a href="{% url 'personal:subscriptions-list' %}">Your subscriptions</a><br>
-    <a href="{% url 'personal:articles-list' %}">Your articles</a><br>
-    <p>You are subscribed to {{ subscriptions|length }} authors</p>
-    <p>You have {{ subscribers }} subscribers</p>
-    <p>Your articles:</p>
-    {% for article in articles %}
-    {{ article.title }}
-    {% endfor %}
+    <div class="container py-5">
+        <h1>This is your personal page, {{ user }}</h1>
+        <img src="{{ user.user_image.url }}" alt="User's image" style="width: 10%; float: left; margin-right: 10px;">
+    </div>
+    <div class="container py-5">
+        <a href="{% url 'personal:about-page' %}">Your about page</a><br>
+        <a href="{% url 'personal:subscriptions-list' %}">Your subscriptions</a><br>
+        <a href="{% url 'personal:articles-list' %}">Your articles</a><br>
+    </div>
+    <div class="container py-5">
+        <p>You have {{ subscribers }} subscribers</p>
+    </div>
 </div>
 {% endblock %}

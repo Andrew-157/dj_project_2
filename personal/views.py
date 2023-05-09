@@ -22,18 +22,10 @@ class PersonalPageView(View):
         return Subscription.objects.\
             filter(subscribe_to=user).all().count()
 
-    def get_articles(self, user):
-        return Article.objects.\
-            select_related('author').\
-            prefetch_related('tags').\
-            filter(author=user).all()
-
     def get(self, request, *args, **kwargs):
         current_user = request.user
         subscribers = self.get_subscribers(current_user)
-        articles = self.get_articles(current_user)
-        return render(request, self.template_name, {'subscribers': subscribers,
-                                                    'articles': articles})
+        return render(request, self.template_name, {'subscribers': subscribers})
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
