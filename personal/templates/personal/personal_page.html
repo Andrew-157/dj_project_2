@@ -1,7 +1,13 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-    <div class="container py-5">
-        <a href="{% url 'personal:about-page' %}">Your about page</a>
-    </div>
+<div class="container py-5">
+    <a href="{% url 'personal:about-page' %}">Your about page</a>
+    <p>You are subscribed to {{ subscriptions|length }} authors</p>
+    <p>You have {{ subscribers }} subscribers</p>
+    <p>Your articles:</p>
+    {% for article in articles %}
+    {{ article.title }}
+    {% endfor %}
+</div>
 {% endblock %}

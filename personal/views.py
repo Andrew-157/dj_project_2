@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import ListView
-from core.models import Article, SocialMedia, UserDescription, FavoriteArticles, UserReading, Reaction
+from core.models import Subscription, Article, SocialMedia, UserDescription, FavoriteArticles, UserReading, Reaction
 from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm, PublishUpdateUserDescriptionForm
 
 
@@ -75,6 +75,32 @@ class UpdateArticleView(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class PersonalPageView(View):
+    template_name = 'personal/personal_page.html'
+
+    def get_subscriptions(self, user):
+        return Subscription.objects.filter(subscriber=user).all()
+
+    def get_subscribers(self, user):
+        return Subscription.objects.\
+            filter(subscribe_to=user).all().count()
+
+    def get_articles(self, user):
+        return Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(author=user).all()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        subscriptions = self.get_subscriptions(current_user)
+        subscribers = self.get_subscribers(current_user)
+        articles = self.get_articles(current_user)
+        return render(request, self.template_name, {'subscriptions': subscriptions,
+                                                    'subscribers': subscribers,
+                                                    'articles': articles})
 
 
 class AboutPageView(View):

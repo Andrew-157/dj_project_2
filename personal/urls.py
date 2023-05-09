@@ -4,8 +4,7 @@ from . import views
 
 app_name = 'personal'
 urlpatterns = [
-    path('personal/', TemplateView.as_view(template_name='personal/personal_page.html'),
-         name='personal-page'),
+    path('personal/', views.PersonalPageView.as_view(), name='personal-page'),
     path('personal/articles/publish/',
          views.PublishArticleView.as_view(), name='publish-article'),
     path('personal/articles/<int:pk>/update/',
