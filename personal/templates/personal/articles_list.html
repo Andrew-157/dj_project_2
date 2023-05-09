@@ -10,10 +10,11 @@
     <h1>You published {{ articles|length }} articles </h1>
     {% endif %}
     <a href="">Publish new article</a>
+    {% for article in articles %}
     <div class="container py-5">
-        {% for article in articles %}
         {{ article.title }}
-        {% endfor %}
+        <a href="{% url 'personal:article-detail' article.id %}">More about this article</a>
     </div>
+    {% endfor %}
 </div>
 {% endblock %}
