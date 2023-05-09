@@ -1,0 +1,24 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="container py-5">
+        {% if not subscriptions %}
+        <h1>You are not subscribed to any author</h1>
+        {% elif subscriptions|length == 1 %}
+        <h1>You are subscribed to one author </h1>
+        {% else %}
+        <h1>You are subscribed to {{subscriptions|length}} authors</h1>
+        {% endif %}
+    </div>
+    {% for s in subscriptions %}
+    <div class="container py-5">
+        <a href="{% url 'public:author-page' s.subscribe_to.id %}">
+            <img src="{{ s.subscribe_to.user_image.url }}" alt="User image"
+                style="width: 5%; float: left; margin-right: 10px;">
+        </a><br>
+        <a href="{% url 'public:author-page' s.subscribe_to.id %}">{{s.subscribe_to}}</a><br>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

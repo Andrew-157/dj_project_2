@@ -1,6 +1,7 @@
 from typing import Any, Dict
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.db.models import Sum
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -69,7 +70,7 @@ class UpdateArticleView(View):
             obj.save()
             form.save_m2m()
             messages.success(request, self.success_message)
-            return redirect('personal:personal-page')
+            return redirect('public:article-detail')
         return render(request, self.template_name, {'form': form, 'article': article})
 
     @method_decorator(login_required)
@@ -79,9 +80,6 @@ class UpdateArticleView(View):
 
 class PersonalPageView(View):
     template_name = 'personal/personal_page.html'
-
-    def get_subscriptions(self, user):
-        return Subscription.objects.filter(subscriber=user).all()
 
     def get_subscribers(self, user):
         return Subscription.objects.\
@@ -95,12 +93,27 @@ class PersonalPageView(View):
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
-        subscriptions = self.get_subscriptions(current_user)
         subscribers = self.get_subscribers(current_user)
         articles = self.get_articles(current_user)
-        return render(request, self.template_name, {'subscriptions': subscriptions,
-                                                    'subscribers': subscribers,
+        return render(request, self.template_name, {'subscribers': subscribers,
                                                     'articles': articles})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SubscriptionsListView(ListView):
+    model = Subscription
+    template_name = 'personal/subscriptions_list.html'
+    context_object_name = 'subscriptions'
+
+    def get_queryset(self):
+        current_user = self.request.user
+        subscriptions = Subscription.objects.\
+            select_related('subscribe_to').\
+            filter(subscriber=current_user).all()
+        return subscriptions
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -173,9 +186,11 @@ class AboutPageView(View):
             return redirect(self.redirect_to)
         social_media_list = self.get_social_media(current_user)
         description = self.get_description(current_user)
+        readings = self.get_readings(current_user)['times_read__sum']
         return render(request, self.template_name, {'form': form,
                                                     'social_media_list': social_media_list,
-                                                    'description': description})
+                                                    'description': description,
+                                                    'readings': readings})
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

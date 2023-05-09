@@ -37,6 +37,8 @@ urlpatterns = [
     path('personal/likes/<int:pk>/delete/',
          views.DeleteLikeView.as_view(), name='delete-like'),
     path('personal/dislikes/<int:pk>/delete/',
-         views.DeleteDislikeView.as_view(), name='delete-dislike')
+         views.DeleteDislikeView.as_view(), name='delete-dislike'),
+    path('personal/subscriptions/',
+         views.SubscriptionsListView.as_view(), name='subscriptions-list')
 
 ]
