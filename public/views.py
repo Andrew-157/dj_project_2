@@ -413,3 +413,37 @@ class ArticlesByTag(ListView):
         context = super().get_context_data(**kwargs)
         context['tag'] = ' '.join(self.kwargs['tag'].split('-'))
         return context
+
+
+class SearchArticlesView(View):
+    nonexistent_template = 'core/nonexistent.html'
+    template_name = 'public/search_articles.html'
+
+    def get_articles(self, search_string):
+        return Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(
+                Q(title__icontains=search_string) |
+                Q(author__username__icontains=search_string)
+            ).order_by('-times_read').all()
+
+    def convert_tag_to_slug(self, tag: str):
+        if ' ' in tag:
+            return '-'.join(tag.split())
+        else:
+            return tag
+
+    def post(self, request, *args, **kwargs):
+        search_string = request.POST['search_string']
+        if not search_string:
+            return render(request, self.nonexistent_template)
+        if len(search_string) == 1 and search_string[0]:
+            return render(request, self.nonexistent_template)
+        if search_string[0] == '#':
+            tag = self.convert_tag_to_slug(search_string[1:])
+            return HttpResponseRedirect(reverse('public:articles-tag', args=(tag,)))
+        articles = self.get_articles(search_string)
+
+        return render(request, self.template_name, {'articles': articles,
+                                                    'search_string': search_string})

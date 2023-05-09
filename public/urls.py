@@ -20,5 +20,7 @@ urlpatterns = [
     path('public/articles/<int:pk>/author/subscribe/',
          views.SubscribeUnsubscribeThroughArticleDetail.as_view(), name='subscription-manage'),
     path('public/articles/tags/<str:tag>/',
-         views.ArticlesByTag.as_view(), name='articles-tag')
+         views.ArticlesByTag.as_view(), name='articles-tag'),
+    path('public/articles/search/',
+         views.SearchArticlesView.as_view(), name='search-articles')
 ]
