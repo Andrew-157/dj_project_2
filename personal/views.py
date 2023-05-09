@@ -102,6 +102,10 @@ class PersonalPageView(View):
                                                     'subscribers': subscribers,
                                                     'articles': articles})
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
 
 class AboutPageView(View):
     template_name = 'personal/about_page.html'
