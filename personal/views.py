@@ -2,7 +2,7 @@ from typing import Any, Dict
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
-from django.db.models import Count
+from django.db.models import Sum
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, redirect
@@ -107,6 +107,32 @@ class PersonalPageView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
+class DeleteArticleView(View):
+    nonexistent_template = 'core/nonexistent.html'
+    not_yours_template = 'core/not_yours.html'
+    success_message = 'You successfully deleted your article'
+    redirect_to = 'personal:personal-page'
+
+    def get_article(self, pk):
+        return Article.objects.\
+            select_related('author').filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(request, self.nonexistent_template)
+        if article.author != current_user:
+            return render(request, self.not_yours_template)
+        article.delete()
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_to)
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
 class AboutPageView(View):
     template_name = 'personal/about_page.html'
     form_class = PublishSocialMediaForm
@@ -123,14 +149,19 @@ class AboutPageView(View):
         return UserDescription.objects.\
             select_related('user').filter(user=user).first()
 
+    def get_readings(self, user):
+        return Article.objects.filter(author=user).all().aggregate(Sum('times_read'))
+
     def get(self, request, *args, **kwargs):
         current_user = request.user
         social_media_list = self.get_social_media(current_user)
         description = self.get_description(current_user)
         form = self.form_class()
+        readings = self.get_readings(current_user)['times_read__sum']
         return render(request, self.template_name, {'form': form,
                                                     'social_media_list': social_media_list,
-                                                    'description': description})
+                                                    'description': description,
+                                                    'readings': readings})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user

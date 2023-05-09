@@ -9,6 +9,8 @@ urlpatterns = [
          views.PublishArticleView.as_view(), name='publish-article'),
     path('personal/articles/<int:pk>/update/',
          views.UpdateArticleView.as_view(), name='update-article'),
+    path('personal/articles/<int:pk>/delete/',
+         views.DeleteArticleView.as_view(), name='delete-article'),
     path('personal/about/', views.AboutPageView.as_view(), name='about-page'),
     path('personal/about/social_media/<int:pk>/delete/',
          views.DeleteSocialMediaView.as_view(), name='social_media-delete'),

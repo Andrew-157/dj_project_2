@@ -3,6 +3,11 @@
 {% block content %}
 <div class="container py-5">
     <a href="{% url 'personal:about-page' %}">Your about page</a>
+    <div class="container py-5">
+        {% if not subscriptions %}
+        <h2>You are not subscribed to any authors</h2>
+        {% endif %}
+    </div>
     <p>You are subscribed to {{ subscriptions|length }} authors</p>
     <p>You have {{ subscribers }} subscribers</p>
     <p>Your articles:</p>
