@@ -2,9 +2,10 @@
 
 {% block content %}
 <div class="container py-5">
-    <form action="" method="get">
+    <form action="{% url 'public:subscription-through-author' author.id %}" method="get">
         <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
     </form>
+    <p>{{ subscribers }} subscribed</p>
     <h1>Author: {{ author }}</h1>
     {% for article in articles %}
     {{ article.title }}

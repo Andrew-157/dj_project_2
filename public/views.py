@@ -490,6 +490,51 @@ class AuthorPageView(View):
         articles = self.get_articles(author)
         subscription_status = self.set_subscription_status(
             current_user, author)
+        subscribers = self.get_subscribers(author)
         return render(request, self.template_name, {'author': author,
                                                     'articles': articles,
-                                                    'subscription_status': subscription_status})
+                                                    'subscription_status': subscription_status,
+                                                    'subscribers': subscribers})
+
+
+class SubscribeUnsubscribeThroughAuthorPageView(View):
+    nonexistent_template = 'core/nonexistent.html'
+    info_message_to_anonymous_user = 'You cannot subscribe while you are not authenticated'
+    info_message_to_auth_user = 'You cannot subscribe to yourself'
+    redirect_to = 'public:author-page'
+    success_message_subscribed = 'You successfully subscribed to this author'
+    success_message_unsubscribed = 'You successfully unsubscribed from this author'
+
+    def get_author(self, pk):
+        return CustomUser.objects.filter(pk=pk).first()
+
+    def get_subscription(self, user, author):
+        return Subscription.objects.filter(
+            Q(subscriber=user) &
+            Q(subscribe_to=author)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        author = self.get_author(self.kwargs['pk'])
+        if not author:
+            return render(request, self.nonexistent_template)
+        if not current_user.is_authenticated:
+            messages.info(request, self.info_message_to_anonymous_user)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(author.id, )))
+        if current_user == author:
+            messages.info(request, self.info_message_to_auth_user)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(author.id, )))
+        subscription = self.get_subscription(current_user, author)
+        if not subscription:
+            subscription = Subscription(
+                subscriber=current_user,
+                subscribe_to=author
+            )
+            subscription.save()
+            success_message = self.success_message_subscribed
+        else:
+            subscription.delete()
+            success_message = self.success_message_unsubscribed
+        messages.success(request, success_message)
+        return HttpResponseRedirect(reverse(self.redirect_to, args=(author.id, )))
