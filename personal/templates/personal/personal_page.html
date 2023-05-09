@@ -4,7 +4,8 @@
 <div class="container py-5">
     <a href="{% url 'personal:about-page' %}">Your about page</a><br>
     <a href="{% url 'personal:subscriptions-list' %}">Your subscriptions</a><br>
-    <a href="{% url 'personal:articles-list' %}">Your articles</a>
+    <a href="{% url 'personal:articles-list' %}">Your articles</a><br>
+    <a href="{% url 'personal:publish-article-personal' %}">Publish new article</a>
     <p>You are subscribed to {{ subscriptions|length }} authors</p>
     <p>You have {{ subscribers }} subscribers</p>
     <p>Your articles:</p>

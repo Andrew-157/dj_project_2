@@ -9,7 +9,7 @@
     {% else %}
     <h1>You published {{ articles|length }} articles </h1>
     {% endif %}
-    <a href="">Publish new article</a>
+    <a href="{% url 'personal:publish-article-list' %}">Publish new article</a>
     {% for article in articles %}
     <div class="container py-5">
         {{ article.title }}

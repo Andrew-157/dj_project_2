@@ -15,31 +15,6 @@ from core.models import Subscription, Article, SocialMedia, UserDescription, Fav
 from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm, PublishUpdateUserDescriptionForm
 
 
-class PublishArticleView(View):
-    form_class = PublishUpdateArticleForm
-    template_name = 'personal/publish_article.html'
-    success_message = 'You successfully published new article'
-
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, request.FILES)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            form.instance.author = request.user
-            obj.save()
-            form.save_m2m()
-            messages.success(request, self.success_message)
-            return redirect('personal:personal-page')
-        return render(request, self.template_name, {'form': form})
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-
 class UpdateArticleView(View):
     form_class = PublishUpdateArticleForm
     template_name = 'personal/update_article.html'
@@ -165,6 +140,48 @@ class ArticleDetailView(DetailView):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class PublishArticleBaseClass(View):
+    form_class = PublishUpdateArticleForm
+    template_name = ''
+    success_message = 'You successfully published new article'
+    redirect_to = ''
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            form.instance.author = request.user
+            obj.save()
+            form.save_m2m()
+            messages.success(request, self.success_message)
+            return redirect(self.redirect_to)
+        return render(request, self.template_name, {'form': form})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class PublishArticleThroughPersonalPage(PublishArticleBaseClass):
+    """
+    This view posts article and redirects to personal page
+    """
+    redirect_to = 'personal:personal-page'
+    template_name = 'personal/publish_article_personal.html'
+
+
+class PublishArticleThroughArticlesList(PublishArticleBaseClass):
+    """
+    This view posts article and redirects to articles list page
+    """
+    redirect_to = 'personal:articles-list'
+    template_name = 'personal/publish_article_list.html'
 
 
 class DeleteArticleView(View):
