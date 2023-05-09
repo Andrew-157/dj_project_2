@@ -144,13 +144,14 @@ class ArticleDetailView(DetailView):
 
 class PublishArticleBaseClass(View):
     form_class = PublishUpdateArticleForm
-    template_name = ''
+    template_name = 'personal/publish_article.html'
     success_message = 'You successfully published new article'
     redirect_to = ''
+    send_post_to = ''
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'send_post_to': self.send_post_to})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
@@ -161,7 +162,7 @@ class PublishArticleBaseClass(View):
             form.save_m2m()
             messages.success(request, self.success_message)
             return redirect(self.redirect_to)
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'send_post_to': self.send_post_to})
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -173,7 +174,8 @@ class PublishArticleThroughPersonalPage(PublishArticleBaseClass):
     This view posts article and redirects to personal page
     """
     redirect_to = 'personal:personal-page'
-    template_name = 'personal/publish_article_personal.html'
+    # template_name = 'personal/publish_article_personal.html'
+    send_post_to = 'personal:publish-article-personal'
 
 
 class PublishArticleThroughArticlesList(PublishArticleBaseClass):
@@ -181,7 +183,8 @@ class PublishArticleThroughArticlesList(PublishArticleBaseClass):
     This view posts article and redirects to articles list page
     """
     redirect_to = 'personal:articles-list'
-    template_name = 'personal/publish_article_list.html'
+    # template_name = 'personal/publish_article_list.html'
+    send_post_to = 'personal:publish-article-list'
 
 
 class DeleteArticleView(View):
