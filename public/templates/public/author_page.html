@@ -1,0 +1,14 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <form action="" method="get">
+        <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
+    </form>
+    <h1>Author: {{ author }}</h1>
+    {% for article in articles %}
+    {{ article.title }}
+    {% endfor %}
+    <a href="{% url 'public:about-page' author.id %}">{{ author }}'s about page</a>
+</div>
+{% endblock %}

@@ -447,3 +447,49 @@ class SearchArticlesView(View):
 
         return render(request, self.template_name, {'articles': articles,
                                                     'search_string': search_string})
+
+
+class AuthorPageView(View):
+    template_name = 'public/author_page.html'
+    nonexistent_template = 'core/nonexistent.html'
+
+    def get_author(self, pk):
+        return CustomUser.objects.filter(pk=pk).first()
+
+    def get_articles(self, author):
+        return Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(author=author).all()
+
+    def get_subscribers(self, author):
+        return Subscription.objects.\
+            filter(subscribe_to=author).\
+            count()
+
+    def get_subscription(self, user, author):
+        return Subscription.objects.filter(
+            Q(subscriber=user) &
+            Q(subscribe_to=author)
+        ).first()
+
+    def set_subscription_status(self, user, author):
+        if not user.is_authenticated:
+            return 'Subscribe'
+        subscription = self.get_subscription(user, author)
+        if not subscription:
+            return 'Subscribe'
+        else:
+            return 'Unsubscribe'
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        author = self.get_author(self.kwargs['pk'])
+        if not author:
+            return render(request, self.nonexistent_template)
+        articles = self.get_articles(author)
+        subscription_status = self.set_subscription_status(
+            current_user, author)
+        return render(request, self.template_name, {'author': author,
+                                                    'articles': articles,
+                                                    'subscription_status': subscription_status})

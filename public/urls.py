@@ -5,6 +5,8 @@ app_name = 'public'
 urlpatterns = [
     path('public/authors/<int:pk>/about/',
          views.AboutPageView.as_view(), name='about-page'),
+    path('public/authors/<int:pk>/',
+         views.AuthorPageView.as_view(), name='author-page'),
     path('public/articles/<int:pk>/',
          views.ArticleDetailView.as_view(), name='article-detail'),
     path('public/articles/<int:pk>/like/',
@@ -22,5 +24,5 @@ urlpatterns = [
     path('public/articles/tags/<str:tag>/',
          views.ArticlesByTag.as_view(), name='articles-tag'),
     path('public/articles/search/',
-         views.SearchArticlesView.as_view(), name='search-articles')
+         views.SearchArticlesView.as_view(), name='search-articles'),
 ]
