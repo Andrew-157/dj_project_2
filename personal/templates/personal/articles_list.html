@@ -9,12 +9,13 @@
     {% else %}
     <h1>You published {{ articles|length }} articles </h1>
     {% endif %}
-    <a href="{% url 'personal:publish-article-list' %}">Publish new article</a>
+    <a href="{% url 'personal:publish-article' %}">Publish new article</a>
     {% for article in articles %}
     <div class="container py-5">
         {{ article.title }} <br>
         <a href="{% url 'personal:article-detail' article.id %}">More about this article</a><br>
-        <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a>
+        <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a> <br>
+        <a href="{% url 'personal:delete-article' article.id %}">Delete this article</a>
     </div>
     {% endfor %}
 </div>

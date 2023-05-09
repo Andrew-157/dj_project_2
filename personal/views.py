@@ -103,16 +103,15 @@ class ArticleDetailView(DetailView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class PublishArticleBaseClass(View):
+class PublishArticleView(View):
     form_class = PublishUpdateArticleForm
     template_name = 'personal/publish_article.html'
     success_message = 'You successfully published new article'
-    redirect_to = ''
-    send_post_to = ''
+    redirect_to = 'personal:articles-list'
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form, 'send_post_to': self.send_post_to})
+        return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
@@ -123,27 +122,11 @@ class PublishArticleBaseClass(View):
             form.save_m2m()
             messages.success(request, self.success_message)
             return redirect(self.redirect_to)
-        return render(request, self.template_name, {'form': form, 'send_post_to': self.send_post_to})
+        return render(request, self.template_name, {'form': form})
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
-
-
-class PublishArticleThroughPersonalPage(PublishArticleBaseClass):
-    """
-    This view posts article and redirects to personal page
-    """
-    redirect_to = 'personal:personal-page'
-    send_post_to = 'personal:publish-article-personal'
-
-
-class PublishArticleThroughArticlesList(PublishArticleBaseClass):
-    """
-    This view posts article and redirects to articles list page
-    """
-    redirect_to = 'personal:articles-list'
-    send_post_to = 'personal:publish-article-list'
 
 
 class UpdateArticleBaseClass(View):
@@ -196,11 +179,18 @@ class UpdateArticleBaseClass(View):
 
 
 class UpdateArticleThroughArticlesList(UpdateArticleBaseClass):
+    """
+    This view updates article and redirects to articles list
+    """
     redirect_to = 'personal:articles-list'
     send_post_to = 'personal:update-article-list'
 
 
 class UpdateArticleThroughArticleDetail(UpdateArticleBaseClass):
+    """
+    This view updates article and redirects to article detail.
+    'article_pk_needed' is to know to detail of which article to redirect
+    """
     article_pk_needed = True
     redirect_to = 'personal:article-detail'
     send_post_to = 'personal:update-article-detail'
@@ -210,7 +200,7 @@ class DeleteArticleView(View):
     nonexistent_template = 'core/nonexistent.html'
     not_yours_template = 'core/not_yours.html'
     success_message = 'You successfully deleted your article'
-    redirect_to = 'personal:personal-page'
+    redirect_to = 'personal:articles-list'
 
     def get_article(self, pk):
         return Article.objects.\
