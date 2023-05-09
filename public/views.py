@@ -192,7 +192,8 @@ class AddRemoveFavoriteArticle(View):
             # then when they hit this view we both create new instance of
             # FavoriteArticles and add new article in many-to-many relationship
             # between FavoriteArticles and Article models
-            favorite = FavoriteArticles(user=current_user).save()
+            favorite = FavoriteArticles(user=current_user)
+            favorite.save()
             favorite.articles.add(article)
             messages.success(request, self.success_add)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))

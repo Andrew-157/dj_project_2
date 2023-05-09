@@ -538,6 +538,10 @@ class DeleteSingleReactionBaseClass(View):
         messages.success(request, self.success_message)
         return redirect(self.redirect_to)
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
 
 class DeleteLikeView(DeleteSingleReactionBaseClass):
     redirect_to = 'personal:liked-articles'
@@ -547,3 +551,18 @@ class DeleteLikeView(DeleteSingleReactionBaseClass):
 class DeleteDislikeView(DeleteSingleReactionBaseClass):
     redirect_to = 'personal:disliked-articles'
     success_message = 'You successfully deleted one dislike reaction'
+
+
+class FavoriteArticlesList(ListView):
+    model = FavoriteArticles
+    context_object_name = 'articles'
+    template_name = 'personal/favorite_articles.html'
+
+    def get_queryset(self):
+        favorite_object = FavoriteArticles.objects.\
+            prefetch_related('articles').\
+            filter(user=self.request.user).first()
+        if not favorite_object:
+            return None
+        else:
+            return favorite_object.articles.all()

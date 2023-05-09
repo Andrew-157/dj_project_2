@@ -4,12 +4,17 @@
 <div class="container py-5">
     <div class="container py-5">
         <h1>This is your personal page, {{ user }}</h1>
+        <p>Your profile image:</p>
         <img src="{{ user.user_image.url }}" alt="User's image" style="width: 10%; float: left; margin-right: 10px;">
     </div>
     <div class="container py-5">
         <a href="{% url 'personal:about-page' %}">Your about page</a><br>
         <a href="{% url 'personal:subscriptions-list' %}">Your subscriptions</a><br>
         <a href="{% url 'personal:articles-list' %}">Your articles</a><br>
+        <a href="{% url 'personal:reading-history' %}">Your reading history</a> <br>
+        <a href="{% url 'personal:liked-articles' %}">Articles you liked</a> <br>
+        <a href="{% url 'personal:disliked-articles' %}">Articles you disliked</a> <br>
+        <a href="{% url 'personal:favorite-articles' %}">Your favorite articles</a>
     </div>
     <div class="container py-5">
         <p>You have {{ subscribers }} subscribers</p>

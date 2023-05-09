@@ -2,10 +2,6 @@
 
 {% block content %}
 <div class="container py-5">
-    <form action="{% url 'personal:clear-dislikes' %}">
-        {% csrf_token %}
-        <button class="btn btn-primary" type="submit">Clear all your dislikes</button>
-    </form>
     {% if not reaction_objects %}
     <h1>You have not disliked any articles yet</h1>
     {% elif reaction_objects|length == 1 %}
