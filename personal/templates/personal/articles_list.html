@@ -12,8 +12,9 @@
     <a href="{% url 'personal:publish-article-list' %}">Publish new article</a>
     {% for article in articles %}
     <div class="container py-5">
-        {{ article.title }}
-        <a href="{% url 'personal:article-detail' article.id %}">More about this article</a>
+        {{ article.title }} <br>
+        <a href="{% url 'personal:article-detail' article.id %}">More about this article</a><br>
+        <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a>
     </div>
     {% endfor %}
 </div>

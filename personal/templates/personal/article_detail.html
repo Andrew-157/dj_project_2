@@ -3,5 +3,6 @@
 {% block content %}
 <div class="container py-5">
     {{ article }}
+    <a href="{% url 'personal:update-article-detail' article.id %}">Update this article</a>
 </div>
 {% endblock %}

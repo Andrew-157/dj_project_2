@@ -15,45 +15,6 @@ from core.models import Subscription, Article, SocialMedia, UserDescription, Fav
 from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm, PublishUpdateUserDescriptionForm
 
 
-class UpdateArticleView(View):
-    form_class = PublishUpdateArticleForm
-    template_name = 'personal/update_article.html'
-    success_message = 'You successfully updated your article'
-    nonexistent_template = 'core/nonexistent.html'
-    not_yours_template = 'core/not_yours.html'
-
-    def get_article(self, pk):
-        return Article.objects.\
-            select_related('author').\
-            prefetch_related('tags').\
-            filter(pk=pk).first()
-
-    def get(self, request, *args, **kwargs):
-        article = self.get_article(self.kwargs['pk'])
-        if not article:
-            return render(request, self.nonexistent_template)
-        if article.author != request.user:
-            return render(request, self.not_yours_template)
-        form = self.form_class(instance=article)
-        return render(request, self.template_name, {'form': form, 'article': article})
-
-    def post(self, request, *args, **kwargs):
-        article = self.get_article(self.kwargs['pk'])
-        form = self.form_class(request.POST, request.FILES, instance=article)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            # form.instance.author = request.user
-            obj.save()
-            form.save_m2m()
-            messages.success(request, self.success_message)
-            return redirect('public:article-detail')
-        return render(request, self.template_name, {'form': form, 'article': article})
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-
 class PersonalPageView(View):
     template_name = 'personal/personal_page.html'
 
@@ -174,7 +135,6 @@ class PublishArticleThroughPersonalPage(PublishArticleBaseClass):
     This view posts article and redirects to personal page
     """
     redirect_to = 'personal:personal-page'
-    # template_name = 'personal/publish_article_personal.html'
     send_post_to = 'personal:publish-article-personal'
 
 
@@ -183,8 +143,67 @@ class PublishArticleThroughArticlesList(PublishArticleBaseClass):
     This view posts article and redirects to articles list page
     """
     redirect_to = 'personal:articles-list'
-    # template_name = 'personal/publish_article_list.html'
     send_post_to = 'personal:publish-article-list'
+
+
+class UpdateArticleBaseClass(View):
+    form_class = PublishUpdateArticleForm
+    template_name = 'personal/update_article.html'
+    success_message = 'You successfully updated your article'
+    nonexistent_template = 'core/nonexistent.html'
+    not_yours_template = 'core/not_yours.html'
+    redirect_to = ''
+    article_pk_needed = False
+    send_post_to = ''
+
+    def get_article(self, pk):
+        return Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(request, self.nonexistent_template)
+        if article.author != request.user:
+            return render(request, self.not_yours_template)
+        form = self.form_class(instance=article)
+        return render(request, self.template_name, {'form': form,
+                                                    'article': article,
+                                                    'send_post_to': self.send_post_to})
+
+    def post(self, request, *args, **kwargs):
+        article = self.get_article(self.kwargs['pk'])
+        form = self.form_class(request.POST, request.FILES, instance=article)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            # form.instance.author = request.user
+            obj.save()
+            form.save_m2m()
+            messages.success(request, self.success_message)
+            if self.article_pk_needed:
+                return redirect(self.redirect_to, pk=article.id)
+            else:
+                return redirect(self.redirect_to)
+        return render(request, self.template_name, {'form': form,
+                                                    'article': article,
+                                                    'send_post_to': self.send_post_to})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class UpdateArticleThroughArticlesList(UpdateArticleBaseClass):
+    redirect_to = 'personal:articles-list'
+    send_post_to = 'personal:update-article-list'
+
+
+class UpdateArticleThroughArticleDetail(UpdateArticleBaseClass):
+    article_pk_needed = True
+    redirect_to = 'personal:article-detail'
+    send_post_to = 'personal:update-article-detail'
 
 
 class DeleteArticleView(View):
