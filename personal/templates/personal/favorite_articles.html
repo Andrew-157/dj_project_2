@@ -9,6 +9,9 @@
     {% else %}
     <h1>You have {{ articles|length }} favorite articles</h1>
     {% endif %}
+    <form action="{% url 'personal:clear-favorites' %}" method="get">
+        <button class="btn btn-primary" type="submit">Clear all your Favorites</button>
+    </form>
     {% for article in articles %}
     <div class="container py-5">
         <a href="{% url 'personal:delete-favorite-article' article.id %}">Delete from Favorites</a>

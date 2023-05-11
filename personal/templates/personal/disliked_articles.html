@@ -9,12 +9,11 @@
     {% else %}
     <h1>You disliked {{ reaction_objects|length }} articles </h1>
     {% endif %}
-    <form action="{% url 'personal:clear-dislikes' %}">
-        {% csrf_token %}
+    <form action="{% url 'personal:clear-dislikes' %}" method="get">
         <button class="btn btn-primary" type="submit">Clear all your dislikes</button>
     </form>
     {% for ro in reaction_objects %}
-    <p>You disliked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
+    <p>-- You disliked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
         on {{ro.reaction_date.date }} <a href="{% url 'personal:delete-dislike' ro.id %}">Delete dislike</a></p>
     {% endfor %}
 </div>
