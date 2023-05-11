@@ -125,6 +125,25 @@ class ArticleDetailView(View):
         else:
             return 'Unsubscribe'
 
+    def get_likes(self, article):
+        likes = Reaction.objects.filter(
+            Q(article=article) &
+            Q(value=1)
+        ).all()
+        if not likes:
+            return []
+        else:
+            return likes
+
+    def get_dislikes(self, article):
+        dislikes = Reaction.objects.filter(
+            Q(article=article) &
+            Q(value=-1)
+        ).all()
+        if not dislikes:
+            return []
+        return dislikes
+
     def get(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
@@ -135,12 +154,16 @@ class ArticleDetailView(View):
         subscription_status = self.set_subscription_status(
             current_user, article.author)
         comments = self.get_comments(article)
+        likes = len(self.get_likes(article))
+        dislikes = len(self.get_dislikes(article))
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': False,
                                                     'reaction_status': reaction_status,
                                                     'comments': comments,
-                                                    'subscription_status': subscription_status})
+                                                    'subscription_status': subscription_status,
+                                                    'likes': likes,
+                                                    'dislikes': dislikes})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -151,7 +174,9 @@ class ArticleDetailView(View):
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
         comments = self.get_comments(article)
-        subscription_status = self.get_subscription(
+        likes = len(self.get_likes(article))
+        dislikes = len(self.get_dislikes(article))
+        subscription_status = self.set_subscription_status(
             current_user, article.author)
         if current_user.is_authenticated:
             user_reading = self.get_user_reading(article, current_user)
@@ -168,7 +193,9 @@ class ArticleDetailView(View):
                                                     'show_content': True,
                                                     'reaction_status': reaction_status,
                                                     'comments': comments,
-                                                    'subscription_status': subscription_status})
+                                                    'subscription_status': subscription_status,
+                                                    'likes': likes,
+                                                    'dislikes': dislikes})
 
 
 class AddRemoveFavoriteArticle(View):
@@ -446,7 +473,7 @@ class SearchArticlesView(View):
         search_string = request.POST['search_string']
         if not search_string:
             return render(request, self.nonexistent_template)
-        if len(search_string) == 1 and search_string[0]:
+        if len(search_string) == 1 and search_string[0] == '#':
             return render(request, self.nonexistent_template)
         if search_string[0] == '#':
             tag = self.convert_tag_to_slug(search_string[1:])
