@@ -604,3 +604,27 @@ class DeleteFavoriteArticle(View):
         messages.success(
             request, 'You successfully removed an article from your Favorites')
         return redirect(self.redirect_to)
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ClearFavoritesView(View):
+    success_message = 'All your Favorites were successfully deleted'
+    redirect_to = 'personal:favorite-articles'
+
+    def get_favorite(self, user):
+        return FavoriteArticles.objects.filter(user=user).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        favorite_obj = self.get_favorite(current_user)
+        if favorite_obj:
+            favorite_obj.delete()
+        messages.success(request, self.success_message)
+        return redirect(self.redirect_to)
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
