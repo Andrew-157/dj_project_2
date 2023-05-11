@@ -12,25 +12,19 @@
     <a href="{% url 'personal:publish-article' %}">Publish new article</a>
     {% for article in articles %}
     <div class="container py-5">
-        <div class="container py-5">
-            <h2>Title: {{ article.title }}</h2>
-            <img src="{{ article.image.url }}" alt="Article image"
-                style="width: 10%; float: right; margin-right: 10px;">
-            <a href="{% url 'public:author-page' article.author.id %}"><img src="{{ article.author.user_image.url}}"
-                    alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p>Was published by <a href="{% url 'public:author-page' article.author.id %}">{{ article.author }}</a></p>
-            {% for tag in article.tags.all %}
-            <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
-            {% endfor %}
-            <p>Was read <strong>{{ article.times_read }}</strong> times</p>
-            <p>Was published <strong>{{ article.pub_date.date }}</strong></p>
-            <form action="{% url 'public:article-detail' article.id %}">
-                <button class="btn btn-primary" type="submit">Read article</button>
-            </form>
-            <a href="{% url 'personal:article-detail' article.id %}">More about this article</a><br>
-            <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a> <br>
-            <a href="{% url 'personal:delete-article' article.id %}">Delete this article</a>
-        </div>
+        <h2>Title: {{ article.title }}</h2>
+        <img src="{{ article.image.url }}" alt="Article image" style="width: 10%; float: right; margin-right: 10px;">
+        <p>You published this article on <strong>{{ article.pub_date.date }}</strong></p>
+        {% for tag in article.tags.all %}
+        <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
+        {% endfor %}
+        <p>Was read <strong>{{ article.times_read }}</strong> times</p>
+        <form action="{% url 'public:article-detail' article.id %}">
+            <button class="btn btn-primary" type="submit">Read article</button>
+        </form>
+        <a href="{% url 'personal:article-detail' article.id %}">More about this article</a><br>
+        <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a> <br>
+        <a href="{% url 'personal:delete-article' article.id %}">Delete this article</a>
     </div>
     {% endfor %}
 </div>
