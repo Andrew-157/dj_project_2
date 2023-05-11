@@ -19,19 +19,18 @@
             <a href="{% url 'public:author-page' article.author.id %}"><img src="{{ article.author.user_image.url}}"
                     alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
             <p>Was published by <a href="{% url 'public:author-page' article.author.id %}">{{ article.author }}</a></p>
-        </div>
-        <div class="container py-5">
             {% for tag in article.tags.all %}
             <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
             {% endfor %}
-        </div>
-        <div class="container py-5">
             <p>Was read <strong>{{ article.times_read }}</strong> times</p>
             <p>Was published <strong>{{ article.pub_date.date }}</strong></p>
+            <form action="{% url 'public:article-detail' article.id %}">
+                <button class="btn btn-primary" type="submit">Read article</button>
+            </form>
+            <a href="{% url 'personal:article-detail' article.id %}">More about this article</a><br>
+            <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a> <br>
+            <a href="{% url 'personal:delete-article' article.id %}">Delete this article</a>
         </div>
-        <a href="{% url 'personal:article-detail' article.id %}">More about this article</a><br>
-        <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a> <br>
-        <a href="{% url 'personal:delete-article' article.id %}">Delete this article</a>
     </div>
     {% endfor %}
 </div>
