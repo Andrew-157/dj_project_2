@@ -6,9 +6,11 @@
         <form action="{% url 'public:subscription-through-detail' article.id %}" method="get">
             <button class="btn btn-primary" type="submit">{{subscription_status}}</button>
         </form>
+        <p><a href="{% url 'public:author-page' article.author.id %}">{{article.author}}</a>
+            has {{ subscribers }} subscribers</p>
         <div class="container py-5">
             <a href="{% url 'public:author-page' article.author.id %}"><img src="{{ article.author.user_image.url}}"
-                    alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
+                    alt="Authors's image" style="width: 10%; float: left; margin-right: 10px;"></a>
             <p>Article was published by
                 <a href="{% url 'public:author-page' article.author.id %}">{{article.author}}</a>
             </p>

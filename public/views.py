@@ -144,6 +144,10 @@ class ArticleDetailView(View):
             return []
         return dislikes
 
+    def get_subscribers(self, author):
+        return Subscription.objects.\
+            filter(subscribe_to=author).count()
+
     def get(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
@@ -156,6 +160,7 @@ class ArticleDetailView(View):
         comments = self.get_comments(article)
         likes = len(self.get_likes(article))
         dislikes = len(self.get_dislikes(article))
+        subscribers = self.get_subscribers(article.author)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': False,
@@ -163,7 +168,8 @@ class ArticleDetailView(View):
                                                     'comments': comments,
                                                     'subscription_status': subscription_status,
                                                     'likes': likes,
-                                                    'dislikes': dislikes})
+                                                    'dislikes': dislikes,
+                                                    'subscribers': subscribers})
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -176,6 +182,7 @@ class ArticleDetailView(View):
         comments = self.get_comments(article)
         likes = len(self.get_likes(article))
         dislikes = len(self.get_dislikes(article))
+        subscribers = self.get_subscribers(article.author)
         subscription_status = self.set_subscription_status(
             current_user, article.author)
         if current_user.is_authenticated:
@@ -195,7 +202,8 @@ class ArticleDetailView(View):
                                                     'comments': comments,
                                                     'subscription_status': subscription_status,
                                                     'likes': likes,
-                                                    'dislikes': dislikes})
+                                                    'dislikes': dislikes,
+                                                    'subscribers': subscribers})
 
 
 class AddRemoveFavoriteArticle(View):
