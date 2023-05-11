@@ -3,21 +3,15 @@
 {% block content %}
 <div class="container py-5">
     {% if not articles %}
-    <h1>No articles were found with "{{ search_string }}" in title or author's name</h1>
+    <h1><a href="{% url 'public:author-page' author.id %}">{{ author }}</a> has not published any articles yet</h1>
     {% elif articles|length == 1 %}
-    <h1>One article was found with "{{ search_string }}" in title or author's name</h1>
+    <h1><a href="{% url 'public:author-page' author.id %}">{{ author }}</a> has published one article</h1>
     {% else %}
-    <h1>{{ articles|length }} articles were found with "{{search_string}}" in title or author's name</h1>
+    <h1><a href="{% url 'public:author-page' author.id %}">{{ author }}</a> has published {{ articles|length }} articles
+    </h1>
     {% endif %}
     {% for article in articles %}
     <div class="container py-5">
-        <div class="container py-5">
-            <a href="{% url 'public:author-page' article.author.id %}"><img src="{{ article.author.user_image.url}}"
-                    alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p>Article was published by
-                <a href="{% url 'public:author-page' article.author.id %}">{{article.author}}</a>
-            </p>
-        </div>
         <h2>Title: {{ article.title }}</h2>
         <img src="{{ article.image.url }}" alt="Article image" style="width: 10%; float: right; margin-right: 10px;">
         {% for tag in article.tags.all %}

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1>This is about page of {{ author }}</h1>
+    <h1>This is about page of <a href="{% url 'public:author-page' author.id %}">{{author}}</a></h1>
     <div class="container py-5">
         <p><strong>{{ author }}</strong> joined Articlee on <strong>{{ author.date_joined.date }}</strong></p>
         {% if not readings %}

@@ -27,4 +27,6 @@ urlpatterns = [
          views.ArticlesByTag.as_view(), name='articles-tag'),
     path('public/articles/search/',
          views.SearchArticlesView.as_view(), name='search-articles'),
+     path('public/articles/authors/<int:pk>/', views.ArticlesByAuthor.as_view(), 
+          name='articles-by-author')
 ]

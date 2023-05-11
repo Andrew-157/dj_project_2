@@ -491,12 +491,6 @@ class AuthorPageView(View):
     def get_author(self, pk):
         return CustomUser.objects.filter(pk=pk).first()
 
-    def get_articles(self, author):
-        return Article.objects.\
-            select_related('author').\
-            prefetch_related('tags').\
-            filter(author=author).all()
-
     def get_subscribers(self, author):
         return Subscription.objects.\
             filter(subscribe_to=author).\
@@ -522,12 +516,10 @@ class AuthorPageView(View):
         author = self.get_author(self.kwargs['pk'])
         if not author:
             return render(request, self.nonexistent_template)
-        articles = self.get_articles(author)
         subscription_status = self.set_subscription_status(
             current_user, author)
         subscribers = self.get_subscribers(author)
         return render(request, self.template_name, {'author': author,
-                                                    'articles': articles,
                                                     'subscription_status': subscription_status,
                                                     'subscribers': subscribers})
 
@@ -573,3 +565,26 @@ class SubscribeUnsubscribeThroughAuthorPageView(View):
             success_message = self.success_message_unsubscribed
         messages.success(request, success_message)
         return HttpResponseRedirect(reverse(self.redirect_to, args=(author.id, )))
+
+
+class ArticlesByAuthor(View):
+    nonexistent_template = 'core/nonexistent.html'
+    template_name = 'public/articles_by_author.html'
+
+    def get_author(self, pk):
+        return CustomUser.objects.filter(pk=pk).first()
+
+    def get_articles(self, author):
+        return Article.objects.\
+            select_related('author').\
+            prefetch_related('tags').\
+            filter(author=author).\
+            order_by('-times_read').all()
+
+    def get(self, request, *args, **kwargs):
+        author = self.get_author(self.kwargs['pk'])
+        if not author:
+            return render(request, self.nonexistent_template)
+        articles = self.get_articles(author)
+        return render(request, self.template_name, {'articles': articles,
+                                                    'author': author})
