@@ -565,4 +565,42 @@ class FavoriteArticlesList(ListView):
         if not favorite_object:
             return None
         else:
-            return favorite_object.articles.all()
+            return favorite_object.articles.\
+                select_related('author').\
+                prefetch_related('tags').\
+                order_by('id').all()
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DeleteFavoriteArticle(View):
+    nonexistent_template = 'core/nonexistent.html'
+    redirect_to = 'personal:favorite-articles'
+
+    def get_article(self, pk):
+        return Article.objects.filter(pk=pk).first()
+
+    def get_favorite(self, user):
+        return FavoriteArticles.objects.\
+            prefetch_related('articles').filter(user=user).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(request, self.nonexistent_template)
+        favorite_obj = self.get_favorite(current_user)
+        if not favorite_obj:
+            messages.info(
+                request, 'You do not have any articles to remove from Favorites')
+            return redirect(self.redirect_to)
+        favorite_articles = favorite_obj.articles.all()
+        if article not in favorite_articles:
+            messages.info(request, 'This article is not in your Favorites')
+            return redirect(self.redirect_to)
+        favorite_articles.remove(article)
+        messages.success(
+            request, 'You successfully removed an article from your Favorites')
+        return redirect(self.redirect_to)

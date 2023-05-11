@@ -46,5 +46,7 @@ urlpatterns = [
     path('personal/subscriptions/',
          views.SubscriptionsListView.as_view(), name='subscriptions-list'),
     path('personal/articles/favorites/',
-         views.FavoriteArticlesList.as_view(), name='favorite-articles')
+         views.FavoriteArticlesList.as_view(), name='favorite-articles'),
+    path('personal/articles/favorites/<int:pk>/delete/', views.DeleteFavoriteArticle.as_view(),
+         name='delete-favorite-article')
 ]
