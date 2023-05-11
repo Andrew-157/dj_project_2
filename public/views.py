@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Avg
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
+from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -33,15 +34,21 @@ class AboutPageView(View):
         return SocialMedia.objects.\
             select_related('user').filter(user=user).all()
 
+    def get_readings(self, author):
+        return Article.objects.filter(
+            author=author).all().aggregate(Sum('times_read'))
+
     def get(self, request, *args, **kwargs):
         author = self.get_author(self.kwargs['pk'])
         if not author:
             return render(self.nonexistent_template)
         description = self.get_description(author)
         social_media_list = self.get_social_media(author)
+        readings = self.get_readings(author)['times_read__sum']
         return render(request, self.template_name, {'description': description,
                                                     'social_media_list': social_media_list,
-                                                    'author': author})
+                                                    'author': author,
+                                                    'readings': readings})
 
 
 class ArticleDetailView(View):
