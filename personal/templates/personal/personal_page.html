@@ -12,13 +12,15 @@
         </div>
     </div>
     <div class="container py-5">
-        <a href="{% url 'personal:about-page' %}">Your about page</a><br>
-        <a href="{% url 'personal:subscriptions-list' %}">Your subscriptions</a><br>
-        <a href="{% url 'personal:articles-list' %}">Your articles</a><br>
-        <a href="{% url 'personal:reading-history' %}">Your reading history</a> <br>
-        <a href="{% url 'personal:liked-articles' %}">Articles you liked</a> <br>
-        <a href="{% url 'personal:disliked-articles' %}">Articles you disliked</a> <br>
-        <a href="{% url 'personal:favorite-articles' %}">Your favorite articles</a>
+        <div class="container py-5">
+            <a href="{% url 'personal:about-page' %}">Your about page</a><br>
+            <a href="{% url 'personal:subscriptions-list' %}">Your subscriptions</a><br>
+            <a href="{% url 'personal:articles-list' %}">Your articles</a><br>
+            <a href="{% url 'personal:reading-history' %}">Your reading history</a> <br>
+            <a href="{% url 'personal:liked-articles' %}">Articles you liked</a> <br>
+            <a href="{% url 'personal:disliked-articles' %}">Articles you disliked</a> <br>
+            <a href="{% url 'personal:favorite-articles' %}">Your favorite articles</a>
+        </div>
     </div>
 </div>
 {% endblock %}

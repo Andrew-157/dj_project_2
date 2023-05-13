@@ -381,6 +381,7 @@ class DeleteCommentView(View):
             return render(request, self.not_yours_template)
         article_id = comment.article.id
         comment.delete()
+        messages.success(request, self.success_message)
         return HttpResponseRedirect(reverse(self.redirect_to, args=(article_id, )))
 
     @method_decorator(login_required)
