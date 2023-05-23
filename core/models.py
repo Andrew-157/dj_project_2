@@ -1,5 +1,18 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from taggit.managers import TaggableManager
+
+
+def validate_image(image):
+    file_size = image.file.size
+    limit_kb = 150
+    if file_size > limit_kb * 1024:
+        raise ValidationError(f"Maximum size of the image is {limit_kb} KB")
+
+    # file_size = image.file.size
+    # limit_mb = 8
+    # if file_size > limit_mb * 1024 * 1024:
+    #     raise ValidationError(f"Maximum size of the image is {limit_mb} MB")
 
 
 class Article(models.Model):
@@ -7,7 +20,7 @@ class Article(models.Model):
     content = models.TextField()
     author = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
     image = models.ImageField(
-        upload_to='core/images', null=False
+        upload_to='core/images', null=False, validators=[validate_image]
     )
     times_read = models.BigIntegerField(default=0)
     tags = TaggableManager(help_text='Use comma to separate tags')

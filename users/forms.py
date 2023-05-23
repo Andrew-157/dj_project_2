@@ -39,8 +39,10 @@ class UserChangeForm(BaseUserChangeForm):
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data.get('email')
-
-        if CustomUser.objects.filter(email=email).exists():
+        username = self.cleaned_data['username']
+        current_user = CustomUser.objects.filter(username=username).first()
+        user_with_email = CustomUser.objects.filter(email=email).first()
+        if user_with_email and user_with_email != current_user:
             msg = 'A user with that email already exists.'
             self.add_error('email', msg)
 
