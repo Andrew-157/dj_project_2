@@ -4,6 +4,7 @@ from core.models import Article, SocialMedia, \
 
 
 class PublishUpdateArticleForm(forms.ModelForm):
+
     class Meta:
         model = Article
         exclude = [
