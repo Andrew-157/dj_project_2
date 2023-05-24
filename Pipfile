@@ -11,6 +11,7 @@ crispy-bootstrap4 = "*"
 django-taggit = "*"
 pillow = "*"
 mysqlclient = "*"
+django-environ = "*"
 
 [dev-packages]
 autopep8 = "*"
