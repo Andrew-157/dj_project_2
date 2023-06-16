@@ -451,8 +451,8 @@ class ArticlesByTag(ListView):
     template_name = 'public/articles_by_tag.html'
 
     def get_queryset(self):
-        tag = self.kwargs['tag']
-        tag_object = Tag.objects.filter(slug=tag).first()
+        tag_slug = self.kwargs['slug']
+        tag_object = Tag.objects.filter(slug=tag_slug).first()
         articles = Article.objects.\
             select_related('author').\
             prefetch_related('tags').\
@@ -462,13 +462,13 @@ class ArticlesByTag(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['tag'] = ' '.join(self.kwargs['tag'].split('-'))
+        context['tag'] = ' '.join(self.kwargs['slug'].split('-'))
         return context
 
 
 class SearchArticlesView(View):
     nonexistent_template = 'core/nonexistent.html'
-    template_name = 'public/search_articles.html'
+    template_name = 'public/search_results.html'
 
     def get_articles(self, search_string):
         return Article.objects.\
@@ -480,24 +480,39 @@ class SearchArticlesView(View):
             ).order_by('-times_read').all()
 
     def convert_tag_to_slug(self, tag: str):
+        # this method is needed if
+        # someone enters something like this: #pop music
         if ' ' in tag:
             return '-'.join(tag.split())
         else:
             return tag
 
-    def post(self, request, *args, **kwargs):
-        search_string = request.POST['search_string']
-        if not search_string:
-            return render(request, self.nonexistent_template)
-        if len(search_string) == 1 and search_string[0] == '#':
-            return render(request, self.nonexistent_template)
-        if search_string[0] == '#':
-            tag = self.convert_tag_to_slug(search_string[1:])
-            return HttpResponseRedirect(reverse('public:articles-tag', args=(tag,)))
-        articles = self.get_articles(search_string)
+    def get(self, request, *args, **kwargs):
+        query = self.request.GET.get('query')
+        if query:
+            if len(query) == 1 and query == '#':
+                return render(request, 'core/empty_search.html')
+            if query[0] == '#':
+                tag_slug = self.convert_tag_to_slug(query[1:])
+                return HttpResponseRedirect(reverse('public:articles-tag', args=(tag_slug, )))
+            articles = self.get_articles(query)
+            return render(request, self.template_name, {'articles': articles,
+                                                        'query': query})
+        return render(request, 'core/empty_search.html')
 
-        return render(request, self.template_name, {'articles': articles,
-                                                    'search_string': search_string})
+    # def post(self, request, *args, **kwargs):
+    #     search_string = request.POST['search_string']
+    #     if not search_string:
+    #         return render(request, self.nonexistent_template)
+    #     if len(search_string) == 1 and search_string[0] == '#':
+    #         return render(request, self.nonexistent_template)
+    #     if search_string[0] == '#':
+    #         tag = self.convert_tag_to_slug(search_string[1:])
+    #         return HttpResponseRedirect(reverse('public:articles-tag', args=(tag,)))
+    #     articles = self.get_articles(search_string)
+
+    #     return render(request, self.template_name, {'articles': articles,
+    #                                                 'search_string': search_string})
 
 
 class AuthorPageView(View):

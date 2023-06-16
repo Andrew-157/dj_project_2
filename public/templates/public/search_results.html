@@ -2,13 +2,7 @@
 
 {% block content %}
 <div class="container py-5">
-    {% if not articles %}
-    <h1>No articles were found with "{{ search_string }}" in title or author's name</h1>
-    {% elif articles|length == 1 %}
-    <h1>One article was found with "{{ search_string }}" in title or author's name</h1>
-    {% else %}
-    <h1>{{ articles|length }} articles were found with "{{search_string}}" in title or author's name</h1>
-    {% endif %}
+    <h1>Articles found with "{{ query }}" in title or author's name: {{ articles|length }}</h1>
     {% for article in articles %}
     <div class="container py-5">
         <div class="container py-5">

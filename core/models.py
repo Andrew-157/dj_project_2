@@ -23,7 +23,8 @@ class Article(models.Model):
         upload_to='core/images', null=False, validators=[validate_image]
     )
     times_read = models.BigIntegerField(default=0)
-    tags = TaggableManager(help_text='Use comma to separate tags')
+    tags = TaggableManager(
+        help_text='Use comma to separate tags, # is not needed to add tag')
     pub_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

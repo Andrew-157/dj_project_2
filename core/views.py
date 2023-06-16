@@ -65,7 +65,8 @@ class IndexView(View):
         # this view returns tags of articles ,marked as favorites
         # by current user
         favorite_obj = FavoriteArticles.objects.\
-            prefetch_related('author').filter(user=user).first()
+            select_related('user').prefetch_related(
+                'articles').filter(user=user).first()
         if not favorite_obj:
             return None
         articles = favorite_obj.articles.prefetch_related('tags').all()

@@ -29,8 +29,8 @@
       {% endif %}
     </ul>
   </div>
-  <form class="form-inline" action="{% url 'public:search-articles' %}" method="post">
-    <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="search_string">
+  <form class="form-inline" action="{% url 'public:search' %}" method="get">
+    <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="query">
     {% csrf_token %}
     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
   </form>

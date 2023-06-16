@@ -21,12 +21,12 @@ urlpatterns = [
          views.AddRemoveFavoriteArticle.as_view(), name='manage-favorites'),
     path('public/articles/<int:pk>/author/subscribe/',
          views.SubscribeUnsubscribeThroughArticleDetail.as_view(), name='subscription-through-detail'),
-     path('public/authors/<int:pk>/subscribe/', views.SubscribeUnsubscribeThroughAuthorPageView.as_view(),
-          name='subscription-through-author'),
-    path('public/articles/tags/<str:tag>/',
+    path('public/authors/<int:pk>/subscribe/', views.SubscribeUnsubscribeThroughAuthorPageView.as_view(),
+         name='subscription-through-author'),
+    path('public/articles/tags/<str:slug>/',
          views.ArticlesByTag.as_view(), name='articles-tag'),
     path('public/articles/search/',
-         views.SearchArticlesView.as_view(), name='search-articles'),
-     path('public/articles/authors/<int:pk>/', views.ArticlesByAuthor.as_view(), 
-          name='articles-by-author')
+         views.SearchArticlesView.as_view(), name='search'),
+    path('public/articles/authors/<int:pk>/', views.ArticlesByAuthor.as_view(),
+         name='articles-by-author')
 ]
