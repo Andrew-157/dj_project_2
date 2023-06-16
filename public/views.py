@@ -192,8 +192,15 @@ class ArticleDetailView(View):
                                            article=article,
                                            date_read=timezone.now())
                 user_reading.save()
-            else:
+            elif user_reading.date_read.date() == timezone.now().date():
                 user_reading.date_read = timezone.now()
+                user_reading.save()
+            else:
+                user_reading = UserReading(
+                    user=current_user,
+                    article=article,
+                    date_read=timezone.now()
+                )
                 user_reading.save()
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
