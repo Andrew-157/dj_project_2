@@ -198,7 +198,7 @@ class DeleteArticleView(View):
         return Article.objects.\
             select_related('author').filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
@@ -275,7 +275,7 @@ class DeleteSocialMediaView(View):
         return SocialMedia.objects.\
             select_related('user').filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         social_media = self.get_social_media(self.kwargs['pk'])
         if not social_media:
@@ -369,7 +369,7 @@ class DeleteUserDescriptionView(View):
         return UserDescription.objects.\
             select_related('user').filter(user=user).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         description = self.get_description(current_user)
         if not description:
@@ -405,7 +405,7 @@ class ClearReadingHistory(View):
     success_message = 'You successfully cleared your reading history'
     redirect_to = 'personal:reading-history'
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         user_readings = UserReading.objects.\
             select_related('user').filter(user=current_user).all()
@@ -429,7 +429,7 @@ class DeleteUserReading(View):
         return UserReading.objects.select_related('user').\
             filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         user_reading = self.get_user_reading(self.kwargs['pk'])
         if not user_reading:
@@ -492,7 +492,7 @@ class ClearReactionsBaseClass(View):
                 Q(value=self.reaction_value)
             ).all()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         reactions = self.get_reactions(current_user)
         reactions.delete()
@@ -527,7 +527,7 @@ class DeleteSingleReactionBaseClass(View):
             select_related('user').\
             filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         reaction = self.get_reaction(self.kwargs['pk'])
         if not reaction:
@@ -586,7 +586,7 @@ class DeleteFavoriteArticle(View):
         return FavoriteArticles.objects.\
             prefetch_related('articles').filter(user=user).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
@@ -600,7 +600,7 @@ class DeleteFavoriteArticle(View):
         if article not in favorite_articles:
             messages.info(request, 'This article is not in your Favorites')
             return redirect(self.redirect_to)
-        favorite_articles.remove(article)
+        favorite_obj.articles.remove(article)
         messages.success(
             request, 'You successfully removed an article from your Favorites')
         return redirect(self.redirect_to)
@@ -617,7 +617,7 @@ class ClearFavoritesView(View):
     def get_favorite(self, user):
         return FavoriteArticles.objects.filter(user=user).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         favorite_obj = self.get_favorite(current_user)
         if favorite_obj:

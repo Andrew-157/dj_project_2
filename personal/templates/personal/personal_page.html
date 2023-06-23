@@ -1,7 +1,7 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<div class="container py-5">
+<!-- <div class="container py-5">
     <div class="container py-5">
         <h1>This is your personal page, {{ user }}</h1>
         <p>You have {{ subscribers }} subscribers</p>
@@ -21,6 +21,26 @@
             <a href="{% url 'personal:disliked-articles' %}">Articles you disliked</a> <br>
             <a href="{% url 'personal:favorite-articles' %}">Your favorite articles</a>
         </div>
+    </div>
+</div> -->
+<div class="container py-5">
+    <h1>This is your personal page, {{ user }}</h1>
+    <div class="row">
+        <div class="col-md-4 order-md-2">
+            <img src="{{ user.user_image.url }}" alt="Author's Profile Image" class="img-fluid rounded-circle">
+        </div>
+        <div class="col-md-8 order-md-1">
+            <p>Number of your subscribers: {{ subscribers|length }}</p>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{% url 'personal:about-page' %}" class="btn btn-primary">Your about page</a><br>
+        <a href="{% url 'personal:subscriptions-list' %}" class="btn btn-secondary">Your subscriptions</a><br>
+        <a href="{% url 'personal:articles-list' %}" class="btn btn-primary">Your articles</a><br>
+        <a href="{% url 'personal:reading-history' %}" class="btn btn-secondary">Your reading history</a> <br>
+        <a href="{% url 'personal:liked-articles' %}" class="btn btn-primary">Articles you liked</a> <br>
+        <a href="{% url 'personal:disliked-articles' %}" class="btn btn-secondary">Articles you disliked</a> <br>
+        <a href="{% url 'personal:favorite-articles' %}" class="btn btn-primary">Your favorite articles</a>
     </div>
 </div>
 {% endblock %}

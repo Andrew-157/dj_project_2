@@ -14,7 +14,7 @@
             <p>Subscribers: {{ subscribers }}</p>
         </div>
         <div class="col-md-4 align-self-center">
-            <form action="{% url 'public:subscription-through-detail' article.id %}" method="get">
+            <form action="{% url 'public:subscription-through-detail' article.id %}" method="post">
                 {% csrf_token %}
                 <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
             </form>

@@ -12,9 +12,12 @@
         <img src="{{ comment.user.user_image.url }}" alt="User Image" class="img-fluid rounded-circle"
             style="width: 8%;">
         <p>{{ comment.content }}</p>
-        <p>Published on: {{ comment.pub_date }}</p>
+        <p>Published on: {{ comment.pub_date.date }}</p>
         {% if user == comment.user%}
-        <a href="{%  url 'public:delete-comment' comment.id%}">Delete your comment</a>
+        <form action="{%  url 'public:delete-comment' comment.id%}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete your comment</button>
+        </form>
         {% endif %}
         {% if user == article.author %}
         <p>Comment was published by author of the article</p>

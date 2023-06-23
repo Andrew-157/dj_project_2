@@ -396,7 +396,7 @@ class DeleteCommentView(View):
             select_related('article').\
             select_related('user').filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         comment = self.get_comment(self.kwargs['pk'])
         if not comment:
@@ -435,7 +435,7 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
             Q(subscribe_to=author)
         ).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
@@ -589,7 +589,7 @@ class SubscribeUnsubscribeThroughAuthorPageView(View):
             Q(subscribe_to=author)
         ).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         author = self.get_author(self.kwargs['pk'])
         if not author:

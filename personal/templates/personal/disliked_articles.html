@@ -2,19 +2,21 @@
 
 {% block content %}
 <div class="container py-5">
-    {% if not reaction_objects %}
-    <h1>You have not disliked any articles yet</h1>
-    {% elif reaction_objects|length == 1 %}
-    <h1>You disliked 1 article </h1>
-    {% else %}
-    <h1>You disliked {{ reaction_objects|length }} articles </h1>
-    {% endif %}
-    <form action="{% url 'personal:clear-dislikes' %}" method="get">
-        <button class="btn btn-primary" type="submit">Clear all your dislikes</button>
-    </form>
+    <h1>Number of articles you disliked: {{ reaction_objects|length }}
+        <form action="{% url 'personal:clear-dislikes' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Clear all your dislikes</button>
+        </form>
+    </h1>
     {% for ro in reaction_objects %}
-    <p>-- You disliked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
-        on {{ro.reaction_date.date }} | <a href="{% url 'personal:delete-dislike' ro.id %}">Delete dislike</a></p>
+    <div class="container py-5">
+        <p>-- You disliked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
+            on {{ro.reaction_date.date }} |
+        <form action="{% url 'personal:delete-dislike' ro.id %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Delete this dislike</button>
+        </form>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

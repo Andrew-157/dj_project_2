@@ -9,8 +9,9 @@
         </div>
         <div class="col-md-8 order-md-1">
             <h2>{{ author }}</h2>
-            <p>{{ subscribers }} Subscribers</p>
-            <form action="{% url 'public:subscription-through-author' author.id %}" method="get">
+            <p>Number of subscribers: {{ subscribers }}</p>
+            <form action="{% url 'public:subscription-through-author' author.id %}" method="post">
+                {% csrf_token %}
                 <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
             </form>
         </div>
@@ -18,7 +19,7 @@
 
     <div class="mt-4">
         <a href="{% url 'public:articles-by-author' author.id %}" class="btn btn-primary">Articles published by this
-            author</a>
+            author</a> <br>
         <a href="{% url 'public:about-page' author.id %}" class="btn btn-secondary">Author's about page</a>
     </div>
 </div>
