@@ -667,7 +667,9 @@ class ClearFavoritesView(View):
         current_user = request.user
         favorite_obj = self.get_favorite(current_user)
         if favorite_obj:
-            favorite_obj.delete()
+            favorite_obj.articles.clear()
+        else:
+            pass
         messages.success(request, self.success_message)
         return redirect(self.redirect_to)
 

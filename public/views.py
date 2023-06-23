@@ -185,6 +185,8 @@ class ArticleDetailView(View):
     def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(request, self.nonexistent_template)
         if current_user.is_authenticated:
             article.times_read += 1
             article.save()
@@ -236,6 +238,7 @@ class AddRemoveFavoriteArticle(View):
     success_remove = 'You successfully removed this article from your favorites'
     success_add = 'You successfully added this article to your favorites'
     info_message = 'Please, become an authenticated user to add this article to your favorites'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
@@ -243,6 +246,9 @@ class AddRemoveFavoriteArticle(View):
 
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -283,6 +289,7 @@ class LeaveReactionBaseClass(View):
     info_message = ''
     redirect_to = 'public:article-detail'
     nonexistent_template = 'core/nonexistent.html'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
@@ -321,6 +328,9 @@ class LeaveReactionBaseClass(View):
                                 article=article,
                                 value=1)
             reaction.save()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -373,6 +383,11 @@ class CommentArticleView(View):
     def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(self.nonexistent_template)
+        if not current_user.is_authenticated:
+            messages.info(request, self.info_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
         form = self.form_class(request.POST)
         if form.is_valid():
             form.instance.article = article
@@ -390,11 +405,15 @@ class DeleteCommentView(View):
     not_yours_template = 'core/not_yours.html'
     redirect_to = 'public:article-comments'
     success_message = 'You successfully deleted your comment on this article'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_comment(self, pk):
         return Comment.objects.\
             select_related('article').\
             select_related('user').filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -424,6 +443,7 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
     redirect_to = 'public:article-detail'
     success_message_subscribed = 'You successfully subscribed to this author'
     success_message_unsubscribed = 'You successfully unsubscribed from this author'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_article(self, pk):
         return Article.objects.select_related('author').\
@@ -434,6 +454,9 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
             Q(subscriber=user) &
             Q(subscribe_to=author)
         ).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -579,6 +602,7 @@ class SubscribeUnsubscribeThroughAuthorPageView(View):
     redirect_to = 'public:author-page'
     success_message_subscribed = 'You successfully subscribed to this author'
     success_message_unsubscribed = 'You successfully unsubscribed from this author'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_author(self, pk):
         return CustomUser.objects.filter(pk=pk).first()
@@ -588,6 +612,9 @@ class SubscribeUnsubscribeThroughAuthorPageView(View):
             Q(subscriber=user) &
             Q(subscribe_to=author)
         ).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
