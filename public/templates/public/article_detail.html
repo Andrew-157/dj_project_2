@@ -2,40 +2,50 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="container py-5">
-        <form action="{% url 'public:subscription-through-detail' article.id %}" method="get">
-            <button class="btn btn-primary" type="submit">{{subscription_status}}</button>
-        </form>
-        <p><a href="{% url 'public:author-page' article.author.id %}">{{article.author}}</a>
-            has {{ subscribers }} subscribers</p>
-        <div class="container py-5">
-            <a href="{% url 'public:author-page' article.author.id %}"><img src="{{ article.author.user_image.url}}"
-                    alt="Authors's image" style="width: 10%; float: left; margin-right: 10px;"></a>
-            <p>Article was published by
-                <a href="{% url 'public:author-page' article.author.id %}">{{article.author}}</a>
-            </p>
+    <div class="row mt-4">
+        <div class="col-md-2">
+            <img src="{{ article.author.user_image.url }}" alt="Author's Profile Image" class="img-fluid rounded-circle"
+                style="width: 50%;">
+        </div>
+        <div class="col-md-6 align-self-center">
+            <h4>Author: {{ article.author }}</h4>
+            <p>Subscribers: {{ subscribers }}</p>
+        </div>
+        <div class="col-md-4 align-self-center">
+            <form action="{% url 'public:subscription-through-detail' article.id %}" method="get">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
+            </form>
         </div>
     </div>
-    <div class="container py-5">
-        <h2>Title: {{ article.title }}</h2>
-        <img src="{{ article.image.url }}" alt="Article image" style="width: 20%; float: right; margin-right: 10px;">
-        {% for tag in article.tags.all %}
-        <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
-        {% endfor %}
-        <p>Was read <strong>{{ article.times_read }}</strong> times</p>
-        <form action="{% url 'public:manage-favorites' article.id %}">
-            {% csrf_token %}
-            <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
-        </form>
-        <div class="container py-5">
-            {% if not show_content %}
-            <form action="{% url 'public:article-detail' article.id %}" method="post">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Title: {{ article.title }}</h2>
+            <form action="{% url 'public:manage-favorites' article.id %}" method="post">
                 {% csrf_token %}
-                <button class="btn btn-primary" type="submit">Read</button>
+                <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
             </form>
-            {% else %}
-            <p>{{ article.content }}</p>
-            {% endif %}
+            <div class="container py-5">
+                {% if not show_content %}
+                <form action="{% url 'public:article-detail' article.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" type="submit">Read</button>
+                </form>
+                {% else %}
+                <p>{{ article.content }}</p>
+                {% endif %}
+            </div>
+            <p>Tags:
+                {% for tag in article.tags.all %}
+                <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
+                {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+            <p>Published on: {{ article.pub_date.date }}</p>
+            <p>Times read: {{ article.times_read }}</p>
+        </div>
+        <div class="col-md-4">
+            <img src="{{ article.image.url }}" alt="Article Image" class="img-fluid">
         </div>
     </div>
     <div class="container py-5">
@@ -44,44 +54,16 @@
         {% endif %}
         <p>Likes: {{likes}}</p>
         <p>Dislikes: {{ dislikes }}</p>
-        <form action="{% url 'public:like-article' article.id %}">
+        <form action="{% url 'public:like-article' article.id %}" method="post">
             {% csrf_token %}
             <button class="btn btn-primary" type="submit">Like</button>
         </form>
-        <form action="{% url 'public:dislike-article' article.id %}">
+        <form action="{% url 'public:dislike-article' article.id %}" method="post">
             {% csrf_token %}
             <button class="btn btn-primary" type="submit">Dislike</button>
         </form>
-    </div>
-    <div>
-        <h2>Comment section</h2>
-        <a href="{% url 'public:comment-article' article.id %}">Leave comment</a>
-        {% if not comments %}
-        <p>No comments were left on this article </p>
-        {% elif comments|length == 1 %}
-        <p>1 comment was left on this article </p>
-        {% else %}
-        <p>{{ comments|length }} comments were left on this article</p>
-        {% endif %}
-        <div class="container py-5">
-            {% for comment in comments %}
-            <p><strong>Comment:</strong> {{ comment.content }}</p>
-            {% if user == comment.user %}
-            <a href="{% url 'public:author-page' comment.user.id %}"><img src="{{ comment.user.user_image.url}}"
-                    alt="User's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p>You left this comment on {{ comment.pub_date.date }}</p>
-            <a href="{% url 'public:delete-comment' comment.id %}">Delete your comment</a>
-            {% elif comment.is_article_author %}
-            <a href="{% url 'public:author-page' comment.user.id %}"><img src="{{ comment.user.user_image.url}}"
-                    alt="User's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p>Comment was left by <strong>author</strong> on {{ comment.pub_date.date }}</p>
-            {% else %}
-            <a href="{% url 'public:author-page' comment.user.id %}"><img src="{{ comment.user.user_image.url}}"
-                    alt="User's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p>Comment was left by {{ comment.user }} on {{ comment.pub_date.date }}</p>
-            {% endif %}
-            {% endfor %}
-        </div>
+        <a href="{% url 'public:article-comments' article.id %}">See article's comments</a>
     </div>
 </div>
+
 {% endblock %}

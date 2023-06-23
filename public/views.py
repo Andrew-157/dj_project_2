@@ -61,13 +61,6 @@ class ArticleDetailView(View):
             prefetch_related('tags').\
             filter(pk=pk).first()
 
-    def get_comments(self, article):
-        return Comment.objects.\
-            select_related('article').\
-            select_related('user').\
-            order_by('-pub_date').\
-            filter(article=article).all()
-
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
             filter(user=user).prefetch_related('articles').first()
@@ -78,14 +71,34 @@ class ArticleDetailView(View):
             Q(subscribe_to=author)
         ).first()
 
-    def get_user_reading(self, article, user):
-        return UserReading.objects.\
+    def manage_user_readings(self, article, user):
+        user_readings = UserReading.objects.\
             select_related('user').\
             select_related('article').\
             filter(
                 Q(article=article) &
                 Q(user=user)
-            ).first()
+            ).all()
+        exists_for_current_date = False
+        user_reading_index = None
+
+        for index, user_reading in enumerate(user_readings):
+            if user_reading.date_read.date() == timezone.now().date():
+                exists_for_current_date = True
+                user_reading_index = index
+        if exists_for_current_date:
+            user_reading: UserReading = user_readings[user_reading_index]
+            user_reading.date_read = timezone.now()
+            user_reading.save()
+            return None
+        else:
+            user_reading = UserReading(
+                user=user,
+                article=article,
+                date_read=timezone.now()
+            )
+            user_reading.save()
+            return None
 
     def get_reaction(self, user, article):
         return Reaction.objects.\
@@ -157,7 +170,6 @@ class ArticleDetailView(View):
         reaction_status = self.set_reaction_status(current_user, article)
         subscription_status = self.set_subscription_status(
             current_user, article.author)
-        comments = self.get_comments(article)
         likes = len(self.get_likes(article))
         dislikes = len(self.get_dislikes(article))
         subscribers = self.get_subscribers(article.author)
@@ -165,7 +177,6 @@ class ArticleDetailView(View):
                                                     'favorite_status': favorite_status,
                                                     'show_content': False,
                                                     'reaction_status': reaction_status,
-                                                    'comments': comments,
                                                     'subscription_status': subscription_status,
                                                     'likes': likes,
                                                     'dislikes': dislikes,
@@ -179,38 +190,44 @@ class ArticleDetailView(View):
             article.save()
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
-        comments = self.get_comments(article)
         likes = len(self.get_likes(article))
         dislikes = len(self.get_dislikes(article))
         subscribers = self.get_subscribers(article.author)
         subscription_status = self.set_subscription_status(
             current_user, article.author)
         if current_user.is_authenticated:
-            user_reading = self.get_user_reading(article, current_user)
-            if not user_reading:
-                user_reading = UserReading(user=current_user,
-                                           article=article,
-                                           date_read=timezone.now())
-                user_reading.save()
-            elif user_reading.date_read.date() == timezone.now().date():
-                user_reading.date_read = timezone.now()
-                user_reading.save()
-            else:
-                user_reading = UserReading(
-                    user=current_user,
-                    article=article,
-                    date_read=timezone.now()
-                )
-                user_reading.save()
+            self.manage_user_readings(article, current_user)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
                                                     'show_content': True,
                                                     'reaction_status': reaction_status,
-                                                    'comments': comments,
                                                     'subscription_status': subscription_status,
                                                     'likes': likes,
                                                     'dislikes': dislikes,
                                                     'subscribers': subscribers})
+
+
+class CommentsByArticleList(ListView):
+    model = Comment
+    template_name = 'public/comments_by_article.html'
+    context_object_name = 'comments'
+
+    def get_queryset(self):
+        article_id = self.kwargs['pk']
+        article = Article.objects.filter(id=article_id).first()
+        if not article:
+            self.template_name = 'core/nonexistent.html'
+            return None
+        comments = Comment.objects.\
+            select_related('user', 'article').filter(article=article).\
+            order_by('pub_date').all()
+        return comments
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        article = Article.objects.filter(id=self.kwargs['pk']).first()
+        context['article'] = article
+        return context
 
 
 class AddRemoveFavoriteArticle(View):
@@ -227,7 +244,7 @@ class AddRemoveFavoriteArticle(View):
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
@@ -305,7 +322,7 @@ class LeaveReactionBaseClass(View):
                                 value=1)
             reaction.save()
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
@@ -333,7 +350,7 @@ class LeaveDislikeView(LeaveReactionBaseClass):
 
 class CommentArticleView(View):
     nonexistent_template = 'core/nonexistent.html'
-    redirect_to = 'public:article-detail'
+    redirect_to = 'public:article-comments'
     form_class = CommentArticleForm
     info_message = 'To leave a comment on this article,please become an authenticated user.'
     success_message = 'You successfully published a comment on this article.'
@@ -371,7 +388,7 @@ class CommentArticleView(View):
 class DeleteCommentView(View):
     nonexistent_template = 'core/nonexistent.html'
     not_yours_template = 'core/not_yours.html'
-    redirect_to = 'public:article-detail'
+    redirect_to = 'public:article-comments'
     success_message = 'You successfully deleted your comment on this article'
 
     def get_comment(self, pk):

@@ -2,22 +2,25 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="container py-5">
-        <form action="{% url 'public:subscription-through-author' author.id %}" method="get">
-            <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
-        </form>
-        <p><a href="{% url 'public:author-page' author.id %}">{{author}}</a> has {{ subscribers }} subscribers</p>
-        <div class="container py-5">
-            <a href="{% url 'public:author-page' author.id %}"><img src="{{ author.user_image.url}}"
-                    alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p>This is public page of
-                <a href="{% url 'public:author-page' author.id %}">{{author}}</a>
-            </p>
+
+    <div class="row">
+        <div class="col-md-4 order-md-2">
+            <img src="{{ author.user_image.url }}" alt="Author's Profile Image" class="img-fluid rounded-circle">
+        </div>
+        <div class="col-md-8 order-md-1">
+            <h2>{{ author }}</h2>
+            <p>{{ subscribers }} Subscribers</p>
+            <form action="{% url 'public:subscription-through-author' author.id %}" method="get">
+                <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
+            </form>
         </div>
     </div>
-    <div class="container py-5">
-        <a href="{% url 'public:articles-by-author' author.id %}">Articles published by this author</a> <br>
-        <a href="{% url 'public:about-page' author.id %}">Author's about page</a>
+
+    <div class="mt-4">
+        <a href="{% url 'public:articles-by-author' author.id %}" class="btn btn-primary">Articles published by this
+            author</a>
+        <a href="{% url 'public:about-page' author.id %}" class="btn btn-secondary">Author's about page</a>
     </div>
 </div>
+
 {% endblock %}

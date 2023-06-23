@@ -1,28 +1,31 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container">
     <h1>Articles found with "{{ query }}" in title or author's name: {{ articles|length }}</h1>
-    {% for article in articles %}
-    <div class="container py-5">
-        <div class="container py-5">
-            <a href="{% url 'public:author-page' article.author.id %}"><img src="{{ article.author.user_image.url}}"
-                    alt="Authors's image" style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p>Article was published by
-                <a href="{% url 'public:author-page' article.author.id %}">{{article.author}}</a>
-            </p>
+    <div class="row">
+        {% for article in articles %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="{{ article.image.url }}" class="card-img-top" alt="{{ article.title }}"
+                    style="width: 50%; float: right;">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ article.title }}</h5>
+                <ul class="list-unstyled">
+                    {% for tag in article.tags.all %}
+                    <li><a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a></li>
+                    {% endfor %}
+                </ul>
+                <p class="card-text">Author: <a href="{% url 'public:author-page' article.author.id %}">
+                        {{ article.author }}</a></p>
+                <p class="card-text">Published: {{ article.pub_date.date }}</p>
+                <p class="card-text">Times Read: {{ article.times_read }}</p>
+                <a href="{% url 'public:article-detail' article.id %}" class="btn btn-primary">Read More</a>
+            </div>
         </div>
-        <h2>Title: {{ article.title }}</h2>
-        <img src="{{ article.image.url }}" alt="Article image" style="width: 10%; float: right; margin-right: 10px;">
-        {% for tag in article.tags.all %}
-        <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
         {% endfor %}
-        <p>Was read <strong>{{ article.times_read }}</strong> times</p>
-        <p>Was published on <strong>{{ article.pub_date.date }}</strong></p>
-        <form action="{% url 'public:article-detail' article.id %}">
-            <button class="btn btn-primary" type="submit">Read article</button>
-        </form>
     </div>
-    {% endfor %}
 </div>
+<!-- ################################################################################# -->
 {% endblock %}

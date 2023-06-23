@@ -28,5 +28,7 @@ urlpatterns = [
     path('public/articles/search/',
          views.SearchArticlesView.as_view(), name='search'),
     path('public/articles/authors/<int:pk>/', views.ArticlesByAuthor.as_view(),
-         name='articles-by-author')
+         name='articles-by-author'),
+    path('public/articles/<int:pk>/comments/',
+         views.CommentsByArticleList.as_view(), name='article-comments')
 ]

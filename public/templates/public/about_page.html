@@ -2,31 +2,33 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1>This is about page of <a href="{% url 'public:author-page' author.id %}">{{author}}</a></h1>
-    <div class="container py-5">
-        <p><strong>{{ author }}</strong> joined Articlee on <strong>{{ author.date_joined.date }}</strong></p>
-        {% if not readings %}
-        <p><strong>{{ author }}'s</strong> articles were read 0 times </p>
-        {% else %}
-        <p><strong>{{ author }}'s</strong> articles were read {{ readings }} times </p>
-        {% endif %}
-    </div>
-    <div class="container py-5">
-        {% if description %}
-        <p><strong>{{ author }}'s</strong> description:</p>
-        <p>{{ description }}</p>
-        {% else %}
-        <p><strong>{{ author }}</strong> has not left any description yet</p>
-        {% endif %}
+    <h1 class="mb-4">{{author}}'s About Page</h1>
+    <div class="row">
+        <div class="col-md-8">
+            {% if description %}
+            <div class="row">
+                <div class="col-md-8">
+                    <h2>Author's description:</h2>
+                    <p>{{ description }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p>Author has not left any description</p>
+            {% endif %}
+            <p>Readings: {{ readings }}</p>
+        </div>
     </div>
     {% if social_media_list %}
-    <div class="container py-5">
-        <h2>Follow <strong>{{ author }}</strong> on different social media</h2>
-        {% for sm in social_media_list %}
-        <p><strong>{{sm.get_title_display}}:</strong> <a href="{{sm.link}}">{{sm.link}}</a></p>
-        {% endfor %}
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Follow author on different social media:</h2>
+            <ul class="list-group">
+                {% for sm in social_media_list %}
+                <li class="list-group-item">{{sm.get_title_display}}: <a href="{{ sm.link }}">{{ sm.link }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     {% endif %}
 </div>
-
 {% endblock %}
