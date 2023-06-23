@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4">{{author}}'s About Page</h1>
+    <h1 class="mb-4"><a href="{% url 'public:author-page' author.id %}">{{author}}</a>'s About Page</h1>
     <div class="row">
         <div class="col-md-8">
             {% if description %}
@@ -15,7 +15,8 @@
             {% else %}
             <p>Author has not left any description</p>
             {% endif %}
-            <p>Readings: {{ readings }}</p>
+            <p>Author joined Articlee on <strong>{{ author.date_joined.date }}</strong></p>
+            <p>Times author's articles were totally: <strong>{{ readings }}</strong></p>
         </div>
     </div>
     {% if social_media_list %}
