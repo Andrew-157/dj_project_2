@@ -4,11 +4,13 @@
 <div class="container py-5">
     <div class="row mt-4">
         <div class="col-md-2">
-            <img src="{{ article.author.user_image.url }}" alt="Author's Profile Image" class="img-fluid rounded-circle"
-                style="width: 50%;">
+            <a href="{% url 'public:author-page' article.author.id %}">
+                <img src="{{ article.author.user_image.url }}" alt="Author's Profile Image"
+                    class="img-fluid rounded-circle" style="width: 50%;">
+            </a>
         </div>
         <div class="col-md-6 align-self-center">
-            <h4>Author: {{ article.author }}</h4>
+            <h4>Author: <a href="{% url 'public:author-page' article.author.id %}">{{ article.author }}</a></h4>
             <p>Subscribers: {{ subscribers }}</p>
         </div>
         <div class="col-md-4 align-self-center">
