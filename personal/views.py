@@ -150,6 +150,10 @@ class UpdateArticleBaseClass(View):
 
     def post(self, request, *args, **kwargs):
         article = self.get_article(self.kwargs['pk'])
+        if not article:
+            return render(request, self.nonexistent_template)
+        if article.author != request.user:
+            return render(request, self.not_yours_template)
         form = self.form_class(request.POST, request.FILES, instance=article)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -191,12 +195,16 @@ class UpdateArticleThroughArticleDetail(UpdateArticleBaseClass):
 class DeleteArticleView(View):
     nonexistent_template = 'core/nonexistent.html'
     not_yours_template = 'core/not_yours.html'
+    not_allowed_template = 'core/not_allowed.html'
     success_message = 'You successfully deleted your article'
     redirect_to = 'personal:articles-list'
 
     def get_article(self, pk):
         return Article.objects.\
             select_related('author').filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -268,12 +276,16 @@ class AboutPageView(View):
 class DeleteSocialMediaView(View):
     success_message = 'You successfully deleted this social media link'
     nonexistent_template = 'core/nonexistent.html'
+    not_allowed_template = 'core/not_allowed.html'
     not_yours_template = 'core/not_yours.html'
     redirect_to = 'personal:about-page'
 
     def get_social_media(self, pk):
         return SocialMedia.objects.\
             select_related('user').filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -312,6 +324,9 @@ class PublishUserDescriptionView(View):
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
+        if self.get_description(current_user):
+            messages.warning(request, self.warning_message)
+            return redirect(self.redirect_to)
         form = self.form_class(request.POST)
         if form.is_valid():
             form.instance.user = current_user
@@ -348,6 +363,9 @@ class UpdateUserDescriptionView(View):
     def post(self, request, *args, **kwargs):
         current_user = request.user
         description = self.get_description(current_user)
+        if not description:
+            messages.warning(request, self.warning_message)
+            return redirect(self.redirect_to)
         form = self.form_class(request.POST, instance=description)
         if form.is_valid():
             form.save()
@@ -361,6 +379,7 @@ class UpdateUserDescriptionView(View):
 
 
 class DeleteUserDescriptionView(View):
+    not_allowed_template = 'core/not_allowed.html'
     success_message = 'You successfully deleted your description'
     warning_message = 'You do not have a description, you cannot delete it'
     redirect_to = 'personal:about-page'
@@ -368,6 +387,9 @@ class DeleteUserDescriptionView(View):
     def get_description(self, user):
         return UserDescription.objects.\
             select_related('user').filter(user=user).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -404,6 +426,10 @@ class ReadingHistory(View):
 class ClearReadingHistory(View):
     success_message = 'You successfully cleared your reading history'
     redirect_to = 'personal:reading-history'
+    not_allowed_template = 'core/not_allowed.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -424,10 +450,14 @@ class DeleteUserReading(View):
     not_yours_template = 'core/not_yours.html'
     redirect_to = 'personal:reading-history'
     nonexistent_template = 'core/nonexistent.html'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_user_reading(self, pk):
         return UserReading.objects.select_related('user').\
             filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -481,6 +511,7 @@ class ClearReactionsBaseClass(View):
     success_message = ''
     reaction_value = None
     redirect_to = ''
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_reactions(self, user):
         return Reaction.objects.\
@@ -491,6 +522,9 @@ class ClearReactionsBaseClass(View):
                 Q(user=user) &
                 Q(value=self.reaction_value)
             ).all()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -521,11 +555,15 @@ class DeleteSingleReactionBaseClass(View):
     success_message = ''
     nonexistent_template = 'core/nonexistent.html'
     not_yours_template = 'core/not_yours.html'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_reaction(self, pk):
         return Reaction.objects.\
             select_related('user').\
             filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -578,6 +616,7 @@ class FavoriteArticlesList(ListView):
 class DeleteFavoriteArticle(View):
     nonexistent_template = 'core/nonexistent.html'
     redirect_to = 'personal:favorite-articles'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
@@ -585,6 +624,9 @@ class DeleteFavoriteArticle(View):
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
             prefetch_related('articles').filter(user=user).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -613,9 +655,13 @@ class DeleteFavoriteArticle(View):
 class ClearFavoritesView(View):
     success_message = 'All your Favorites were successfully deleted'
     redirect_to = 'personal:favorite-articles'
+    not_allowed_template = 'core/not_allowed.html'
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.filter(user=user).first()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.not_allowed_template)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
