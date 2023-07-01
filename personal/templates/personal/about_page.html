@@ -2,64 +2,6 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-<!-- <div class="container py-5">
-    <h1 class="mb-4">This is your About Page</h1>
-    <div class="row">
-        <div class="col-md-8">
-            {% if description %}
-            <div class="row">
-                <div class="col-md-10">
-                    <h2>Description you added about yourself:</h2>
-                    <div class="container py-5">
-                        <p>{{ description }}</p>
-                        <a href="{% url 'personal:update-user-description' %}">Update your description</a>
-                        <form action="{% url 'personal:delete-user-description' %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Delete your description</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <a href="{% url 'personal:add-user-description' %}">Add description about yourself</a>
-            {% endif %}
-            <p>You joined Articlee on <strong>{{ user.date_joined.date }}</strong></p>
-            <p>Times your articles were totally read: <strong>{{ readings }}</strong></p>
-        </div>
-    </div>
-    {% if social_media_list %}
-    <div class="row">
-        <div class="col-md-8">
-            <h2>Social media links you added:</h2>
-            <ul class="list-group">
-                {% for sm in social_media_list %}
-                <li class="list-group-item">{{sm.get_title_display}}: <a href="{{ sm.link }}">{{ sm.link }}</a>
-                    <form action="{% url 'personal:social_media-delete' sm.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Delete link</button>
-                    </form>
-                    {% endfor %}
-            </ul>
-            <div class="container py-5">
-                <form action="{% url 'personal:about-page' %}" method="post">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <button class="btn btn-primary" type="submit">Add link</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="container py-5">
-        <h2>Let your readers follow you on different media</h2>
-        <form action="{% url 'personal:about-page' %}" method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button class="btn btn-primary" type="submit">Add link</button>
-        </form>
-    </div>
-    {% endif %}
-</div> -->
 <div class="container py-5">
     <div class="jumbotron">
         <h1>This is your "About page"</h1>
