@@ -2,7 +2,7 @@
 
 {% block content %}
 {% load crispy_forms_tags %}
-<div class="container py-5">
+<!-- <div class="container py-5">
     <h1 class="mb-4">This is your About Page</h1>
     <div class="row">
         <div class="col-md-8">
@@ -59,5 +59,53 @@
         </form>
     </div>
     {% endif %}
+</div> -->
+<div class="container py-5">
+    <div class="jumbotron">
+        <h1>This is your "About page"</h1>
+        <p> <strong>Date you joined Articlee:</strong> <mark>{{ user.date_joined.date }}</mark></p>
+        <p><strong>Times your articles were read:</strong> <mark> {{ readings }}</mark></p>
+    </div>
+    <div class="container p-3 my-3 border">
+        {% if not description %}
+        <a href="{% url 'personal:add-user-description' %}">Add description about yourself</a>
+        {% else %}
+        <h3>Description: </h3>
+        <a href="{% url 'personal:update-user-description' %}">Update description</a>
+        <div class="container py-5">
+            <p class="font-weight-bold">
+                {{ description }}
+            </p>
+        </div>
+        <form action="{% url 'personal:delete-user-description' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete description</button>
+        </form>
+        {% endif %}
+    </div>
+    <div class="container p-3 my-3 border ">
+        {% if social_media_list %}
+        <h2>Social media links you added:</h2>
+        {% for sm in social_media_list %}
+        <form action="{% url 'personal:social_media-delete' sm.id %}" method="post" class="form-inline">
+            <a href="{{ sm.link }}" class="mr-sm-2">{{ sm.get_title_display }}</a>
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm mr-sm-2">Delete link</button>
+        </form> <br>
+        {% endfor %}
+        <form action="{% url 'personal:about-page' %}" method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="btn btn-primary" type="submit">Add link</button>
+        </form>
+        {% else %}
+        <h2>Let users follow you on different social media: </h2>
+        <form action="{% url 'personal:about-page' %}" method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="btn btn-primary" type="submit">Add link</button>
+        </form>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
