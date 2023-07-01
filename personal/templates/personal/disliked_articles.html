@@ -2,12 +2,13 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1>Number of articles you disliked: {{ reaction_objects|length }}
+    <div class="jumbotron">
+        <h1>Number of articles you disliked: <mark>{{ reaction_objects|length }}</mark></h1>
         <form action="{% url 'personal:clear-dislikes' %}" method="post">
             {% csrf_token %}
             <button class="btn btn-danger" type="submit">Clear all your dislikes</button>
         </form>
-    </h1>
+    </div>
     {% for ro in reaction_objects %}
     <div class="container py-5">
         <p>-- You disliked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
