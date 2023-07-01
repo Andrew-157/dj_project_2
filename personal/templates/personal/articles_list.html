@@ -1,39 +1,6 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<!-- <div class="container">
-    <div class="container">
-        <h1>Number of articles you published: {{ articles|length }}</h1>
-        <h2><a href="{% url 'personal:publish-article' %}">Publish new article</a></h2>
-    </div>
-    <div class="row">
-        {% for article in articles %}
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <img src="{{ article.image.url }}" class="card-img-top" alt="{{ article.title }}"
-                    style="width: 50%; float: right;">
-                <div class="card-body">
-                    <h5 class="card-title">{{ article.title }}</h5>
-                    <ul class="list-unstyled">
-                        {% for tag in article.tags.all %}
-                        <li><a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a></li>
-                        {% endfor %}
-                    </ul>
-                    <p class="card-text">Published: {{ article.pub_date.date }}</p>
-                    <p class="card-text">Times Read: {{ article.times_read }}</p>
-                    <a href="{% url 'public:article-detail' article.id %}">Public page of your article</a> <br>
-                    <a href="{% url 'personal:article-detail' article.id %}">More about this article</a><br>
-                    <a href="{% url 'personal:update-article-list' article.id %}">Update this article</a> <br>
-                    <form method="post" action="{% url 'personal:delete-article' article.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Delete this article</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div> -->
 <div class="container py-5">
     <div class="container py-5">
         <h1>Number of articles you published: <mark>{{ articles|length }}</mark></h1>

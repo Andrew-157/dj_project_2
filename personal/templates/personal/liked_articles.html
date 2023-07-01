@@ -2,20 +2,25 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1>Number of articles you liked: {{ reaction_objects|length }}</h1>
+    <h1>Number of articles you liked: <mark>{{ reaction_objects|length }}</mark></h1>
     <form action="{% url 'personal:clear-likes' %}" method="post">
         {% csrf_token %}
         <button class="btn btn-danger" type="submit">Clear all your likes</button>
     </form>
-    {% for ro in reaction_objects %}
-    <div class="container py-5">
-        <p>-- You liked article <a href="{% url 'public:article-detail' ro.article.id%}">"{{ ro.article.title}}"</a>
-            on {{ro.reaction_date.date }} |
-        <form action="{% url 'personal:delete-like' ro.id %}" method="post">
+    {% if reaction_objects %}
+    <div class="container p-3 my-3 border">
+        {% for ro in reaction_objects %}
+        <form action="{% url 'personal:delete-like' ro.id %}" method="post" class="form-inline">
+            <p class="mr-sm-2">
+                -- You liked article
+                <a href="{% url 'public:article-detail' ro.article.id%}">"{{ro.article.title}}"</a>
+                on <mark>{{ro.reaction_date.date }}</mark> |
+            </p>
             {% csrf_token %}
-            <button class="btn btn-danger" type="submit">Delete this like</button>
-        </form>
+            <button class="btn btn-danger btn-sm mb-2" type="submit">Delete like</button>
+        </form> <br>
+        {% endfor %}
     </div>
-    {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,43 +1,12 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<!-- <div class="container py-5">
-    <div class="row">
-        <div class="col-md-8">
-            <h2>Title: {{ article.title }}</h2>
-            <div class="container py-5">
-                <h2>Article's content:</h2>
-                <p>{{ article.content }}</p>
-            </div>
-            <p>Tags:
-                {% for tag in article.tags.all %}
-                <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
-                {% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            </p>
-            <p>Published on: {{ article.pub_date.date }}</p>
-            <p>Times read: {{ article.times_read }}</p>
-        </div>
-        <div class="col-md-4">
-            <img src="{{ article.image.url }}" alt="Article Image" class="img-fluid">
-        </div>
-        <div class="container">
-            <form action="{% url 'public:article-detail' article.id %}">
-                <button class="btn btn-primary" type="submit">Read article</button>
-            </form>
-        </div>
-        <div class="container">
-            <form action="{% url 'personal:delete-article' article.id%}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-danger">Delete this article</button>
-            </form>
-            <a href="{% url 'personal:update-article-detail' article.id %}">Update this article</a> <br>
-        </div>
-    </div>
-</div> -->
 <div class="container py-5">
-    <div class="jumbotron" style="height: 350px;">
+    <div class="jumbotron" style="height: 400px;">
         <h1>Article's title: "{{ article.title }}"</h1>
+        <form action="{% url 'public:article-detail' article.id %}">
+            <button class="btn btn-primary" type="submit">Read</button>
+        </form>
         <img src="{{ article.image.url }}" alt="Article Image" class="img-thumbnail" style="width: 15%; float: right;">
         <p><strong>Published on:</strong> <mark>{{ article.pub_date.date }}</mark></p>
         <p><strong>Times read:</strong> <mark>{{ article.times_read }}</mark></p>

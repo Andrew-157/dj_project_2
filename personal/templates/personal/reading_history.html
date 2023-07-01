@@ -8,19 +8,22 @@
         <button class="btn btn-danger" type="submit">Clear your reading history</button>
     </form>
     {% if user_readings %}
-    {% for ur in user_readings %}
-    <div class="container py-5">
-        <p>-- You read article <a href="{% url 'public:article-detail' ur.article.id%}">"{{ur.article.title}}"</a>
-            on {{ ur.date_read.date }} |
-        <form action="{% url 'personal:delete-reading' ur.id %}" method="post">
+    <div class="container p-3 my-3 border">
+        {% for ur in user_readings %}
+        <form action="{% url 'personal:delete-reading' ur.id %}" method="post" class="form-inline">
+            <p class="mr-sm-2">
+                -- You read article
+                <a href="{% url 'public:article-detail' ur.article.id%}">"{{ur.article.title}}"</a>
+                on <mark>{{ur.date_read.date }}</mark> |
+            </p>
             {% csrf_token %}
-            <button class="btn btn-danger" type="submit">Delete from history</button>
-        </form>
+            <button class="btn btn-danger btn-sm mb-2" type="submit">Delete from history</button>
+        </form> <br>
+        {% endfor %}
     </div>
-    {% endfor %}
     {% else %}
-    <div class="container py-5">
-        <p>Your reading history is empty</p>
+    <div class="container p-3 my-3 border">
+        <h3>Your reading history is empty</h3>
     </div>
     {% endif %}
 </div>

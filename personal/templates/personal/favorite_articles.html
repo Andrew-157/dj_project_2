@@ -1,7 +1,7 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<div class="container">
+<!-- <div class="container">
     <h1>Number of your favorite articles: {{ articles|length }}</h1>
     <h2>
         <form action="{% url 'personal:clear-favorites' %}" method="post">
@@ -36,6 +36,38 @@
         </div>
         {% endfor %}
     </div>
+</div> -->
+<div class="container py-5">
+    <div class="container py-5">
+        <h1>Number of your favorite articles: <mark>{{ articles|length }}</mark> </h1>
+        <form action="{% url 'personal:clear-favorites' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Clear all your Favorites</button>
+        </form>
+    </div>
+    <div class="card-columns">
+        {% for article in articles %}
+        <div class="card" style="width: 300px;">
+            <img class="card-img-top img-thumbnail" src="{{ article.image.url }}" alt="Movie poster">
+            <div class="card-body">
+                <h4>Title: "{{ article.title }}"</h4>
+                <a href="{% url 'public:article-detail' article.id %}" class="btn btn-primary">Read</a> <br>
+                <p class="card-text">
+                    <strong>Tags:</strong>
+                    {% for tag in article.tags.all %}
+                    <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
+                    {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p class="card-text"><strong>Published on:</strong> {{ article.pub_date.date }}</p>
+                <p class="card-text"><strong>Times read:</strong> {{ article.times_read }}</p>
+                <form action="{% url 'personal:delete-favorite-article' article.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete from Favorites</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
-
 {% endblock %}
