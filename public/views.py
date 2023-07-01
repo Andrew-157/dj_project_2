@@ -32,7 +32,8 @@ class AboutPageView(View):
 
     def get_social_media(self, user):
         return SocialMedia.objects.\
-            select_related('user').filter(user=user).all()
+            select_related('user').filter(user=user).all().\
+            order_by('title')
 
     def get_readings(self, author):
         return Article.objects.filter(

@@ -1,7 +1,7 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<div class="container py-5">
+<!-- <div class="container py-5">
     <h1 class="mb-4"><a href="{% url 'public:author-page' author.id %}">{{author}}</a>'s About Page</h1>
     <div class="row">
         <div class="col-md-8">
@@ -31,6 +31,31 @@
                 {% endfor %}
             </ul>
         </div>
+    </div>
+    {% endif %}
+</div> -->
+<div class="container py-5">
+    <div class="jumbotron">
+        <h1>This is <a href="{% url 'public:author-page' author.id %}">{{author}}</a>'s About Page</h1>
+        <p><strong>Date author joined Articlee:</strong> <mark>{{ author.date_joined.date }}</mark></p>
+        <p><strong>Times author's articles were read:</strong> <mark>{{ readings }}</mark></p>
+    </div>
+    <div class="container p-3 my-3 border">
+        {% if not description %}
+        <p class="text-info">Author has not left any description yet</p>
+        {% else %}
+        <h3>Description:</h3>
+        <p class="font-weight-bold">
+            {{ description }}
+        </p>
+        {% endif %}
+    </div>
+    {% if social_media_list %}
+    <div class="container p-3 my-3 border">
+        <h3>Follow author on social media:</h3>
+        {% for sm in social_media_list %}
+        <a href="{{ sm.link }}">{{ sm.get_title_display }}</a> <br>
+        {% endfor %}
     </div>
     {% endif %}
 </div>

@@ -27,7 +27,7 @@
     </div>
     <div class="container p-3 my-3 border ">
         {% if social_media_list %}
-        <h2>Social media links you added:</h2>
+        <h3>Social media links you added:</h3>
         {% for sm in social_media_list %}
         <form action="{% url 'personal:social_media-delete' sm.id %}" method="post" class="form-inline">
             <a href="{{ sm.link }}" class="mr-sm-2">{{ sm.get_title_display }}</a>
