@@ -1,7 +1,7 @@
 {% extends 'core/header.html' %}
 
 {% block content %}
-<div class="container py-5">
+<!-- <div class="container py-5">
     <h1>Number of comments left on article
         <a href="{% url 'public:article-detail' article.id%}">{{ article.title }}</a>: {{ comments|length }}
     </h1>
@@ -24,5 +24,39 @@
         {% endif %}
     </div>
     {% endfor %}
+</div> -->
+<div class="container py-5">
+    <div class="container py-5">
+        <h1>Number of comments left on <a href="{% url 'public:article-detail' article.id%}">article</a>:
+            <mark>{{ comments|length }}</mark>
+        </h1>
+        <a href="{% url 'public:comment-article' article.id%}">Publish new comment</a>
+    </div>
+    <div class="container py-5">
+        {% for comment in comments %}
+        <div class="container p-3 my-3 border">
+            <a href="{% url 'public:author-page' comment.user.id %}">
+                <img src="{{ comment.user.user_image.url}}" alt="User's image"
+                    style="width: 5%; float: left; margin-right: 10px;" class="rounded-circle">
+            </a>
+            <h3>
+                <a href="{% url 'public:author-page' comment.user.id %}">{{ comment.user }}</a>
+            </h3>
+            <div class="container py-5">
+                <p class="font-weight-bold">{{ comment.content }}</p>
+            </div>
+            <p class="text-info">Published on {{ comment.pub_date.date }}</p>
+            {% if user == comment.user %}
+            <form action="{%  url 'public:delete-comment' comment.id%}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-danger">Delete your comment</button>
+            </form>
+            {% endif %}
+            {% if comment.user == article.author %}
+            <p class="text-primary">Comment was published by author of the article</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

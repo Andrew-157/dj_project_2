@@ -10,7 +10,7 @@
         {% for article in articles %}
         <div class="card" style="width: 300px;">
             <a href="{% url 'personal:article-detail' article.id %}">
-                <img class="card-img-top img-thumbnail" src="{{ article.image.url }}" alt="Movie poster">
+                <img class="card-img-top img-thumbnail" src="{{ article.image.url }}" alt="Article image">
             </a>
             <div class="card-body">
                 <p class="text-info small">Click on thumbnail to see your personal page of the article</p>

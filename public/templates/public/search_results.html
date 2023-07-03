@@ -1,31 +1,32 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<div class="container">
-    <h1>Articles found with "{{ query }}" in title or author's name: {{ articles|length }}</h1>
-    <div class="row">
+<div class="container py-5">
+    <div class="container py-5">
+        <h1>Articles found with "{{ query }}" in title or author's name: <mark>{{ articles|length }}</mark></h1>
+    </div>
+    <div class="card-columns">
         {% for article in articles %}
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <img src="{{ article.image.url }}" class="card-img-top" alt="{{ article.title }}"
-                    style="width: 50%; float: right;">
-            </div>
+        <div class="card" style="width: 300px;">
+            <img class="card-img-top img-thumbnail" src="{{ article.image.url }}" alt="Article's image">
             <div class="card-body">
-                <h5 class="card-title">{{ article.title }}</h5>
-                <ul class="list-unstyled">
-                    {% for tag in article.tags.all %}
-                    <li><a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a></li>
-                    {% endfor %}
-                </ul>
-                <p class="card-text">Author: <a href="{% url 'public:author-page' article.author.id %}">
+                <h4>Title: "{{ article.title }}"</h4>
+                <p class="card-text"> <strong>Author:</strong> <a
+                        href="{% url 'public:author-page' article.author.id %}">
                         {{ article.author }}</a></p>
-                <p class="card-text">Published: {{ article.pub_date.date }}</p>
-                <p class="card-text">Times Read: {{ article.times_read }}</p>
-                <a href="{% url 'public:article-detail' article.id %}" class="btn btn-primary">Read More</a>
+                <p class="card-text">
+                    <strong>Tags:</strong>
+                    {% for tag in article.tags.all %}
+                    <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
+                    {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p class="card-text"><strong>Published on:</strong> {{ article.pub_date.date }}</p>
+                <p class="card-text"><strong>Times read:</strong> {{ article.times_read }}</p>
+                <a href="{% url 'public:article-detail' article.id %}" class="btn btn-primary">Read</a>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
-<!-- ################################################################################# -->
 {% endblock %}

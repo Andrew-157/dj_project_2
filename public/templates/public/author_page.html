@@ -2,26 +2,28 @@
 
 {% block content %}
 <div class="container py-5">
-
-    <div class="row">
-        <div class="col-md-4 order-md-2">
-            <img src="{{ author.user_image.url }}" alt="Author's Profile Image" class="img-fluid rounded-circle">
+    <div class="jumbotron" style="height: 360px;">
+        <h1>This is public page of {{ author }}</h1>
+        <img src="{{ author.user_image.url }}" alt="Author's Profile Image" class="rounded-circle"
+            style="width: 15%; float: right;">
+        <div class="container py-5">
+            <h2>Number of subscribers: <mark>{{ subscribers }}</mark></h2>
         </div>
-        <div class="col-md-8 order-md-1">
-            <h2>{{ author }}</h2>
-            <p>Number of subscribers: {{ subscribers }}</p>
-            <form action="{% url 'public:subscription-through-author' author.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
-            </form>
-        </div>
+        <form action="{% url 'public:subscription-through-author' author.id %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary btn-lg" type="submit">{{ subscription_status }}</button>
+        </form>
     </div>
-
-    <div class="mt-4">
-        <a href="{% url 'public:articles-by-author' author.id %}" class="btn btn-primary">Articles published by this
-            author</a> <br>
-        <a href="{% url 'public:about-page' author.id %}" class="btn btn-secondary">Author's about page</a>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <a href="{% url 'public:articles-by-author' author.id %}" class="btn btn-primary">
+                    Articles published by this author</a>
+            </div>
+            <div class="col-sm-4">
+                <a href="{% url 'public:about-page' author.id %}" class="btn btn-primary">Author's about page</a>
+            </div>
+        </div>
     </div>
 </div>
-
 {% endblock %}

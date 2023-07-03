@@ -1,7 +1,7 @@
 {% extends 'core/header.html' %}
 
 {% block content %}
-<div class="container py-5">
+<!-- <div class="container py-5">
     <div class="row mt-4">
         <div class="col-md-2">
             <a href="{% url 'public:author-page' article.author.id %}">
@@ -66,6 +66,92 @@
         </form>
         <a href="{% url 'public:article-comments' article.id %}">See article's comments</a>
     </div>
+</div> -->
+<div class="container py-5">
+    <div class="container p-3 my-3 border" style="height: 120px;">
+        <div class="row">
+            <div class="col-sm-4">
+                <a href="{% url 'public:author-page' article.author.id %}">
+                    <img src="{{ article.author.user_image.url }}" alt="Author's Profile Image" class="rounded-circle"
+                        style="width: 20%; margin-right: 10px; float: left;"></a>
+                <h4><a href="{% url 'public:author-page' article.author.id %}">{{ article.author }}</a></h4>
+                <p>Subscribers: {{ subscribers }}</p>
+            </div>
+            <div class="col-sm-4">
+                <form action="{% url 'public:subscription-through-detail' article.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <h2 class="text-center">Title: {{ article.title }}</h2>
+    <div class="container p-3 my-3 border">
+        <div class="row">
+            <div class="col-sm-4 text-center">
+                {% if not show_content %}
+                <form action="{% url 'public:article-detail' article.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-primary btn-lg" type="submit">Read</button>
+                </form>
+                {% else %}
+                <div class="container p-3 my-3 bg-primary text-white">
+                    <h3>Content</h3>
+                    <p class="text-break">{{ article.content }}</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-sm-4">
+                <form action="{% url 'public:manage-favorites' article.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-secondary" type="submit">{{ favorite_status }}</button>
+                </form> <br>
+                <img src="{{ article.image.url }}" class="img-thumbnail" alt="Article Image" style="width: 70%;">
+            </div>
+            <div class="col-sm-4">
+                <p><strong>Tags:</strong>
+                    {% for tag in article.tags.all %}
+                    <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
+                    {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p><strong>Published on:</strong> <mark>{{ article.pub_date.date }}</mark></p>
+                <p><strong>Times read:</strong> <mark>{{ article.times_read }}</mark></p>
+                {% if reaction_status %}
+                <p><strong>{{ reaction_status }}</strong></p>
+                {% endif %}
+                <p><strong>Likes:</strong> {{likes}}</p>
+                <p><strong>Dislikes:</strong> {{ dislikes }}</p>
+                <div class="btn-group">
+                    <form action="{% url 'public:like-article' article.id %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-primary" type="submit">Like</button>
+                    </form>
+                    <form action="{% url 'public:dislike-article' article.id %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-primary" type="submit">Dislike</button>
+                    </form>
+                </div> <br>
+                <a href="{% url 'public:article-comments' article.id %}">See article's comments</a>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum totam molestias nobis dignissimos neque obcaecati
+assumenda cumque asperiores excepturi ipsa. Voluptates autem itaque possimus distinctio eaque saepe? Maiores eligendi
+deleniti a voluptatem molestiae doloremque distinctio, nam fugit omnis id dolore rem provident officiis iusto odit
+expedita delectus totam veritatis. Aperiam modi nobis velit soluta consectetur ut itaque consequatur distinctio
+voluptatum blanditiis, cum eveniet, totam laborum, commodi porro praesentium? Modi tempore, quasi ratione cum nobis
+ipsam quae earum! Tempora excepturi iure fugit doloribus vitae. Vero modi sapiente, architecto rem qui possimus? Sit a
+quisquam quae illo, recusandae excepturi. Cupiditate ex libero repellendus, molestias facilis, praesentium amet veniam
+nulla doloremque quaerat delectus ab enim ut repudiandae tempora nam sapiente, hic totam voluptatum earum quasi?
+Doloremque ipsa officia ad delectus repellat possimus eius dolorem dolores qui provident esse blanditiis vel aut,
+praesentium reprehenderit itaque quasi non omnis expedita saepe nam nemo ratione. Amet non nihil neque! Repellendus ipsa
+incidunt iusto enim dolorum et, at, cum quia distinctio sint dolorem, harum aspernatur voluptatibus animi earum
+repudiandae expedita. Illum deleniti modi enim corrupti minima sint odit nihil suscipit fugit atque cum, numquam,
+aperiam similique, dolorem aut sequi eos velit ducimus ex quibusdam! Temporibus praesentium eligendi velit ab facere
+rerum, accusantium recusandae voluptate. Enim cumque velit amet? Perspiciatis soluta neque autem porro blanditiis odio
+quis quia voluptate placeat, necessitatibus ipsum non assumenda voluptas eum consequuntur quaerat adipisci unde ex?
+Debitis nostrum tempora illo veritatis voluptas id, alias recusandae odit optio voluptates sint quis. A quod hic at
+cupiditate explicabo nihil inventore accusamus?
