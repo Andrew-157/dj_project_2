@@ -7,7 +7,7 @@ from users.models import CustomUser
 class UserCreationForm(BaseUserCreationForm):
     email = forms.EmailField(
         required=True, help_text='Required. Enter a valid email address.')
-    user_image = forms.ImageField(label='Profile image*', required=False,
+    user_image = forms.ImageField(label='Profile image*',
                                   help_text='You can register without an image.')
 
     class Meta:
