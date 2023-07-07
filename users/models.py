@@ -18,4 +18,4 @@ def validate_image(image):
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     user_image = models.ImageField(
-        upload_to='users/images', validators=[validate_image])
+        upload_to='users/images', validators=[validate_image], null=True)
