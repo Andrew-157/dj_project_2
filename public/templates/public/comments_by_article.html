@@ -27,7 +27,7 @@
                 <a href="{% url 'public:author-page' comment.user.id %}">{{ comment.user }}</a>
             </h3>
             <div class="container py-5">
-                <p class="font-weight-bold">{{ comment.content }}</p>
+                <p class="font-weight-bold text-break">{{ comment.content }}</p>
             </div>
             <p class="text-info">Published on {{ comment.pub_date.date }}</p>
             {% if user == comment.user %}

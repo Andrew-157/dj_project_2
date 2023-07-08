@@ -1,79 +1,20 @@
 {% extends 'core/header.html' %}
 
 {% block content %}
-<!-- <div class="container py-5">
-    <div class="row mt-4">
-        <div class="col-md-2">
-            <a href="{% url 'public:author-page' article.author.id %}">
-                <img src="{{ article.author.user_image.url }}" alt="Author's Profile Image"
-                    class="img-fluid rounded-circle" style="width: 50%;">
-            </a>
-        </div>
-        <div class="col-md-6 align-self-center">
-            <h4>Author: <a href="{% url 'public:author-page' article.author.id %}">{{ article.author }}</a></h4>
-            <p>Subscribers: {{ subscribers }}</p>
-        </div>
-        <div class="col-md-4 align-self-center">
-            <form action="{% url 'public:subscription-through-detail' article.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-primary" type="submit">{{ subscription_status }}</button>
-            </form>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-8">
-            <h2>Title: {{ article.title }}</h2>
-            <form action="{% url 'public:manage-favorites' article.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-primary" type="submit">{{ favorite_status }}</button>
-            </form>
-            <div class="container py-5">
-                {% if not show_content %}
-                <form action="{% url 'public:article-detail' article.id %}" method="post">
-                    {% csrf_token %}
-                    <button class="btn btn-primary" type="submit">Read</button>
-                </form>
-                {% else %}
-                <p>{{ article.content }}</p>
-                {% endif %}
-            </div>
-            <p>Tags:
-                {% for tag in article.tags.all %}
-                <a href="{% url 'public:articles-tag' tag.slug %}">#{{ tag }}</a>
-                {% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            </p>
-            <p>Published on: {{ article.pub_date.date }}</p>
-            <p>Times read: {{ article.times_read }}</p>
-        </div>
-        <div class="col-md-4">
-            <img src="{{ article.image.url }}" alt="Article Image" class="img-fluid">
-        </div>
-    </div>
-    <div class="container py-5">
-        {% if reaction_status %}
-        <p><strong>{{ reaction_status }}</strong></p>
-        {% endif %}
-        <p>Likes: {{likes}}</p>
-        <p>Dislikes: {{ dislikes }}</p>
-        <form action="{% url 'public:like-article' article.id %}" method="post">
-            {% csrf_token %}
-            <button class="btn btn-primary" type="submit">Like</button>
-        </form>
-        <form action="{% url 'public:dislike-article' article.id %}" method="post">
-            {% csrf_token %}
-            <button class="btn btn-primary" type="submit">Dislike</button>
-        </form>
-        <a href="{% url 'public:article-comments' article.id %}">See article's comments</a>
-    </div>
-</div> -->
 <div class="container py-5">
     <div class="container p-3 my-3 border" style="height: 120px;">
         <div class="row">
             <div class="col-sm-4">
+                {% if not article.author.user_image %}
+                {% load static %}
+                <a href="{% url 'public:author-page' article.author.id %}">
+                    <img src="{% static 'users/profile_pic.jpg' %}" alt="Author's Profile Image" class="rounded-circle"
+                        style="width: 20%; margin-right: 10px; float: left;"></a>
+                {% else %}
                 <a href="{% url 'public:author-page' article.author.id %}">
                     <img src="{{ article.author.user_image.url }}" alt="Author's Profile Image" class="rounded-circle"
                         style="width: 20%; margin-right: 10px; float: left;"></a>
+                {% endif %}
                 <h4><a href="{% url 'public:author-page' article.author.id %}">{{ article.author }}</a></h4>
                 <p>Subscribers: {{ subscribers }}</p>
             </div>

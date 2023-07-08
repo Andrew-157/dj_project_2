@@ -247,6 +247,8 @@ class AboutPageView(View):
         description = self.get_description(current_user)
         form = self.form_class()
         readings = self.get_readings(current_user)['times_read__sum']
+        if not readings:
+            readings = 0
         return render(request, self.template_name, {'form': form,
                                                     'social_media_list': social_media_list,
                                                     'description': description,
