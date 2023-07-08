@@ -1,30 +1,6 @@
 {% extends 'core/header.html' %}
 
 {% block content %}
-<!-- <div class="container py-5">
-    <h1>Number of comments left on article
-        <a href="{% url 'public:article-detail' article.id%}">{{ article.title }}</a>: {{ comments|length }}
-    </h1>
-    <a href="{% url 'public:comment-article' article.id%}">Publish new comment</a>
-    {% for comment in comments %}
-    <div class="conatiner py-5">
-        <h5>{{ comment.user }}</h5>
-        <img src="{{ comment.user.user_image.url }}" alt="User Image" class="img-fluid rounded-circle"
-            style="width: 8%;">
-        <p>{{ comment.content }}</p>
-        <p>Published on: {{ comment.pub_date.date }}</p>
-        {% if user == comment.user%}
-        <form action="{%  url 'public:delete-comment' comment.id%}" method="post">
-            {% csrf_token %}
-            <button class="btn btn-danger">Delete your comment</button>
-        </form>
-        {% endif %}
-        {% if user == article.author %}
-        <p>Comment was published by author of the article</p>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div> -->
 <div class="container py-5">
     <div class="container py-5">
         <h1>Number of comments left on <a href="{% url 'public:article-detail' article.id%}">article</a>:
@@ -35,10 +11,18 @@
     <div class="container py-5">
         {% for comment in comments %}
         <div class="container p-3 my-3 border">
+            {% if not comment.user.user_image %}
+            {% load static %}
+            <a href="{% url 'public:author-page' comment.user.id %}">
+                <img src="{% static 'users/profile_pic.jpg' %}" alt="User's image"
+                    style="width: 5%; float: left; margin-right: 10px;" class="rounded-circle">
+            </a>
+            {% else %}
             <a href="{% url 'public:author-page' comment.user.id %}">
                 <img src="{{ comment.user.user_image.url}}" alt="User's image"
                     style="width: 5%; float: left; margin-right: 10px;" class="rounded-circle">
             </a>
+            {% endif %}
             <h3>
                 <a href="{% url 'public:author-page' comment.user.id %}">{{ comment.user }}</a>
             </h3>

@@ -4,8 +4,14 @@
 <div class="container py-5">
     <div class="jumbotron" style="height: 360px;">
         <h1>This is public page of {{ author }}</h1>
+        {% if not author.user_image %}
+        {% load static %}
+        <img src="{% static 'users/profile_pic.jpg' %}" alt="Author's profile image" style="width: 15%; float: right;"
+            class="rounded-circle">
+        {% else %}
         <img src="{{ author.user_image.url }}" alt="Author's Profile Image" class="rounded-circle"
             style="width: 15%; float: right;">
+        {% endif %}
         <div class="container py-5">
             <h2>Number of subscribers: <mark>{{ subscribers }}</mark></h2>
         </div>
