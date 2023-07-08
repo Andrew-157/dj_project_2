@@ -433,6 +433,52 @@ class DeleteCommentView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
+class UpdateCommentView(View):
+    nonexistent_template = 'core/nonexistent.html'
+    redirect_to = 'public:article-comments'
+    not_yours_template = 'core/not_yours.html'
+    form_class = CommentArticleForm
+    success_message = 'You successfully updated your comment on this article.'
+    template_name = 'public/update_comment.html'
+
+    def get_comment(self, pk):
+        return Comment.objects.\
+            select_related('article', 'user').\
+            filter(pk=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = request.user
+        comment = self.get_comment(self.kwargs['pk'])
+        if not comment:
+            return render(request, self.nonexistent_template)
+        if comment.user != current_user:
+            return render(request, self.not_yours_template)
+        form = self.form_class(instance=comment)
+        return render(request, self.template_name, {'comment': comment,
+                                                    'form': form,
+                                                    'article': comment.article})
+
+    def post(self, request, *args, **kwargs):
+        current_user = request.user
+        comment = self.get_comment(self.kwargs['pk'])
+        if not comment:
+            return render(request, self.nonexistent_template)
+        if comment.user != current_user:
+            return render(request, self.not_yours_template)
+        form = self.form_class(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, self.success_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(comment.article.id, )))
+        return render(request, self.template_name, {'comment': comment,
+                                                    'form': form,
+                                                    'article': comment.article})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
 class SubscribeUnsubscribeThroughArticleDetail(View):
     """
     This view is called in 'article_detail.html' template,

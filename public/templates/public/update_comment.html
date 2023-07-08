@@ -1,0 +1,13 @@
+{% extends "core/header.html" %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="container py-5">
+    <h1>You are updating your comment on article "{{article.title}}"</h1>
+    <form action="{% url 'public:update-comment' comment.id %}" method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-primary" type="submit">Update</button>
+    </form>
+</div>
+{% endblock %}

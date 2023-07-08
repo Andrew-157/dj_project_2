@@ -30,5 +30,7 @@ urlpatterns = [
     path('public/articles/authors/<int:pk>/', views.ArticlesByAuthor.as_view(),
          name='articles-by-author'),
     path('public/articles/<int:pk>/comments/',
-         views.CommentsByArticleList.as_view(), name='article-comments')
+         views.CommentsByArticleList.as_view(), name='article-comments'),
+    path('public/articles/comments/<int:pk>/update/', views.UpdateCommentView.as_view(),
+         name='update-comment')
 ]

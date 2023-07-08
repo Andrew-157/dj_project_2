@@ -29,8 +29,14 @@
             <div class="container py-5">
                 <p class="font-weight-bold text-break">{{ comment.content }}</p>
             </div>
+            {% if comment.pub_date == comment.update_date %}
             <p class="text-info">Published on {{ comment.pub_date.date }}</p>
+            {% else %}
+            <p class="text-info">Published on {{ comment.pub_date.date }}</p>
+            <p class="text-info">Updated on {{ comment.update_date.date }}</p>
+            {% endif %}
             {% if user == comment.user %}
+            <a href="{% url 'public:update-comment' comment.id %}">Update your comment</a>
             <form action="{%  url 'public:delete-comment' comment.id%}" method="post">
                 {% csrf_token %}
                 <button class="btn btn-danger">Delete your comment</button>

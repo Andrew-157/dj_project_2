@@ -75,6 +75,7 @@ class Comment(models.Model):
     is_article_author = models.BooleanField(default=False)
     content = models.TextField()
     pub_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
 
 
 class UserReading(models.Model):
