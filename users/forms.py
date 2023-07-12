@@ -16,15 +16,16 @@ class UserCreationForm(BaseUserCreationForm):
             'username', 'email', 'password1', 'password2', 'user_image'
         ]
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     email = cleaned_data.get('email')
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
 
-    #     if CustomUser.objects.filter(email=email).exists():
-    #         msg = 'A user with that email already exists.'
-    #         self.add_error('email', msg)
+        if username and len(username) < 6:
 
-    #     return self.cleaned_data
+            msg = 'Username cannot be shorter than 6 characters.'
+            self.add_error('username', msg)
+
+        return self.cleaned_data
 
 
 class UserChangeForm(BaseUserChangeForm):
@@ -39,14 +40,11 @@ class UserChangeForm(BaseUserChangeForm):
             'username', 'email', 'user_image'
         ]
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     email = cleaned_data.get('email')
-    #     username = self.cleaned_data['username']
-    #     current_user = CustomUser.objects.filter(username=username).first()
-    #     user_with_email = CustomUser.objects.filter(email=email).first()
-    #     if user_with_email and user_with_email != current_user:
-    #         msg = 'A user with that email already exists.'
-    #         self.add_error('email', msg)
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        if username and len(username) < 6:
+            msg = 'Username cannot be shorter than 6 characters.'
+            self.add_error('username', msg)
 
-    #     return self.cleaned_data
+        return self.cleaned_data
