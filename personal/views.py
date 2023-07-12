@@ -74,13 +74,13 @@ class ArticleDetailView(DetailView):
     context_object_name = 'article'
     nonexistent_template = 'core/nonexistent.html'
     not_yours_template = 'core/not_yours.html'
-    queryset = Article.objects.\
-        select_related('author').\
-        prefetch_related('tags').all()
+    # queryset = Article.objects.\
+    #     select_related('author').\
+    #     prefetch_related('tags').all()
 
     def get_object(self):
         article_pk = self.kwargs['pk']
-        article = Article.objects.select_related('author').\
+        article = Article.objects.\
             filter(pk=article_pk).first()
         if not article:
             self.template_name = self.nonexistent_template
@@ -133,9 +133,10 @@ class UpdateArticleBaseClass(View):
 
     def get_article(self, pk):
         return Article.objects.\
-            select_related('author').\
+            filter(pk=pk).\
             prefetch_related('tags').\
-            filter(pk=pk).first()
+            select_related('author').\
+            first()
 
     def get(self, request, *args, **kwargs):
         article = self.get_article(self.kwargs['pk'])
@@ -200,8 +201,7 @@ class DeleteArticleView(View):
     redirect_to = 'personal:articles-list'
 
     def get_article(self, pk):
-        return Article.objects.\
-            select_related('author').filter(pk=pk).first()
+        return Article.objects.filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, self.not_allowed_template)
@@ -235,8 +235,7 @@ class AboutPageView(View):
             all()
 
     def get_description(self, user):
-        return UserDescription.objects.\
-            select_related('user').filter(user=user).first()
+        return UserDescription.objects.filter(user=user).first()
 
     def get_readings(self, user):
         return Article.objects.filter(author=user).all().aggregate(Sum('times_read'))
@@ -283,8 +282,7 @@ class DeleteSocialMediaView(View):
     redirect_to = 'personal:about-page'
 
     def get_social_media(self, pk):
-        return SocialMedia.objects.\
-            select_related('user').filter(pk=pk).first()
+        return SocialMedia.objects.filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, self.not_allowed_template)
@@ -313,8 +311,7 @@ class PublishUserDescriptionView(View):
     template_name = 'personal/publish_description.html'
 
     def get_description(self, user):
-        return UserDescription.objects.\
-            select_related('user').filter(user=user).first()
+        return UserDescription.objects.filter(user=user).first()
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
@@ -350,8 +347,7 @@ class UpdateUserDescriptionView(View):
     redirect_to = 'personal:about-page'
 
     def get_description(self, user):
-        return UserDescription.objects.\
-            select_related('user').filter(user=user).first()
+        return UserDescription.objects.filter(user=user).first()
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
@@ -387,8 +383,7 @@ class DeleteUserDescriptionView(View):
     redirect_to = 'personal:about-page'
 
     def get_description(self, user):
-        return UserDescription.objects.\
-            select_related('user').filter(user=user).first()
+        return UserDescription.objects.filter(user=user).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, self.not_allowed_template)
@@ -414,7 +409,6 @@ class ReadingHistory(View):
     def get(self, request, *args, **kwargs):
         current_user = request.user
         user_readings = UserReading.objects.\
-            select_related('user').\
             select_related('article').\
             filter(user=current_user).\
             order_by('-date_read').all()
@@ -435,8 +429,7 @@ class ClearReadingHistory(View):
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
-        user_readings = UserReading.objects.\
-            select_related('user').filter(user=current_user).all()
+        user_readings = UserReading.objects.filter(user=current_user).all()
         user_readings.delete()
         messages.success(request, self.success_message)
         return redirect(self.redirect_to)
@@ -455,8 +448,7 @@ class DeleteUserReading(View):
     not_allowed_template = 'core/not_allowed.html'
 
     def get_user_reading(self, pk):
-        return UserReading.objects.select_related('user').\
-            filter(pk=pk).first()
+        return UserReading.objects.filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, self.not_allowed_template)
@@ -486,7 +478,6 @@ class ReactedArticlesBaseClass(ListView):
     def get_queryset(self):
         current_user = self.request.user
         return Reaction.objects.\
-            select_related('user').\
             select_related('article').\
             order_by('-reaction_date').\
             filter(
@@ -517,8 +508,6 @@ class ClearReactionsBaseClass(View):
 
     def get_reactions(self, user):
         return Reaction.objects.\
-            select_related('user').\
-            select_related('article').\
             order_by('-reaction_date').\
             filter(
                 Q(user=user) &
@@ -561,7 +550,6 @@ class DeleteSingleReactionBaseClass(View):
 
     def get_reaction(self, pk):
         return Reaction.objects.\
-            select_related('user').\
             filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
@@ -600,7 +588,6 @@ class FavoriteArticlesList(ListView):
 
     def get_queryset(self):
         favorite_object = FavoriteArticles.objects.\
-            prefetch_related('articles').\
             filter(user=self.request.user).first()
         if not favorite_object:
             return None
@@ -625,7 +612,7 @@ class DeleteFavoriteArticle(View):
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
-            prefetch_related('articles').filter(user=user).first()
+            filter(user=user).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, self.not_allowed_template)

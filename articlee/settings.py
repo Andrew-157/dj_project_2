@@ -52,11 +52,13 @@ INSTALLED_APPS = [
     'users',
     'personal',
     'public',
+    'debug_toolbar'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -159,3 +161,9 @@ MESSAGE_TAGS = {
 LOGIN_URL = reverse_lazy('core:become-user')
 
 TAGGIT_CASE_INSENSITIVE = True
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

@@ -12,6 +12,7 @@ django-taggit = "*"
 pillow = "*"
 mysqlclient = "*"
 django-environ = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]
 autopep8 = "*"

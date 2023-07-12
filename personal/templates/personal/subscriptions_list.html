@@ -6,10 +6,18 @@
     <div class="row">
         {% for s in subscriptions %}
         <div class="container p-3 my-3 border">
+            {% if not s.subscribe_to.user_image %}
+            {% load static %}
+            <a href="{% url 'public:author-page' s.subscribe_to.id %}">
+                <img src="{% static 'users/profile_pic.jpg' %}" alt="user image" class="img rounded-circle "
+                    style="width: 10%;">
+            </a>
+            {% else %}
             <a href="{% url 'public:author-page' s.subscribe_to.id %}">
                 <img src="{{ s.subscribe_to.user_image.url }}" alt="user image" class="img rounded-circle "
                     style="width: 10%;">
             </a>
+            {% endif %}
             <a href="{% url 'public:author-page' s.subscribe_to.id %}">{{s.subscribe_to}}</a><br>
         </div>
         {% endfor %}

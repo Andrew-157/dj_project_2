@@ -28,11 +28,11 @@ class AboutPageView(View):
 
     def get_description(self, user):
         return UserDescription.objects.\
-            select_related('user').filter(user=user).first()
+            filter(user=user).first()
 
     def get_social_media(self, user):
         return SocialMedia.objects.\
-            select_related('user').filter(user=user).all().\
+            filter(user=user).all().\
             order_by('title')
 
     def get_readings(self, author):
@@ -64,7 +64,7 @@ class ArticleDetailView(View):
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
-            filter(user=user).prefetch_related('articles').first()
+            filter(user=user).first()
 
     def get_subscription(self, user, author):
         return Subscription.objects.filter(
@@ -74,8 +74,6 @@ class ArticleDetailView(View):
 
     def manage_user_readings(self, article, user):
         user_readings = UserReading.objects.\
-            select_related('user').\
-            select_related('article').\
             filter(
                 Q(article=article) &
                 Q(user=user)
@@ -103,8 +101,6 @@ class ArticleDetailView(View):
 
     def get_reaction(self, user, article):
         return Reaction.objects.\
-            select_related('user').\
-            select_related('article').\
             filter(
                 Q(article=article) &
                 Q(user=user)
@@ -243,7 +239,7 @@ class AddRemoveFavoriteArticle(View):
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
-            prefetch_related('articles').filter(user=user).first()
+            filter(user=user).first()
 
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
@@ -297,8 +293,6 @@ class LeaveReactionBaseClass(View):
 
     def get_reaction(self, user, article):
         return Reaction.objects.\
-            select_related('user').\
-            select_related('article').\
             filter(
                 Q(article=article) &
                 Q(user=user)
@@ -368,7 +362,7 @@ class CommentArticleView(View):
     template_name = 'public/comment_article.html'
 
     def get_article(self, pk):
-        return Article.objects.select_related('author').filter(pk=pk).first()
+        return Article.objects.filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
@@ -410,8 +404,7 @@ class DeleteCommentView(View):
 
     def get_comment(self, pk):
         return Comment.objects.\
-            select_related('article').\
-            select_related('user').filter(pk=pk).first()
+            filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, self.not_allowed_template)
@@ -443,7 +436,6 @@ class UpdateCommentView(View):
 
     def get_comment(self, pk):
         return Comment.objects.\
-            select_related('article', 'user').\
             filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
@@ -493,7 +485,7 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
     not_allowed_template = 'core/not_allowed.html'
 
     def get_article(self, pk):
-        return Article.objects.select_related('author').\
+        return Article.objects.\
             filter(pk=pk).first()
 
     def get_subscription(self, user, author):
