@@ -59,7 +59,6 @@ class ArticleDetailView(View):
     def get_article(self, pk):
         return Article.objects.\
             select_related('author').\
-            prefetch_related('tags').\
             filter(pk=pk).first()
 
     def get_favorite(self, user):
@@ -218,7 +217,7 @@ class CommentsByArticleList(ListView):
             self.template_name = 'core/nonexistent.html'
             return None
         comments = Comment.objects.\
-            select_related('user', 'article').filter(article=article).\
+            select_related('user').filter(article=article).\
             order_by('pub_date').all()
         return comments
 
@@ -690,7 +689,6 @@ class ArticlesByAuthor(View):
 
     def get_articles(self, author):
         return Article.objects.\
-            select_related('author').\
             prefetch_related('tags').\
             filter(author=author).\
             order_by('-times_read').all()

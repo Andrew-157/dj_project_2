@@ -57,7 +57,6 @@ class ArticlesListView(ListView):
     def get_queryset(self):
         current_user = self.request.user
         articles = Article.objects.\
-            select_related('author').\
             prefetch_related('tags').\
             filter(author=current_user).\
             order_by('-pub_date').all()
@@ -135,7 +134,6 @@ class UpdateArticleBaseClass(View):
         return Article.objects.\
             filter(pk=pk).\
             prefetch_related('tags').\
-            select_related('author').\
             first()
 
     def get(self, request, *args, **kwargs):
