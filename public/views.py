@@ -435,6 +435,7 @@ class UpdateCommentView(View):
 
     def get_comment(self, pk):
         return Comment.objects.\
+            select_related('article').\
             filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
