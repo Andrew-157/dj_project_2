@@ -11,38 +11,21 @@ from core.models import Article, Comment, Reaction
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
     list_display = ['title', 'author', 'times_read',
-                    'pub_date', 'tag_list', 'image_tag',
-                    'comments', 'likes', 'dislikes']
+                    'pub_date', 'tag_list', 'image_tag']
     list_filter = ['title', 'tags', 'author', 'pub_date']
     search_fields = ['title']
 
     def get_queryset(self, request):
         return super().get_queryset(request).\
-            select_related('author').\
             prefetch_related('tags')
 
     def tag_list(self, obj):
         return u", ".join(o.name for o in obj.tags.all())
 
     def image_tag(self, obj):
-        return format_html(f'<img src="{obj.image.url}" width="50" height="50">')
+        return format_html(f'<img src="{obj.image.url}" width="100" height="100">')
 
     image_tag.short_description = 'Article image'
-
-    def comments(self, obj):
-        return Comment.objects.filter(article__id=obj.id).count()
-
-    def likes(self, obj):
-        return Reaction.objects.filter(
-            Q(article__id=obj.id) &
-            Q(value=1)
-        ).count()
-
-    def dislikes(self, obj):
-        return Reaction.objects.filter(
-            Q(article__id=obj.id) &
-            Q(value=-1)
-        ).count()
 
 
 @admin.register(CustomUser)
@@ -59,6 +42,8 @@ class CustomUserAdmin(admin.ModelAdmin):
     def image_tag(self, obj):
         if obj.is_superuser:
             return None
+        elif not obj.user_image:
+            return None
         return format_html(f'<img src="{obj.user_image.url}" width="100" height="100">')
     image_tag.short_description = "User's image"
 
@@ -72,5 +57,4 @@ class CommentAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).\
-            select_related('user').\
-            select_related('article')
+            select_related('user', 'article')
