@@ -39,14 +39,14 @@ urlpatterns = [
          name='clear-reading-history'),
     path('personal/reading_history/<int:pk>/delete/', views.DeleteUserReading.as_view(),
          name='delete-reading'),
-    # Views for viewing liked articles, clearing all likes and deleting particular likes
+    # views for viewing liked/disliked articles, clearing all likes/dislikes,
+    # deleting particular likes/dislikes
     path('personal/articles/liked/',
          views.LikedArticlesView.as_view(), name='liked-articles'),
     path('personal/articles/disliked/',
          views.DislikedArticlesView.as_view(), name='disliked-articles'),
     path('personal/articles/liked/clear/',
          views.ClearLikesView.as_view(), name='clear-likes'),
-    # Views for viewing disliked articles, clearing all likes and deleting particular dislikes
     path('personal/articles/disliked/clear/',
          views.ClearDislikesView.as_view(), name='clear-dislikes'),
     path('personal/likes/<int:pk>/delete/',
