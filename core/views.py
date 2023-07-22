@@ -192,3 +192,11 @@ class IndexView(View):
 #             articles = self.get_recommended_articles(current_user, tags)
 #         return render(request, self.template_name, {'articles': articles,
 #                                                     'tags': tags})
+
+
+def error_404_handler(request, exception):
+    return render(request, 'errors/404.html', status=404)
+
+
+def error_403_handler(request, exception):
+    return render(request, 'errors/403.html', status=403)

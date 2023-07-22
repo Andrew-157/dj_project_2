@@ -7,7 +7,7 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.db.models import Sum
-from django.http import Http404, HttpResponseNotAllowed
+from django.http import Http404, HttpResponseNotAllowed, HttpResponse
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
@@ -84,17 +84,17 @@ class ArticleDetailView(DetailView):
         if not article:
             raise Http404
         elif article.author != self.request.user:
-            raise PermissionDenied('You are not allowed to visit this page')
+            raise PermissionDenied
         return super().get_object()
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        try:
-            return super().dispatch(request, *args, **kwargs)
-        except Http404:
-            return render(request, 'core/nonexistent.html', status=404)
-        except PermissionDenied:
-            return render(request, 'core/permission_denied.html', status=403)
+        return super().dispatch(request, *args, **kwargs)
+        # try:
+        # except Http404:
+        #     return render(request, 'core/nonexistent.html', status=404)
+        # except PermissionDenied:
+        #     return render(request, 'core/permission_denied.html', status=403)
 
 
 class PublishArticleView(View):
@@ -205,7 +205,7 @@ class DeleteArticleView(View):
         return Article.objects.filter(pk=pk).first()
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
+        return render(request, 'errors/405.html')
 
     def post(self, request, *args, **kwargs):
         current_user = request.user

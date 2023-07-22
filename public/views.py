@@ -1,4 +1,5 @@
 from typing import Any, Dict
+from django import http
 from django.db import models
 from django.db.models import Avg
 from django.db.models.query import QuerySet
@@ -6,7 +7,7 @@ from django.db.models.query_utils import Q
 from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponseNotAllowed, HttpResponseForbidden
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils import timezone
@@ -42,7 +43,7 @@ class AboutPageView(View):
     def get(self, request, *args, **kwargs):
         author = self.get_author(self.kwargs['pk'])
         if not author:
-            return render(self.nonexistent_template)
+            return render(request, self.nonexistent_template, status=404)
         description = self.get_description(author)
         social_media_list = self.get_social_media(author)
         readings = self.get_readings(author)['times_read__sum']
@@ -138,19 +139,14 @@ class ArticleDetailView(View):
         likes = Reaction.objects.filter(
             Q(article=article) &
             Q(value=1)
-        ).all()
-        if not likes:
-            return []
-        else:
-            return likes
+        ).count()
+        return likes
 
     def get_dislikes(self, article):
         dislikes = Reaction.objects.filter(
             Q(article=article) &
             Q(value=-1)
-        ).all()
-        if not dislikes:
-            return []
+        ).count()
         return dislikes
 
     def get_subscribers(self, author):
@@ -161,13 +157,13 @@ class ArticleDetailView(View):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template)
+            raise Http404
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
         subscription_status = self.set_subscription_status(
             current_user, article.author)
-        likes = len(self.get_likes(article))
-        dislikes = len(self.get_dislikes(article))
+        likes = self.get_likes(article)
+        dislikes = self.get_dislikes(article)
         subscribers = self.get_subscribers(article.author)
         return render(request, self.template_name, {'article': article,
                                                     'favorite_status': favorite_status,
@@ -182,14 +178,14 @@ class ArticleDetailView(View):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template)
+            raise Http404
         if current_user.is_authenticated:
             article.times_read += 1
             article.save()
         favorite_status = self.set_favorite_status(current_user, article)
         reaction_status = self.set_reaction_status(current_user, article)
-        likes = len(self.get_likes(article))
-        dislikes = len(self.get_dislikes(article))
+        likes = self.get_likes(article)
+        dislikes = self.get_dislikes(article)
         subscribers = self.get_subscribers(article.author)
         subscription_status = self.set_subscription_status(
             current_user, article.author)
@@ -214,8 +210,7 @@ class CommentsByArticleList(ListView):
         article_id = self.kwargs['pk']
         article = Article.objects.filter(id=article_id).first()
         if not article:
-            self.template_name = 'core/nonexistent.html'
-            return None
+            raise Http404
         comments = Comment.objects.\
             select_related('user').filter(article=article).\
             order_by('pub_date').all()
@@ -226,6 +221,12 @@ class CommentsByArticleList(ListView):
         article = Article.objects.filter(id=self.kwargs['pk']).first()
         context['article'] = article
         return context
+
+    def dispatch(self, request, *args: Any, **kwargs: Any):
+        try:
+            return super().dispatch(request, *args, **kwargs)
+        except Http404:
+            return render(request, 'core/nonexistent.html', status=404)
 
 
 class AddRemoveFavoriteArticle(View):
