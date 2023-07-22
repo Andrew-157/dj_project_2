@@ -202,22 +202,20 @@ class ArticleDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_return_correct_template_for_nonexistent_article(self):
+    def test_correct_response_for_nonexistent_article(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.get(reverse('personal:article-detail',
                                            kwargs={'pk': 555678}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'core/nonexistent.html')
 
-    def test_return_correct_template_for_user_that_does_not_own_article(self):
+    def test_correct_response_for_user_that_does_not_own_article(self):
         login = self.client.login(username='User2',
                                   password='34somepassword34')
         article = Article.objects.get(title='title')
         response = self.client.get(reverse('personal:article-detail',
                                            kwargs={'pk': article.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
 
     def test_return_correct_template_for_user_that_owns_article(self):
         login = self.client.login(username='User1',
@@ -319,22 +317,20 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_correct_template_for_nonexistent_movie_for_logged_user(self):
+    def test_correct_response_for_nonexistent_movie_for_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.get(reverse('personal:update-article-list',
                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'core/nonexistent.html')
 
-    def test_correct_template_for_logged_user_who_does_not_own_article(self):
+    def test_correct_response_for_logged_user_who_does_not_own_article(self):
         article = Article.objects.get(title='title')
         login = self.client.login(username='User2',
                                   password='34somepassword34')
         response = self.client.get(reverse('personal:update-article-list',
                                            kwargs={'pk': article.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
 
     def test_correct_template_for_logged_user_who_owns_article(self):
         article = Article.objects.get(title='title')
@@ -418,22 +414,20 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_correct_template_for_nonexistent_movie_for_logged_user(self):
+    def test_correct_response_for_nonexistent_movie_for_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.get(reverse('personal:update-article-detail',
                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'core/nonexistent.html')
 
-    def test_correct_template_for_logged_user_who_does_not_own_article(self):
+    def test_correct_response_for_logged_user_who_does_not_own_article(self):
         article = Article.objects.get(title='title')
         login = self.client.login(username='User2',
                                   password='34somepassword34')
         response = self.client.get(reverse('personal:update-article-detail',
                                            kwargs={'pk': article.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
 
     def test_correct_template_for_logged_user_who_owns_article(self):
         article = Article.objects.get(title='title')
@@ -518,30 +512,20 @@ class DeleteArticleViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_correct_template_for_get_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:delete-article',
-                                           kwargs={'pk': 999}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
-    def test_correct_template_for_nonexistent_article_for_logged_user(self):
+    def test_correct_response_for_nonexistent_article_for_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:delete-article',
                                             kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'core/nonexistent.html')
 
-    def test_correct_template_for_logged_user_who_does_not_own_article(self):
+    def test_correct_response_for_logged_user_who_does_not_own_article(self):
         article = Article.objects.get(title='title')
         login = self.client.login(username='User2',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:delete-article',
                                             kwargs={'pk': article.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
 
     def test_redirect_after_successful_article_deletion_by_logged_user_who_owns_article(self):
         article = Article.objects.get(title='title')
@@ -670,21 +654,12 @@ class DeleteSocialMediaViewTest(TestCase):
         self.assertTrue(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:social_media-delete',
-                                           kwargs={'pk': 778}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_response_for_nonexistent_link(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:social_media-delete',
                                             kwargs={'pk': 675}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'core/nonexistent.html')
 
     def test_correct_response_to_logged_user_that_does_not_own_link(self):
         social_media_link = SocialMedia.objects.get(user__username='User1')
@@ -693,7 +668,6 @@ class DeleteSocialMediaViewTest(TestCase):
         response = self.client.post(reverse('personal:social_media-delete',
                                             kwargs={'pk': social_media_link.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
 
     def test_correct_redirect_after_successful_deletion_of_link_by_logged_user(self):
         login = self.client.login(
@@ -855,13 +829,6 @@ class DeleteUserDescriptionViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:delete-user-description'))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_redirect_for_logged_user_without_description(self):
         login = self.client.login(username='User2',
                                   password='34somepassword34')
@@ -962,13 +929,6 @@ class ClearReadingHistoryViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:clear-reading-history'))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_redirect_after_clearing_history_by_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -1010,21 +970,12 @@ class DeleteUserReadingViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:delete-reading',
-                                           kwargs={'pk': 999}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_response_to_nonexistent_user_reading_for_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:delete-reading',
                                             kwargs={'pk': 333}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'core/nonexistent.html')
 
     def test_correct_response_for_logged_user_that_does_not_own_reading(self):
         user_reading = UserReading.objects.get(user__username='User1')
@@ -1033,7 +984,6 @@ class DeleteUserReadingViewTest(TestCase):
         response = self.client.post(reverse('personal:delete-reading',
                                             kwargs={'pk': user_reading.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
 
     def test_correct_redirect_after_logged_user_successfully_deleted_their_user_reading(self):
         user_reading = UserReading.objects.get(user__username='User1')
@@ -1197,13 +1147,6 @@ class ClearLikesViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:clear-likes'))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_redirect_after_successful_clearing_of_likes_by_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -1227,13 +1170,6 @@ class ClearDislikesViewTest(TestCase):
         response = self.client.get(reverse('personal:clear-dislikes'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
-
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:clear-dislikes'))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
 
     def test_correct_redirect_after_successful_clearing_of_dislikes_by_logged_user(self):
         login = self.client.login(username='User1',
@@ -1276,14 +1212,6 @@ class DeleteLikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:delete-like',
-                                           kwargs={'pk': 678}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_response_to_logged_user_that_does_not_own_like(self):
         like = Reaction.objects.get(user__username='User1')
         login = self.client.login(username='User2',
@@ -1291,7 +1219,13 @@ class DeleteLikeViewTest(TestCase):
         response = self.client.post(reverse('personal:delete-like',
                                             kwargs={'pk': like.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
+
+    def test_correct_response_for_nonexistent_like_by_logged_user(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:delete-like',
+                                            kwargs={'pk': 889}))
+        self.assertEqual(response.status_code, 404)
 
     def test_correct_redirect_after_like_deletion_by_logged_user_that_owns_like(self):
         like = Reaction.objects.get(user__username='User1')
@@ -1336,14 +1270,6 @@ class DeleteDislikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:delete-dislike',
-                                           kwargs={'pk': 678}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_response_to_logged_user_that_does_not_own_dislike(self):
         dislike = Reaction.objects.get(user__username='User1')
         login = self.client.login(username='User2',
@@ -1351,7 +1277,13 @@ class DeleteDislikeViewTest(TestCase):
         response = self.client.post(reverse('personal:delete-dislike',
                                             kwargs={'pk': dislike.id}))
         self.assertEqual(response.status_code, 403)
-        self.assertTemplateUsed(response, 'core/permission_denied.html')
+
+    def test_correct_response_for_nonexistent_dislike_by_logged_user(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:delete-like',
+                                            kwargs={'pk': 889}))
+        self.assertEqual(response.status_code, 404)
 
     def test_correct_redirect_after_dislike_deletion_by_logged_user_that_owns_dislike(self):
         dislike = Reaction.objects.get(user__username='User1')
@@ -1483,21 +1415,12 @@ class DeleteFavoriteArticleViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_correct_response_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:delete-favorite-article',
-                                           kwargs={'pk': 687}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
-
     def test_correct_response_to_nonexistent_article_for_logged_user(self):
         login = self.client.login(username='User2',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:delete-favorite-article',
                                             kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'core/nonexistent.html')
 
     def test_correct_response_to_existent_article_for_logged_user_without_fav_object(self):
         article = Article.objects.get(title='title1')
@@ -1570,14 +1493,6 @@ class ClearFavoritesViewTest(TestCase):
                                            kwargs={'pk': 698}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
-
-    def test_correct_response_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(username='User1',
-                                  password='34somepassword34')
-        response = self.client.get(reverse('personal:delete-favorite-article',
-                                           kwargs={'pk': 687}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'core/not_allowed.html')
 
     def test_correct_redirect_after_clearing_favorites_by_logged_user(self):
         login = self.client.login(username='User1',

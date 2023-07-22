@@ -73,9 +73,6 @@ class ArticleDetailView(DetailView):
     model = Article
     template_name = 'personal/article_detail.html'
     context_object_name = 'article'
-    nonexistent_template = 'core/nonexistent.html'
-    not_allowed_template = 'core/not_allowed.html'
-    permission_denied_template = 'core/permission_denied.html'
 
     def get_object(self):
         article_pk = self.kwargs['pk']
@@ -90,11 +87,6 @@ class ArticleDetailView(DetailView):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
-        # try:
-        # except Http404:
-        #     return render(request, 'core/nonexistent.html', status=404)
-        # except PermissionDenied:
-        #     return render(request, 'core/permission_denied.html', status=403)
 
 
 class PublishArticleView(View):
@@ -127,8 +119,6 @@ class UpdateArticleBaseClass(View):
     form_class = PublishUpdateArticleForm
     template_name = 'personal/update_article.html'
     success_message = 'You successfully updated your article'
-    nonexistent_template = 'core/nonexistent.html'
-    permission_denied_template = 'core/permission_denied.html'
     redirect_to = ''
     article_pk_needed = False
     send_post_to = ''
@@ -142,9 +132,9 @@ class UpdateArticleBaseClass(View):
     def get(self, request, *args, **kwargs):
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         if article.author != request.user:
-            return render(request, self.permission_denied_template, status=403)
+            raise PermissionDenied
         form = self.form_class(instance=article)
         return render(request, self.template_name, {'form': form,
                                                     'article': article,
@@ -153,9 +143,9 @@ class UpdateArticleBaseClass(View):
     def post(self, request, *args, **kwargs):
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         if article.author != request.user:
-            return render(request, self.permission_denied_template, status=403)
+            raise PermissionDenied
         form = self.form_class(request.POST, request.FILES, instance=article)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -195,25 +185,19 @@ class UpdateArticleThroughArticleDetail(UpdateArticleBaseClass):
 
 
 class DeleteArticleView(View):
-    nonexistent_template = 'core/nonexistent.html'
-    not_allowed_template = 'core/not_allowed.html'
-    permission_denied_template = 'core/permission_denied.html'
     success_message = 'You successfully deleted your article'
     redirect_to = 'personal:articles-list'
 
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, 'errors/405.html')
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         if article.author != current_user:
-            return render(request, self.permission_denied_template, status=403)
+            raise PermissionDenied
         article.delete()
         messages.success(request, self.success_message)
         return redirect(self.redirect_to)
@@ -277,24 +261,18 @@ class AboutPageView(View):
 
 class DeleteSocialMediaView(View):
     success_message = 'You successfully deleted this social media link'
-    nonexistent_template = 'core/nonexistent.html'
-    not_allowed_template = 'core/not_allowed.html'
     redirect_to = 'personal:about-page'
-    permission_denied_template = 'core/permission_denied.html'
 
     def get_social_media(self, pk):
         return SocialMedia.objects.filter(pk=pk).first()
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
         social_media = self.get_social_media(self.kwargs['pk'])
         if not social_media:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         if social_media.user != current_user:
-            return render(request, self.permission_denied_template, status=403)
+            raise PermissionDenied
         social_media.delete()
         messages.success(request, self.success_message)
         return redirect(self.redirect_to)
@@ -378,16 +356,12 @@ class UpdateUserDescriptionView(View):
 
 
 class DeleteUserDescriptionView(View):
-    not_allowed_template = 'core/not_allowed.html'
     success_message = 'You successfully deleted your description'
     warning_message = 'You do not have a description, you cannot delete it'
     redirect_to = 'personal:about-page'
 
     def get_description(self, user):
         return UserDescription.objects.filter(user=user).first()
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -423,10 +397,6 @@ class ReadingHistory(View):
 class ClearReadingHistory(View):
     success_message = 'You successfully cleared your reading history'
     redirect_to = 'personal:reading-history'
-    not_allowed_template = 'core/not_allowed.html'
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -443,24 +413,18 @@ class ClearReadingHistory(View):
 class DeleteUserReading(View):
     success_message = 'You successfully deleted info about reading this article\
         from your reading history'
-    permission_denied = 'core/permission_denied.html'
     redirect_to = 'personal:reading-history'
-    nonexistent_template = 'core/nonexistent.html'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_user_reading(self, pk):
         return UserReading.objects.filter(pk=pk).first()
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
         user_reading = self.get_user_reading(self.kwargs['pk'])
         if not user_reading:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         if user_reading.user != current_user:
-            return render(request, self.permission_denied, status=403)
+            raise PermissionDenied
         user_reading.delete()
         messages.success(request, self.success_message)
         return redirect(self.redirect_to)
@@ -505,7 +469,6 @@ class ClearReactionsBaseClass(View):
     success_message = ''
     reaction_value = None
     redirect_to = ''
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_reactions(self, user):
         return Reaction.objects.\
@@ -514,9 +477,6 @@ class ClearReactionsBaseClass(View):
                 Q(user=user) &
                 Q(value=self.reaction_value)
             ).all()
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
@@ -545,24 +505,18 @@ class ClearDislikesView(ClearReactionsBaseClass):
 class DeleteSingleReactionBaseClass(View):
     redirect_to = ''
     success_message = ''
-    nonexistent_template = 'core/nonexistent.html'
-    permission_denied_template = 'core/permission_denied.html'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_reaction(self, pk):
         return Reaction.objects.\
             filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         reaction = self.get_reaction(self.kwargs['pk'])
         if not reaction:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         if reaction.user != current_user:
-            return render(request, self.permission_denied_template, status=403)
+            raise PermissionDenied
         reaction.delete()
         messages.success(request, self.success_message)
         return redirect(self.redirect_to)
@@ -604,9 +558,7 @@ class FavoriteArticlesList(ListView):
 
 
 class DeleteFavoriteArticle(View):
-    nonexistent_template = 'core/nonexistent.html'
     redirect_to = 'personal:favorite-articles'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
@@ -615,14 +567,11 @@ class DeleteFavoriteArticle(View):
         return FavoriteArticles.objects.\
             filter(user=user).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         favorite_obj = self.get_favorite(current_user)
         if not favorite_obj:
             messages.info(
@@ -645,13 +594,9 @@ class DeleteFavoriteArticle(View):
 class ClearFavoritesView(View):
     success_message = 'All your Favorites were successfully deleted'
     redirect_to = 'personal:favorite-articles'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.filter(user=user).first()
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template, status=405)
 
     def post(self, request, *args, **kwargs):
         current_user = request.user
