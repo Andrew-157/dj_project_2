@@ -1,12 +1,9 @@
 from typing import Any, Dict
-from django import http
-from django.db import models
-from django.db.models import Avg
-from django.db.models.query import QuerySet
-from django.db.models.query_utils import Q
-from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.db.models.query_utils import Q
+from django.db.models import Sum
 from django.http import HttpResponseRedirect, Http404, HttpResponseNotAllowed, HttpResponseForbidden
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -22,7 +19,6 @@ from public.forms import CommentArticleForm
 
 class AboutPageView(View):
     template_name = 'public/about_page.html'
-    nonexistent_template = 'core/nonexistent.html'
 
     def get_author(self, pk):
         return CustomUser.objects.filter(pk=pk).first()
@@ -43,7 +39,7 @@ class AboutPageView(View):
     def get(self, request, *args, **kwargs):
         author = self.get_author(self.kwargs['pk'])
         if not author:
-            return render(request, self.nonexistent_template, status=404)
+            raise Http404
         description = self.get_description(author)
         social_media_list = self.get_social_media(author)
         readings = self.get_readings(author)['times_read__sum']
@@ -54,7 +50,6 @@ class AboutPageView(View):
 
 
 class ArticleDetailView(View):
-    nonexistent_template = 'core/nonexistent.html'
     template_name = 'public/article_detail.html'
 
     def get_article(self, pk):
@@ -222,20 +217,12 @@ class CommentsByArticleList(ListView):
         context['article'] = article
         return context
 
-    def dispatch(self, request, *args: Any, **kwargs: Any):
-        try:
-            return super().dispatch(request, *args, **kwargs)
-        except Http404:
-            return render(request, 'core/nonexistent.html', status=404)
-
 
 class AddRemoveFavoriteArticle(View):
-    nonexistent_template = 'core/nonexistent.html'
     redirect_to = 'public:article-detail'
-    success_remove = 'You successfully removed this article from your favorites'
-    success_add = 'You successfully added this article to your favorites'
-    info_message = 'Please, become an authenticated user to add this article to your favorites'
-    not_allowed_template = 'core/not_allowed.html'
+    success_remove = 'You successfully removed this article from your Favorites'
+    success_add = 'You successfully added this article to your Favorites'
+    info_message = 'Please, become an authenticated user to add this article to your Favorites'
 
     def get_favorite(self, user):
         return FavoriteArticles.objects.\
@@ -244,14 +231,11 @@ class AddRemoveFavoriteArticle(View):
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template)
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(request, self.info_message)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
@@ -285,8 +269,6 @@ class LeaveReactionBaseClass(View):
     is_like = False
     info_message = ''
     redirect_to = 'public:article-detail'
-    nonexistent_template = 'core/nonexistent.html'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_article(self, pk):
         return Article.objects.filter(pk=pk).first()
@@ -324,14 +306,11 @@ class LeaveReactionBaseClass(View):
                                 value=1)
             reaction.save()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template)
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(self.nonexistent_template)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(request, self.info_message)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
@@ -354,11 +333,10 @@ class LeaveDislikeView(LeaveReactionBaseClass):
 
 
 class CommentArticleView(View):
-    nonexistent_template = 'core/nonexistent.html'
     redirect_to = 'public:article-comments'
     form_class = CommentArticleForm
-    info_message = 'To leave a comment on this article,please become an authenticated user.'
-    success_message = 'You successfully published a comment on this article.'
+    info_message = 'To leave a comment on this article, please become an authenticated user'
+    success_message = 'You successfully published a comment on this article'
     template_name = 'public/comment_article.html'
 
     def get_article(self, pk):
@@ -368,7 +346,7 @@ class CommentArticleView(View):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(self.nonexistent_template)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(request, self.info_message)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
@@ -379,7 +357,7 @@ class CommentArticleView(View):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(self.nonexistent_template)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(request, self.info_message)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
@@ -387,8 +365,6 @@ class CommentArticleView(View):
         if form.is_valid():
             form.instance.article = article
             form.instance.user = current_user
-            if current_user == article.author:
-                form.instance.is_article_author = True
             form.save()
             messages.success(request, self.success_message)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id, )))
@@ -396,26 +372,20 @@ class CommentArticleView(View):
 
 
 class DeleteCommentView(View):
-    nonexistent_template = 'core/nonexistent.html'
-    not_yours_template = 'core/not_yours.html'
     redirect_to = 'public:article-comments'
     success_message = 'You successfully deleted your comment on this article'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_comment(self, pk):
         return Comment.objects.\
             filter(pk=pk).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template)
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         comment = self.get_comment(self.kwargs['pk'])
         if not comment:
-            return render(request, self.nonexistent_template)
+            raise Http404
         if comment.user != current_user:
-            return render(request, self.not_yours_template)
+            raise PermissionDenied
         article_id = comment.article.id
         comment.delete()
         messages.success(request, self.success_message)
@@ -427,11 +397,9 @@ class DeleteCommentView(View):
 
 
 class UpdateCommentView(View):
-    nonexistent_template = 'core/nonexistent.html'
     redirect_to = 'public:article-comments'
-    not_yours_template = 'core/not_yours.html'
     form_class = CommentArticleForm
-    success_message = 'You successfully updated your comment on this article.'
+    success_message = 'You successfully updated your comment on this article'
     template_name = 'public/update_comment.html'
 
     def get_comment(self, pk):
@@ -443,9 +411,9 @@ class UpdateCommentView(View):
         current_user = request.user
         comment = self.get_comment(self.kwargs['pk'])
         if not comment:
-            return render(request, self.nonexistent_template)
+            raise Http404
         if comment.user != current_user:
-            return render(request, self.not_yours_template)
+            raise PermissionDenied
         form = self.form_class(instance=comment)
         return render(request, self.template_name, {'comment': comment,
                                                     'form': form,
@@ -455,9 +423,9 @@ class UpdateCommentView(View):
         current_user = request.user
         comment = self.get_comment(self.kwargs['pk'])
         if not comment:
-            return render(request, self.nonexistent_template)
+            raise Http404
         if comment.user != current_user:
-            return render(request, self.not_yours_template)
+            raise PermissionDenied
         form = self.form_class(request.POST, instance=comment)
         if form.is_valid():
             form.save()
@@ -477,13 +445,11 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
     This view is called in 'article_detail.html' template,
     and it redirects back to 'public:article-detail' view
     """
-    nonexistent_template = 'core/nonexistent.html'
-    info_message_to_anonymous_user = 'You cannot subscribe while you are not authenticated'
+    info_message_to_anonymous_user = 'You cannot subscribe to this author while you are not authenticated'
     info_message_to_auth_user = 'You cannot subscribe to yourself'
     redirect_to = 'public:article-detail'
     success_message_subscribed = 'You successfully subscribed to this author'
     success_message_unsubscribed = 'You successfully unsubscribed from this author'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_article(self, pk):
         return Article.objects.\
@@ -495,14 +461,11 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
             Q(subscribe_to=author)
         ).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template)
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         article = self.get_article(self.kwargs['pk'])
         if not article:
-            return render(request, self.nonexistent_template)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(request, self.info_message_to_anonymous_user)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(article.id,)))
@@ -547,7 +510,6 @@ class ArticlesByTag(ListView):
 
 
 class SearchArticlesView(View):
-    nonexistent_template = 'core/nonexistent.html'
     template_name = 'public/search_results.html'
 
     def get_articles(self, search_string):
@@ -571,33 +533,18 @@ class SearchArticlesView(View):
         query = self.request.GET.get('query')
         if query:
             if len(query) == 1 and query == '#':
-                return render(request, 'core/empty_search.html')
+                return render(request, 'public/empty_search.html')
             if query[0] == '#':
                 tag_slug = self.convert_tag_to_slug(query[1:])
                 return HttpResponseRedirect(reverse('public:articles-tag', args=(tag_slug, )))
             articles = self.get_articles(query)
             return render(request, self.template_name, {'articles': articles,
                                                         'query': query})
-        return render(request, 'core/empty_search.html')
-
-    # def post(self, request, *args, **kwargs):
-    #     search_string = request.POST['search_string']
-    #     if not search_string:
-    #         return render(request, self.nonexistent_template)
-    #     if len(search_string) == 1 and search_string[0] == '#':
-    #         return render(request, self.nonexistent_template)
-    #     if search_string[0] == '#':
-    #         tag = self.convert_tag_to_slug(search_string[1:])
-    #         return HttpResponseRedirect(reverse('public:articles-tag', args=(tag,)))
-    #     articles = self.get_articles(search_string)
-
-    #     return render(request, self.template_name, {'articles': articles,
-    #                                                 'search_string': search_string})
+        return render(request, 'public/empty_search.html')
 
 
 class AuthorPageView(View):
     template_name = 'public/author_page.html'
-    nonexistent_template = 'core/nonexistent.html'
 
     def get_author(self, pk):
         return CustomUser.objects.filter(pk=pk).first()
@@ -626,7 +573,7 @@ class AuthorPageView(View):
         current_user = request.user
         author = self.get_author(self.kwargs['pk'])
         if not author:
-            return render(request, self.nonexistent_template)
+            raise Http404
         subscription_status = self.set_subscription_status(
             current_user, author)
         subscribers = self.get_subscribers(author)
@@ -636,13 +583,11 @@ class AuthorPageView(View):
 
 
 class SubscribeUnsubscribeThroughAuthorPageView(View):
-    nonexistent_template = 'core/nonexistent.html'
-    info_message_to_anonymous_user = 'You cannot subscribe while you are not authenticated'
+    info_message_to_anonymous_user = 'You cannot subscribe to this author while you are not authenticated'
     info_message_to_auth_user = 'You cannot subscribe to yourself'
     redirect_to = 'public:author-page'
     success_message_subscribed = 'You successfully subscribed to this author'
     success_message_unsubscribed = 'You successfully unsubscribed from this author'
-    not_allowed_template = 'core/not_allowed.html'
 
     def get_author(self, pk):
         return CustomUser.objects.filter(pk=pk).first()
@@ -653,14 +598,11 @@ class SubscribeUnsubscribeThroughAuthorPageView(View):
             Q(subscribe_to=author)
         ).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.not_allowed_template)
-
     def post(self, request, *args, **kwargs):
         current_user = request.user
         author = self.get_author(self.kwargs['pk'])
         if not author:
-            return render(request, self.nonexistent_template)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(request, self.info_message_to_anonymous_user)
             return HttpResponseRedirect(reverse(self.redirect_to, args=(author.id, )))
@@ -683,7 +625,6 @@ class SubscribeUnsubscribeThroughAuthorPageView(View):
 
 
 class ArticlesByAuthor(View):
-    nonexistent_template = 'core/nonexistent.html'
     template_name = 'public/articles_by_author.html'
 
     def get_author(self, pk):
@@ -698,7 +639,7 @@ class ArticlesByAuthor(View):
     def get(self, request, *args, **kwargs):
         author = self.get_author(self.kwargs['pk'])
         if not author:
-            return render(request, self.nonexistent_template)
+            raise Http404
         articles = self.get_articles(author)
         return render(request, self.template_name, {'articles': articles,
                                                     'author': author})

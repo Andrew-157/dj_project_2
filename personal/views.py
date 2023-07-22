@@ -1,14 +1,9 @@
-from typing import Any, Dict, Optional
-from django import http
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import models
-from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.db.models import Sum
-from django.http import Http404, HttpResponseNotAllowed, HttpResponse
-from django.urls import reverse
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
