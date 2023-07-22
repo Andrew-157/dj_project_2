@@ -28,7 +28,7 @@ class RegisterUserView(UserBaseView):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f'Welcome to Articlee!')
+            messages.success(request, 'You were successfully registered')
             return redirect('core:index')
         return render(request, self.template_name, {'form': form})
 
@@ -46,7 +46,7 @@ class LoginUserView(UserBaseView):
             if user:
                 login(request, user)
                 messages.success(
-                    request, f'Welcome back to Articlee!')
+                    request, 'Welcome back')
                 return redirect('core:index')
         return render(request, self.template_name, {'form': form})
 
@@ -74,7 +74,7 @@ class ChangeUserView(View):
             user = form.save()
             login(request, user)
             messages.success(
-                request, 'Your credentials were successfully changed')
+                request, 'You successfully changed your credentials')
             return redirect('core:index')
         return render(request, self.template_name, {'form': form})
 
