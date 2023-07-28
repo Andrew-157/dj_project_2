@@ -271,6 +271,10 @@ class AddRemoveFavoriteArticleViewTest(TestCase):
                                                kwargs={'pk': article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully added this article to your Favorites')
+        fav_obj = FavoriteArticles.objects.filter(
+            user__username='User3').first()
+        article = Article.objects.filter(title='Something1').first()
+        self.assertTrue(article in fav_obj.articles.all())
 
     def test_correct_response_to_logged_user_with_fav_object_without_article(self):
         article = Article.objects.get(title='Something1')
@@ -284,6 +288,10 @@ class AddRemoveFavoriteArticleViewTest(TestCase):
                                                kwargs={'pk': article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully added this article to your Favorites')
+        fav_obj = FavoriteArticles.objects.filter(
+            user__username='User2').first()
+        article = Article.objects.filter(title='Something1').first()
+        self.assertTrue(article in fav_obj.articles.all())
 
     def test_correct_response_to_logged_user_with_fav_object_with_article(self):
         article = Article.objects.get(title='Something1')
@@ -297,6 +305,10 @@ class AddRemoveFavoriteArticleViewTest(TestCase):
                                                kwargs={'pk': article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully removed this article from your Favorites')
+        fav_obj = FavoriteArticles.objects.filter(
+            user__username='User1').first()
+        article = Article.objects.filter(title='Something1')
+        self.assertTrue(article not in fav_obj.articles.all())
 
 
 class LeaveLikeViewTest(TestCase):
@@ -353,6 +365,9 @@ class LeaveLikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('public:article-detail',
                                                kwargs={'pk': article.id}))
+        reaction = Reaction.objects.filter(user__username='User3').first()
+        self.assertTrue(reaction is not None)
+        self.assertEqual(reaction.value, 1)
 
     def test_correct_response_to_logged_user_with_dislike_reaction(self):
         article = Article.objects.get(title='Something1')
@@ -363,6 +378,9 @@ class LeaveLikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('public:article-detail',
                                                kwargs={'pk': article.id}))
+        reaction = Reaction.objects.filter(user__username='User2').first()
+        self.assertTrue(reaction is not None)
+        self.assertEqual(reaction.value, 1)
 
     def test_correct_response_to_logged_user_with_like_reaction(self):
         article = Article.objects.get(title='Something1')
@@ -373,6 +391,8 @@ class LeaveLikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('public:article-detail',
                                                kwargs={'pk': article.id}))
+        reaction = Reaction.objects.filter(user__username='User1').first()
+        self.assertTrue(reaction is None)
 
 
 class LeaveDislikeViewTest(TestCase):
@@ -429,6 +449,9 @@ class LeaveDislikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('public:article-detail',
                                                kwargs={'pk': article.id}))
+        reaction = Reaction.objects.filter(user__username='User3').first()
+        self.assertTrue(reaction is not None)
+        self.assertEqual(reaction.value, -1)
 
     def test_correct_response_to_logged_user_with_like_reaction(self):
         article = Article.objects.get(title='Something1')
@@ -439,6 +462,9 @@ class LeaveDislikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('public:article-detail',
                                                kwargs={'pk': article.id}))
+        reaction = Reaction.objects.filter(user__username='User2').first()
+        self.assertTrue(reaction is not None)
+        self.assertEqual(reaction.value, -1)
 
     def test_correct_response_to_logged_user_with_dislike_reaction(self):
         article = Article.objects.get(title='Something1')
@@ -449,6 +475,8 @@ class LeaveDislikeViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('public:article-detail',
                                                kwargs={'pk': article.id}))
+        reaction = Reaction.objects.filter(user__username='User1').first()
+        self.assertTrue(reaction is None)
 
 
 class CommentArticleViewTest(TestCase):
@@ -523,6 +551,8 @@ class CommentArticleViewTest(TestCase):
                                                kwargs={'pk': article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully published a comment on this article')
+        comment = Comment.objects.filter(user__username='User1').first()
+        self.assertTrue(comment is not None)
 
 
 class DeleteCommentViewTest(TestCase):
@@ -569,7 +599,7 @@ class DeleteCommentViewTest(TestCase):
                                             kwargs={'pk': comment.id}))
         self.assertEqual(response.status_code, 403)
 
-    def test_correct_redirect_after_successful_comment_deletion_be_logged_user(self):
+    def test_correct_response_after_successful_comment_deletion_be_logged_user(self):
         comment = Comment.objects.get(content='Content')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -581,6 +611,8 @@ class DeleteCommentViewTest(TestCase):
                                                kwargs={'pk': comment.article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully deleted your comment on this article')
+        comment = Comment.objects.filter(user__username='User1').first()
+        self.assertTrue(comment is None)
 
 
 class UpdateCommentViewTest(TestCase):
@@ -657,7 +689,7 @@ class UpdateCommentViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'public/update_comment.html')
 
-    def test_correct_redirect_after_successful_updating_of_comment_by_logged_user(self):
+    def test_correct_response_after_successful_updating_of_comment_by_logged_user(self):
         comment = Comment.objects.get(content='Content')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -670,6 +702,9 @@ class UpdateCommentViewTest(TestCase):
                                                kwargs={'pk': comment.article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully updated your comment on this article')
+        comment = Comment.objects.filter(user__username='User1').first()
+        self.assertTrue(comment is not None)
+        self.assertEqual(comment.content, 'New content')
 
 
 class SubscribeUnsubscribeThroughArticleDetailViewTest(TestCase):
@@ -724,6 +759,11 @@ class SubscribeUnsubscribeThroughArticleDetailViewTest(TestCase):
                                                kwargs={'pk': article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully unsubscribed from this author')
+        subscription_object = Subscription.objects.filter(
+            Q(subscribe_to=article.author) &
+            Q(subscriber__username='User2')
+        ).first()
+        self.assertTrue(subscription_object is None)
 
     def test_correct_response_for_logged_user_that_is_not_subscribed_to_author(self):
         article = Article.objects.get(title='Title')
@@ -737,6 +777,11 @@ class SubscribeUnsubscribeThroughArticleDetailViewTest(TestCase):
                                                kwargs={'pk': article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully subscribed to this author')
+        subscription_object = Subscription.objects.filter(
+            Q(subscribe_to=article.author) &
+            Q(subscriber__username='User3')
+        ).first()
+        self.assertTrue(subscription_object is not None)
 
     def test_correct_response_when_author_to_subscribe_to_and_logged_user_are_the_same_person(self):
         article = Article.objects.get(title='Title')
@@ -922,6 +967,11 @@ class SubscribeUnsubscribeThroughAuthorPageViewTest(TestCase):
                                                kwargs={'pk': author.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully unsubscribed from this author')
+        subscription_object = Subscription.objects.filter(
+            Q(subscribe_to=author) &
+            Q(subscriber__username='User2')
+        ).first()
+        self.assertTrue(subscription_object is None)
 
     def test_correct_response_to_logged_user_that_is_not_subscribed_to_author(self):
         author = CustomUser.objects.get(username='User1')
@@ -935,6 +985,11 @@ class SubscribeUnsubscribeThroughAuthorPageViewTest(TestCase):
                                                kwargs={'pk': author.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully subscribed to this author')
+        subscription_object = Subscription.objects.filter(
+            Q(subscribe_to=author) &
+            Q(subscriber__username='User3')
+        ).first()
+        self.assertTrue(subscription_object is not None)
 
     def test_correct_response_when_author_to_subscribe_to_and_logged_user_are_the_same_person(self):
         author = CustomUser.objects.get(username='User1')
