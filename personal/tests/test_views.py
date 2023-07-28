@@ -274,7 +274,7 @@ class PublishArticleViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/publish_article.html')
 
-    def test_correct_redirect_after_publishing_article(self):
+    def test_correct_response_after_publishing_article(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         image = Image.new('RGB', (100, 100), color='red')
@@ -293,6 +293,8 @@ class PublishArticleViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:articles-list'))
         self.assertEqual(str(messages[0]),
                          'You successfully published new article')
+        article = Article.objects.filter(title='Some random title').first()
+        self.assertTrue(article)
 
 
 class UpdateArticleThroughArticlesListViewTest(TestCase):
@@ -369,7 +371,7 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/update_article.html')
 
-    def test_correct_redirect_user_who_owns_article_successfully_updated_it(self):
+    def test_correct_response_to_user_who_owns_article_successfully_updated_it(self):
         article = Article.objects.get(title='title')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -379,7 +381,7 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
         image_file.seek(0)
         response = self.client.post(reverse('personal:update-article-list',
                                             kwargs={'pk': article.id}),
-                                    data={'title': article.title,
+                                    data={'title': 'New article title',
                                           'content': article.content,
                                           'image': SimpleUploadedFile("test_image.jpg", image_file.read(),
                                                                       content_type="image/jpeg"),
@@ -390,6 +392,8 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:articles-list'))
         self.assertEqual(str(messages[0]),
                          'You successfully updated your article')
+        article = Article.objects.filter(title='New article title').first()
+        self.assertTrue(article is not None)
 
 
 class UpdateArticleThroughArticleDetailViewTest(TestCase):
@@ -466,7 +470,7 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/update_article.html')
 
-    def test_correct_redirect_user_who_owns_article_successfully_updated_it(self):
+    def test_correct_to_user_who_owns_article_successfully_updated_it(self):
         article = Article.objects.get(title='title')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -476,7 +480,7 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
         image_file.seek(0)
         response = self.client.post(reverse('personal:update-article-detail',
                                             kwargs={'pk': article.id}),
-                                    data={'title': article.title,
+                                    data={'title': 'New article title',
                                           'content': article.content,
                                           'image': SimpleUploadedFile("test_image.jpg", image_file.read(),
                                                                       content_type="image/jpeg"),
@@ -488,6 +492,8 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
             'personal:article-detail', kwargs={'pk': article.id}))
         self.assertEqual(str(messages[0]),
                          'You successfully updated your article')
+        article = Article.objects.filter(title='New article title').first()
+        self.assertTrue(article is not None)
 
 
 class DeleteArticleViewTest(TestCase):
@@ -538,6 +544,8 @@ class DeleteArticleViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:articles-list'))
         self.assertEqual(str(messages[0]),
                          'You successfully deleted your article')
+        article = Article.objects.filter(title='title').first()
+        self.assertTrue(article is None)
 
 
 class AboutPageViewTest(TestCase):
@@ -630,6 +638,9 @@ class AboutPageViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:about-page'))
         self.assertEqual(
             str(messages[0]), 'You successfully added new link to your social media')
+        social_media_link = SocialMedia.objects.filter(
+            link='https://www.youtube.com/').first()
+        self.assertTrue(social_media_link is not None)
 
 
 class DeleteSocialMediaViewTest(TestCase):
@@ -669,7 +680,7 @@ class DeleteSocialMediaViewTest(TestCase):
                                             kwargs={'pk': social_media_link.id}))
         self.assertEqual(response.status_code, 403)
 
-    def test_correct_redirect_after_successful_deletion_of_link_by_logged_user(self):
+    def test_correct_response_after_successful_deletion_of_link_by_logged_user(self):
         login = self.client.login(
             username='User1', password='34somepassword34')
         social_media_link = SocialMedia.objects.get(user__username='User1')
@@ -680,6 +691,9 @@ class DeleteSocialMediaViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:about-page'))
         self.assertEqual(
             str(messages[0]), 'You successfully deleted this social media link')
+        social_media_link = SocialMedia.objects.filter(
+            user__username='User1').first()
+        self.assertTrue(social_media_link is None)
 
 
 class PublishUserDescriptionViewTest(TestCase):
@@ -733,7 +747,7 @@ class PublishUserDescriptionViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/publish_description.html')
 
-    def test_correct_redirect_if_valid_data_posted_by_user_without_description(self):
+    def test_correct_response_if_valid_data_posted_by_user_without_description(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:add-user-description'),
@@ -743,6 +757,9 @@ class PublishUserDescriptionViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:about-page'))
         self.assertEqual(
             str(messages[0]), 'You successfully published your description')
+        user_description = UserDescription.objects.filter(
+            user__username='User1').first()
+        self.assertTrue(user_description is not None)
 
 
 class UpdateUserDescriptionViewTest(TestCase):
@@ -797,7 +814,7 @@ class UpdateUserDescriptionViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/update_description.html')
 
-    def test_correct_redirect_if_logged_user_with_description_posts_valid_data(self):
+    def test_correct_response_if_logged_user_with_description_posts_valid_data(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:update-user-description'),
@@ -807,6 +824,9 @@ class UpdateUserDescriptionViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:about-page'))
         self.assertEqual(str(messages[0]),
                          'You successfully updated your description')
+        user_description = UserDescription.objects.filter(
+            user__username='User1').first()
+        self.assertEqual(user_description.content, 'My new user description.')
 
 
 class DeleteUserDescriptionViewTest(TestCase):
@@ -840,7 +860,7 @@ class DeleteUserDescriptionViewTest(TestCase):
         self.assertEqual(str(messages[0]),
                          'You do not have a description, you cannot delete it')
 
-    def test_correct_redirect_after_deletion_of_description_by_logged_user_with_description(self):
+    def test_correct_response_after_deletion_of_description_by_logged_user_with_description(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(
@@ -850,6 +870,9 @@ class DeleteUserDescriptionViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:about-page'))
         self.assertEqual(
             str(messages[0]), 'You successfully deleted your description')
+        user_description = UserDescription.objects.filter(
+            user__username='User1').first()
+        self.assertTrue(user_description is None)
 
 
 class ReadingHistoryViewTest(TestCase):
@@ -924,12 +947,40 @@ class ClearReadingHistoryViewTest(TestCase):
                                                    password='34somepassword34',
                                                    email='user1@gmail.com')
 
+        article_1 = Article.objects.create(
+            title='title1',
+            content='Cool content 1',
+            author=test_user,
+            image=tempfile.NamedTemporaryFile(suffix=".jpg").name,
+            times_read=56
+        )
+
+        article_2 = Article.objects.create(
+            title='title2',
+            content='Cool content 2',
+            author=test_user,
+            image=tempfile.NamedTemporaryFile(suffix=".jpg").name,
+            times_read=78
+        )
+
+        UserReading.objects.create(
+            user=test_user,
+            article=article_1,
+            date_read=timezone.now()
+        )
+
+        UserReading.objects.create(
+            user=test_user,
+            article=article_2,
+            date_read=timezone.now() + timedelta(minutes=10)
+        )
+
     def test_correct_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('personal:clear-reading-history'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_correct_redirect_after_clearing_history_by_logged_user(self):
+    def test_correct_response_after_clearing_history_by_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:clear-reading-history'))
@@ -938,6 +989,9 @@ class ClearReadingHistoryViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:reading-history'))
         self.assertEqual(str(messages[0]),
                          'You successfully cleared your reading history')
+        user_readings = UserReading.objects.filter(
+            user__username='User1').count()
+        self.assertEqual(user_readings, 0)
 
 
 class DeleteUserReadingViewTest(TestCase):
@@ -985,7 +1039,7 @@ class DeleteUserReadingViewTest(TestCase):
                                             kwargs={'pk': user_reading.id}))
         self.assertEqual(response.status_code, 403)
 
-    def test_correct_redirect_after_logged_user_successfully_deleted_their_user_reading(self):
+    def test_correct_response_after_logged_user_successfully_deleted_their_user_reading(self):
         user_reading = UserReading.objects.get(user__username='User1')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -996,6 +1050,9 @@ class DeleteUserReadingViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:reading-history'))
         self.assertEqual(str(messages[0]), 'You successfully deleted info about reading this article\
         from your reading history')
+        user_reading = UserReading.objects.filter(
+            user__username='User1').first()
+        self.assertTrue(user_reading is None)
 
 
 class LikedArticlesViewTest(TestCase):
@@ -1137,17 +1194,49 @@ class DislikedArticlesViewTest(TestCase):
 class ClearLikesViewTest(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
-        test_user = CustomUser.objects.\
+        test_user_1 = CustomUser.objects.\
             create_user(username='User1',
                         password='34somepassword34',
                         email='user1@gmail.com')
+
+        test_user_2 = CustomUser.objects.create_user(username='User2',
+                                                     password='34somepassword34',
+                                                     email='user2@gmail.com')
+
+        article_1 = Article.objects.create(
+            title='title1',
+            content='Cool content 1',
+            author=test_user_2,
+            image=tempfile.NamedTemporaryFile(suffix=".jpg").name,
+            times_read=56
+        )
+
+        article_2 = Article.objects.create(
+            title='title2',
+            content='Cool content 2',
+            author=test_user_2,
+            image=tempfile.NamedTemporaryFile(suffix=".jpg").name,
+            times_read=65
+        )
+
+        Reaction.objects.create(
+            value=1,
+            user=test_user_1,
+            article=article_1
+        )
+
+        Reaction.objects.create(
+            value=1,
+            user=test_user_1,
+            article=article_2
+        )
 
     def test_correct_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('personal:clear-likes'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_correct_redirect_after_successful_clearing_of_likes_by_logged_user(self):
+    def test_correct_response_after_successful_clearing_of_likes_by_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:clear-likes'))
@@ -1156,15 +1245,49 @@ class ClearLikesViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:liked-articles'))
         self.assertEqual(str(messages[0]),
                          'You successfully cleared your likes')
+        reactions = Reaction.objects.filter(user__username='User1').count()
+        self.assertEqual(reactions, 0)
 
 
 class ClearDislikesViewTest(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
-        test_user = CustomUser.objects.\
+        test_user_1 = CustomUser.objects.\
             create_user(username='User1',
                         password='34somepassword34',
                         email='user1@gmail.com')
+
+        test_user_2 = CustomUser.objects.create_user(username='User2',
+                                                     password='34somepassword34',
+                                                     email='user2@gmail.com')
+
+        article_1 = Article.objects.create(
+            title='title1',
+            content='Cool content 1',
+            author=test_user_2,
+            image=tempfile.NamedTemporaryFile(suffix=".jpg").name,
+            times_read=56
+        )
+
+        article_2 = Article.objects.create(
+            title='title2',
+            content='Cool content 2',
+            author=test_user_2,
+            image=tempfile.NamedTemporaryFile(suffix=".jpg").name,
+            times_read=65
+        )
+
+        Reaction.objects.create(
+            value=-1,
+            user=test_user_1,
+            article=article_1
+        )
+
+        Reaction.objects.create(
+            value=-1,
+            user=test_user_1,
+            article=article_2
+        )
 
     def test_correct_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('personal:clear-dislikes'))
@@ -1174,12 +1297,14 @@ class ClearDislikesViewTest(TestCase):
     def test_correct_redirect_after_successful_clearing_of_dislikes_by_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
-        response = self.client.post(reverse('personal:clear-likes'))
+        response = self.client.post(reverse('personal:clear-dislikes'))
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('personal:liked-articles'))
+        self.assertRedirects(response, reverse('personal:disliked-articles'))
         self.assertEqual(str(messages[0]),
-                         'You successfully cleared your likes')
+                         'You successfully cleared your dislikes')
+        reactions = Reaction.objects.filter(user__username='User1').count()
+        self.assertEqual(reactions, 0)
 
 
 class DeleteLikeViewTest(TestCase):
@@ -1227,7 +1352,7 @@ class DeleteLikeViewTest(TestCase):
                                             kwargs={'pk': 889}))
         self.assertEqual(response.status_code, 404)
 
-    def test_correct_redirect_after_like_deletion_by_logged_user_that_owns_like(self):
+    def test_correct_response_after_like_deletion_by_logged_user_that_owns_like(self):
         like = Reaction.objects.get(user__username='User1')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -1238,6 +1363,8 @@ class DeleteLikeViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:liked-articles'))
         self.assertEqual(
             str(messages[0]), 'You successfully deleted one like reaction')
+        reaction = Reaction.objects.filter(user__username='User1').first()
+        self.assertTrue(reaction is None)
 
 
 class DeleteDislikeViewTest(TestCase):
@@ -1285,7 +1412,7 @@ class DeleteDislikeViewTest(TestCase):
                                             kwargs={'pk': 889}))
         self.assertEqual(response.status_code, 404)
 
-    def test_correct_redirect_after_dislike_deletion_by_logged_user_that_owns_dislike(self):
+    def test_correct_response_after_dislike_deletion_by_logged_user_that_owns_dislike(self):
         dislike = Reaction.objects.get(user__username='User1')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -1296,6 +1423,8 @@ class DeleteDislikeViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:disliked-articles'))
         self.assertEqual(
             str(messages[0]), 'You successfully deleted one dislike reaction')
+        reaction = Reaction.objects.filter(user__username='User1').first()
+        self.assertTrue(reaction is None)
 
 
 class FavoriteArticlesViewTest(TestCase):
@@ -1446,7 +1575,7 @@ class DeleteFavoriteArticleViewTest(TestCase):
         self.assertEqual(str(messages[0]),
                          'This article is not in your Favorites')
 
-    def test_correct_redirect_after_successful_removal_of_article_by_logged_user(self):
+    def test_correct_response_after_successful_removal_of_article_by_logged_user(self):
         article = Article.objects.get(title='title1')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -1457,6 +1586,10 @@ class DeleteFavoriteArticleViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:favorite-articles'))
         self.assertEqual(str(messages[0]),
                          'You successfully removed an article from your Favorites')
+        fav_obj = FavoriteArticles.objects.filter(
+            user__username='User1').first()
+        article = Article.objects.filter(title='title1').first()
+        self.assertTrue(article not in fav_obj.articles.all())
 
 
 class ClearFavoritesViewTest(TestCase):
@@ -1494,7 +1627,7 @@ class ClearFavoritesViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
-    def test_correct_redirect_after_clearing_favorites_by_logged_user(self):
+    def test_correct_response_after_clearing_favorites_by_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:clear-favorites'))
@@ -1503,8 +1636,11 @@ class ClearFavoritesViewTest(TestCase):
         self.assertRedirects(response, reverse('personal:favorite-articles'))
         self.assertEqual(
             str(messages[0]), 'All your Favorites were successfully deleted')
+        fav_obj = FavoriteArticles.objects.filter(
+            user__username='User1').first()
+        self.assertEqual(len(fav_obj.articles.all()), 0)
 
-    def test_correct_redirect_after_clearing_favorites_by_logged_user_without_fav_object(self):
+    def test_correct_response_after_clearing_favorites_by_logged_user_without_fav_object(self):
         login = self.client.login(username='User2',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:clear-favorites'))
