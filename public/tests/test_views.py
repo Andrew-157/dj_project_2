@@ -840,6 +840,14 @@ class SearchArticlesViewTest(TestCase):
         self.assertTrue('articles' in response.context)
         self.assertTrue('query' in response.context)
 
+    def test_redirect_when_searching_for_tag(self):
+        tag = 'tag'
+        response = self.client.get(
+            reverse('public:search') + f'?query=%{tag}')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('public:articles-tag',
+                                               kwargs={'slug': tag}))
+
 
 class AuthorPageViewTest(TestCase):
     @classmethod

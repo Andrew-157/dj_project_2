@@ -30,8 +30,8 @@
     </ul>
   </div>
   <form class="form-inline" action="{% url 'public:search' %}" method="get">
-    <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="query">
-    {% csrf_token %}
+    <input style="width: 500px;" class="form-control mr-sm-2" type="text"
+      placeholder="Search for articles with tags using '#' or just enter some text" aria-label="Search" name="query">
     <button class="btn btn-primary" type="submit">Search</button>
     <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
   </form>

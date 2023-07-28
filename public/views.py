@@ -531,16 +531,22 @@ class SearchArticlesView(View):
 
     def get(self, request, *args, **kwargs):
         query = self.request.GET.get('query')
-        if query:
-            if len(query) == 1 and query == '#':
-                return render(request, 'public/empty_search.html')
-            if query[0] == '#':
-                tag_slug = self.convert_tag_to_slug(query[1:])
-                return HttpResponseRedirect(reverse('public:articles-tag', args=(tag_slug, )))
-            articles = self.get_articles(query)
-            return render(request, self.template_name, {'articles': articles,
-                                                        'query': query})
-        return render(request, 'public/empty_search.html')
+        if not query.strip():
+            return render(request, 'public/empty_search.html')
+
+        if query.strip() == '#':
+            return render(request, 'public/empty_search.html')
+
+        if query.strip() == '%':
+            return render(request, 'public/empty_search.html')
+
+        if query.strip()[0] == '#' or query.strip()[0] == '%':
+            tag_slug = self.convert_tag_to_slug(query.strip()[1:])
+            return HttpResponseRedirect(reverse('public:articles-tag', args=(tag_slug, )))
+
+        articles = self.get_articles(query)
+        return render(request, self.template_name, {'articles': articles,
+                                                    'query': query})
 
 
 class AuthorPageView(View):
