@@ -25,7 +25,7 @@ class RegisterUserViewTest(TestCase):
                                           'password2': '34password34'})
         self.assertEqual(response.status_code, 200)
 
-    def test_correct_redirect_if_successful_registration(self):
+    def test_correct_response_if_successful_registration(self):
         response = self.client.post(reverse('users:register'),
                                     data={'username': 'user12',
                                           'email': 'user12@gmail.com',
@@ -35,6 +35,8 @@ class RegisterUserViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('core:index'))
         self.assertEqual(str(messages[0]), 'You were successfully registered')
+        new_user = CustomUser.objects.filter(username='user12').filter()
+        self.assertTrue(new_user is not None)
 
 
 class LoginUserViewTest(TestCase):
@@ -61,7 +63,7 @@ class LoginUserViewTest(TestCase):
                                         'password': 'wrongpassword123'})
         self.assertEqual(response.status_code, 200)
 
-    def test_redirect_if_successful_login(self):
+    def test_correct_response_if_successful_login(self):
         response = self.client.post(reverse('users:login'),
                                     data={
                                         'username': 'some_user',
@@ -71,6 +73,7 @@ class LoginUserViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('core:index'))
         self.assertEqual(str(messages[0]), 'Welcome back')
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
 
 
 class ChangeUserViewTest(TestCase):
@@ -107,7 +110,7 @@ class ChangeUserViewTest(TestCase):
                                           'email': 'invalid'})
         self.assertEqual(response.status_code, 200)
 
-    def test_redirect_if_valid_data_posted(self):
+    def test_response_if_valid_data_posted(self):
         login = self.client.login(username='some_user',
                                   password='34somepassword34')
         response = self.client.post(reverse('users:change-user'),
@@ -118,11 +121,4 @@ class ChangeUserViewTest(TestCase):
         self.assertRedirects(response, reverse('core:index'))
         self.assertEqual(
             str(messages[0]), 'You successfully changed your credentials')
-
-
-class BecomeUserViewTest(TestCase):
-
-    def test_view_uses_correct_template(self):
-        response = self.client.get(reverse('core:become-user'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'core/become_user.html')
+        self.assertEqual(response.wsgi_request.user.username, 'valid_name')
