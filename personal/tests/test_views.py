@@ -1,3 +1,4 @@
+import os
 import tempfile
 from datetime import timedelta
 from PIL import Image
@@ -243,6 +244,13 @@ class PublishArticleViewTest(TestCase):
                                                      password='34somepassword34',
                                                      email='user1@gmail.com')
 
+    def tearDown(self) -> None:
+        try:
+            os.remove('media/core/images/test_image.jpg')
+        except FileNotFoundError:
+            pass
+        return super().tearDown()
+
     def test_correct_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('personal:publish-article'))
         self.assertEqual(response.status_code, 302)
@@ -312,6 +320,13 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
             content='Cool content 1',
             author=test_user_1,
             image=tempfile.NamedTemporaryFile(suffix=".jpg").name)
+
+    def tearDown(self) -> None:
+        try:
+            os.remove('media/core/images/test_image.jpg')
+        except FileNotFoundError:
+            pass
+        return super().tearDown()
 
     def test_correct_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('personal:update-article-list',
@@ -411,6 +426,13 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
             content='Cool content 1',
             author=test_user_1,
             image=tempfile.NamedTemporaryFile(suffix=".jpg").name)
+
+    def tearDown(self) -> None:
+        try:
+            os.remove('media/core/images/test_image.jpg')
+        except FileNotFoundError:
+            pass
+        return super().tearDown()
 
     def test_correct_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('personal:update-article-detail',

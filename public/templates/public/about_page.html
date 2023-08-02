@@ -1,39 +1,6 @@
 {% extends "core/header.html" %}
 
 {% block content %}
-<!-- <div class="container py-5">
-    <h1 class="mb-4"><a href="{% url 'public:author-page' author.id %}">{{author}}</a>'s About Page</h1>
-    <div class="row">
-        <div class="col-md-8">
-            {% if description %}
-            <div class="row">
-                <div class="col-md-8">
-                    <h2>Author's description:</h2>
-                    <div class="container py-5">
-                        <p>{{ description }}</p>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <p>Author has not left any description</p>
-            {% endif %}
-            <p>Author joined Articlee on <strong>{{ author.date_joined.date }}</strong></p>
-            <p>Times author's articles were totally: <strong>{{ readings }}</strong></p>
-        </div>
-    </div>
-    {% if social_media_list %}
-    <div class="row">
-        <div class="col-md-8">
-            <h2>Follow author on different social media:</h2>
-            <ul class="list-group">
-                {% for sm in social_media_list %}
-                <li class="list-group-item">{{sm.get_title_display}}: <a href="{{ sm.link }}">{{ sm.link }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-</div> -->
 <div class="container py-5">
     <div class="jumbotron">
         <h1>This is <a href="{% url 'public:author-page' author.id %}">{{author}}</a>'s About Page</h1>

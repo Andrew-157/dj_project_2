@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container py-5">
     <div class="jumbotron" style="height: 400px;">
-        <h1>Article's title: "{{ article.title }}"</h1>
+        <h1>Article's title: {{ article.title }}</h1>
         <form action="{% url 'public:article-detail' article.id %}">
             <button class="btn btn-primary" type="submit">Read</button>
         </form>

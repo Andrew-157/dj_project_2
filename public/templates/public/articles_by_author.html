@@ -13,7 +13,7 @@
         <div class="card" style="width: 300px;">
             <img class="card-img-top img-thumbnail" src="{{ article.image.url }}" alt="Article's image">
             <div class="card-body">
-                <h4>Title: "{{ article.title }}"</h4>
+                <h4>Title: {{ article.title }}</h4>
                 <p class="card-text">
                     <strong>Tags:</strong>
                     {% for tag in article.tags.all %}

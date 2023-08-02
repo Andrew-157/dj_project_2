@@ -13,7 +13,7 @@
         <form action="{% url 'personal:delete-reading' ur.id %}" method="post" class="form-inline">
             <p class="mr-sm-2">
                 -- You read article
-                <a href="{% url 'public:article-detail' ur.article.id%}">"{{ur.article.title}}"</a>
+                <a href="{% url 'public:article-detail' ur.article.id%}">{{ur.article.title}}</a>
                 on <mark>{{ur.date_read.date }}</mark> |
             </p>
             {% csrf_token %}

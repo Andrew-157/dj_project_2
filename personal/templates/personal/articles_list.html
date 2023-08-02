@@ -14,7 +14,7 @@
             </a>
             <div class="card-body">
                 <p class="text-info small">Click on thumbnail to see your personal page of the article</p>
-                <h4>Title: "{{ article.title }}"</h4>
+                <h4>Title: {{ article.title }}</h4>
                 <a href="{% url 'public:article-detail' article.id %}" class="btn btn-primary">Read</a> <br>
                 <p class="card-text">
                     <strong>Tags:</strong>

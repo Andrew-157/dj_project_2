@@ -18,7 +18,7 @@
         <div class="card" style="width: 300px;">
             <img class="card-img-top img-thumbnail" src="{{ article.image.url }}" alt="Movie poster">
             <div class="card-body">
-                <h4>Title: "{{ article.title }}"</h4>
+                <h4>Title: {{ article.title }}</h4>
                 <a href="{% url 'public:article-detail' article.id %}" class="btn btn-primary">Read</a> <br>
                 <p class="card-text">
                     <strong>Tags:</strong>
