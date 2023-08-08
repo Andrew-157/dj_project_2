@@ -110,15 +110,15 @@ To run tests for whole app, use this command:
 
 To run only particular module from 'personal/tests', use this command:
 ```
-    python manage.py test personal.test_views
+    python manage.py test personal.tests.test_views
 ```
 
 To run particular test class from 'personal/tests/test_views'(or any other module), use this command:
 ```
-    python manage.py test personal.test_views.PersonalPageViewTest
+    python manage.py test personal.tests.test_views.PersonalPageViewTest
 ```
 
 To run particular test method(that is test itself,in fact) from any class in module 'personal/tests/test_views'(or any other module), use this command:
 ```
-    python manage.py test personal.test_views.PersonalPageViewTest
+    python manage.py test personal.tests.test_views.PersonalPageViewTest.test_view_uses_correct_template
 ```
