@@ -36,3 +36,13 @@ Generate secret key, using the following code:
 
     print(secret_key)
 ```
+
+In directory 'articlee' create file .env(**do not forget to add it to .gitignore**) and add the following line:
+```
+    SECRET_KEY=<secret_key_you_generated>
+```
+
+Then you need to create MySQL database (using MySQL Workbench or any other tool), using SQL statement:
+```SQL
+    CREATE DATABASE articlee;
+```
