@@ -16,7 +16,7 @@ Requirements:
     autopep8
 ```
 
-###The following steps assume that you cloned project repository to your working directory
+The following steps assume that you cloned project repository to your working directory
 
 If you are using pipenv,run in the command line from directory where Pipfile is located:
 ```
