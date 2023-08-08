@@ -9,10 +9,10 @@ Articlee allows you to publish your articles with thumbnail and tags. You can re
 Articlee uses MySQL database
 
 Articlee consists of three apps: 
-    - core
-    - personal
-    - public
-    - users
+- core
+- personal
+- public
+- users
 
 'personal' app is accessible only be authenticated users. In this app authenticated users can create, update and delete their articles. Users can add their 'description' and links to their social media that will be
 seen to other users. Also 'personal' app allows users to manage their favorite articles, see users they are subscribed to and see their reading history, articles they liked and articles they disliked.
