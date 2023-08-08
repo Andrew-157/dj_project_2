@@ -16,21 +16,14 @@ Requirements:
     autopep8
 ```
 
-If you are using pipenv, clone this repository and run in the command line:
+###The following steps assume that you cloned project repository to your working directory
+
+If you are using pipenv,run in the command line from directory where Pipfile is located:
 ```
     pipenv install
 ```
 
-To activate environment using pipenv, run in the command line:
+To activate environment using pipenv, run in the command line in the same directory:
 ```
     pipenv shell
-```
-
-In 'articlee.settings.py' add the following imports:
-```python
-    import os
-    from pathlib import Path
-    from django.contrib.messages import constants as messages
-    from django.urls import reverse_lazy
-    import environ
 ```
