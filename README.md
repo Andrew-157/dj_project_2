@@ -14,15 +14,15 @@ Articlee consists of three apps:
 - public
 - users
 
-'personal' app is accessible only be authenticated users. In this app authenticated users can create, update and delete their articles. Users can add their 'description' and links to their social media that will be
-seen to other users. Also 'personal' app allows users to manage their favorite articles, see users they are subscribed to and see their reading history, articles they liked and articles they disliked.
+`personal` app is accessible only be authenticated users. In this app authenticated users can create, update and delete their articles. Users can add their 'description' and links to their social media that will be
+seen to other users. Also `personal` app allows users to manage their favorite articles, see users they are subscribed to and see their reading history, articles they liked and articles they disliked.
 
-'public' app is accessible by everyone. Users can read articles(this is main purpose of app), search for articles. If user is authenticated, they can leave reactions on articles(like/dislike), add article to favorites
-and subscribe to article's author. 'public' app also allows user to visit public pages of another users, where they can see all their articles, their statistics(how many times their articles were read), their description and links to their social media.
+`public` app is accessible by everyone. Users can read articles(this is main purpose of app), search for articles. If user is authenticated, they can leave reactions on articles(like/dislike), add article to favorites
+and subscribe to article's author. `public` app also allows user to visit public pages of another users, where they can see all their articles, their statistics(how many times their articles were read), their description and links to their social media.
 
-'users' app manages registration, login and logout operations. Also this app manages operation of changing users info(username and email). 'users' app also has CustomUser model.
+`users` app manages registration, login and logout operations. Also this app manages operation of changing users info(username and email). `users` app also has CustomUser model.
 
-'core' app plays role of central app, which is used by the other apps. In 'core' app all models, apart from CustomUser model, can be found. Also it contains 'index' and 'become_user' view, error handlers(e.g., 404 or 403) and templates from which templates in other apps extend: 'messages.html', 'navbar.html' and 'header.html'.
+`core` app plays role of central app, which is used by the other apps. In `core` app all models, apart from CustomUser model, can be found. Also it contains 'index' and 'become_user' view, error handlers(e.g., 404 or 403) and templates from which templates in other apps extend: 'messages.html', 'navbar.html' and 'header.html'.
 
 ## Installation
 
