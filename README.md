@@ -65,9 +65,9 @@ After that, in command line run:
     python manage.py runserver
 ```
 
-## Admin site
-
 Go to your browser at the address: 'http://127.0.0.1:8000/', you should be able to see Articlee's index page
+
+## Admin site
 
 If you want to visit admin site, run the following command:
 ```
