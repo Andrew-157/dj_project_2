@@ -24,6 +24,19 @@ class RegisterUserViewTest(TestCase):
                                           'password1': '34password34',
                                           'password2': '34password34'})
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/register.html')
+
+    def test_correct_response_if_empty_data_posted(self):
+        response = self.client.post(reverse('users:register'),
+                                    data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/register.html')
+
+    def test_correct_response_if_no_data_posted(self):
+        response = self.client.post(reverse('users:register'),
+                                    data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/register.html')
 
     def test_correct_response_if_successful_registration(self):
         response = self.client.post(reverse('users:register'),
@@ -62,6 +75,7 @@ class LoginUserViewTest(TestCase):
                                         'username': 'someone@gmail.com',
                                         'password': 'wrongpassword123'})
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/login.html')
 
     def test_correct_response_if_successful_login(self):
         response = self.client.post(reverse('users:login'),
@@ -109,6 +123,23 @@ class ChangeUserViewTest(TestCase):
                                     data={'username': 'u',
                                           'email': 'invalid'})
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/change_user.html')
+
+    def test_correct_response_if_empty_data_posted(self):
+        login = self.client.login(username='some_user',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('users:change-user'),
+                                    data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/change_user.html')
+
+    def test_correct_response_if_no_data_posted(self):
+        login = self.client.login(username='some_user',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('users:change-user'),
+                                    data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/change_user.html')
 
     def test_response_if_valid_data_posted(self):
         login = self.client.login(username='some_user',

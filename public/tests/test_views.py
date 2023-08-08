@@ -528,13 +528,23 @@ class CommentArticleViewTest(TestCase):
         self.assertTrue('article' in response.context)
         self.assertTrue('form' in response.context)
 
-    def test_correct_response_for_logged_user_posting_invalid_data(self):
+    def test_correct_response_for_logged_user_posting_empty_data(self):
         article = Article.objects.get(title='Something1')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('public:comment-article',
                                             kwargs={'pk': article.id}),
                                     data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'public/comment_article.html')
+
+    def test_correct_response_for_logged_user_posting_no_data(self):
+        article = Article.objects.get(title='Something1')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('public:comment-article',
+                                            kwargs={'pk': article.id}),
+                                    data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'public/comment_article.html')
 
@@ -679,13 +689,23 @@ class UpdateCommentViewTest(TestCase):
         self.assertTrue('article' in response.context)
         self.assertTrue('form' in response.context)
 
-    def test_correct_response_when_logged_user_that_owns_comment_posts_invalid_data(self):
+    def test_correct_response_when_logged_user_that_owns_comment_posts_empty_data(self):
         comment = Comment.objects.get(content='Content')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('public:update-comment',
                                             kwargs={'pk': comment.id}),
                                     data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'public/update_comment.html')
+
+    def test_correct_response_when_logged_user_that_owns_comment_posts_no_data(self):
+        comment = Comment.objects.get(content='Content')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('public:update-comment',
+                                            kwargs={'pk': comment.id}),
+                                    data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'public/update_comment.html')
 

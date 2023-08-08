@@ -282,6 +282,22 @@ class PublishArticleViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/publish_article.html')
 
+    def test_correct_response_if_no_data_posted(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:publish-article'),
+                                    data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'personal/publish_article.html')
+
+    def test_correct_response_if_empty_data_posted(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:publish-article'),
+                                    data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'personal/publish_article.html')
+
     def test_correct_response_after_publishing_article(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -379,10 +395,12 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
         image_file.seek(0)
         response = self.client.post(reverse('personal:update-article-list',
                                             kwargs={'pk': article.id}),
-                                    data={'title': article.title,
-                                          'content': article.content,
-                                          'image': SimpleUploadedFile("test_image.jpg", image_file.read(),
-                                                                      content_type="image/jpeg")})
+                                    data={
+                                        'title': article.title,
+                                        'content': article.content,
+                                        'image': SimpleUploadedFile("test_image.jpg", image_file.read(),
+                                                                    content_type="image/jpeg")
+        })
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/update_article.html')
 
@@ -649,6 +667,22 @@ class AboutPageViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/about_page.html')
 
+    def test_correct_response_when_logged_user_posts_empty_data_for_link(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:about-page'),
+                                    data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'personal/about_page.html')
+
+    def test_correct_response_when_logged_user_posts_no_data_for_link(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:about-page'),
+                                    data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'personal/about_page.html')
+
     def test_correct_response_when_logged_user_posts_valid_link(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -761,11 +795,19 @@ class PublishUserDescriptionViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
 
-    def test_correct_response_if_invalid_data_posted_by_logged_user_without_description(self):
+    def test_correct_response_if_empty_data_posted_by_logged_user_without_description(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:add-user-description'),
                                     data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'personal/publish_description.html')
+
+    def test_correct_response_if_no_data_posted_by_logged_user_without_description(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:add-user-description'),
+                                    data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/publish_description.html')
 
@@ -828,11 +870,19 @@ class UpdateUserDescriptionViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
 
-    def test_correct_response_if_logged_user_with_description_posts_invalid_data(self):
+    def test_correct_response_if_logged_user_with_description_posts_empty_data(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('personal:update-user-description'),
                                     data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'personal/update_description.html')
+
+    def test_correct_response_if_logged_user_with_description_posts_no_data(self):
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('personal:update-user-description'),
+                                    data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/update_description.html')
 
