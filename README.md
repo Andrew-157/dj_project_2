@@ -1,8 +1,17 @@
 # DJANGO PROJECT 'Articlee'
 
-## Articlee allows you to publish your articles with thumbnail and tags. You can read, comment, react and add to your 'favorites' articles, published by another users. You can also subscribe to other users and search for articles you are interested in.
+## Description
+Articlee allows you to publish your articles with thumbnail and tags. You can read, comment, react and add to your 'favorites' articles, published by another users. You can also subscribe to other users and search for articles you are interested in.
 
-## Required packages
+## Installation
+
+Clone repository, using command:
+```
+    git clone https://github.com/Andrew-157/dj_project_2
+```
+and go into directory 'dj_project_2'.
+
+**Everything shown below assumes you are working from directory 'dj_project_2'**
 
 Requirements:
 ```
@@ -31,7 +40,6 @@ To activate environment using pipenv, run in the command line in the same direct
 ## Run project
 
 ### The following steps show how to run project locally(i.e., with DEBUG=True)
-**The following steps assume that you cloned project repository to your working directory**
 
 Generate secret key, using the following code:
 ```python
