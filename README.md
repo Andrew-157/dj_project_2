@@ -27,7 +27,7 @@ and subscribe to article's author. 'public' app also allows user to visit public
 ## Installation
 
 Clone repository, using command:
-```
+```console
     git clone https://github.com/Andrew-157/dj_project_2
 ```
 and go into directory 'dj_project_2'.
