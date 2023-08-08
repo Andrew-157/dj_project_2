@@ -16,6 +16,8 @@ Requirements:
     autopep8
 ```
 
+## Run project
+
 ### The following steps show how to run project locally(i.e., with DEBUG=True)
 **The following steps assume that you cloned project repository to your working directory**
 
@@ -63,6 +65,8 @@ After that, in command line run:
     python manage.py runserver
 ```
 
+## Admin site
+
 Go to your browser at the address: 'http://127.0.0.1:8000/', you should be able to see Articlee's index page
 
 If you want to visit admin site, run the following command:
@@ -73,6 +77,22 @@ If you want to visit admin site, run the following command:
 Enter credentials for your admin user, and visit 'http://127.0.0.1:8000/admin',
 login using the same credentials you used when you created admin user.
 
+
+## Testing
+
+## Each app contains 'tests' directory with '__init__.py' and 3 modules(each module's name starts with test)
+
+**Tests for articlee are written using Django's TestCase**
+That means that each test module contains following import statement:
+```python
+    from django.test import TestCase
+```
+And each testing class is create like this:
+```python
+    class SubscriptionModelTest(TestCase):
+        pass
+```
+
 If you want to run all tests available in the project, in the command line run:
 ```
     python manage.py test
@@ -82,7 +102,7 @@ Articlee has over 200 tests written, so you may want run only particular tests.
 
 The following commands will show how to run tests of app "personal" of "articlee" project.
 
-If you want to run tests for whole app, use this command:
+To run tests for whole app, use this command:
 ```
     python manage.py test personal
 ```
