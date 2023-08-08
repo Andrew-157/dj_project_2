@@ -6,7 +6,7 @@ Articlee allows you to publish your articles with thumbnail and tags. You can re
 
 ## Project structure
 
-Articlee uses MySQL database
+Articlee uses `MySQL` database
 
 Articlee consists of three apps: 
 - core
