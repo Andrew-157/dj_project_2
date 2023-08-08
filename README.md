@@ -2,6 +2,8 @@
 
 ## Articlee allows you to publish your articles with thumbnail and tags. You can read, comment, react and add to your 'favorites' articles, published by another users. You can also subscribe to other users and search for articles you are interested in.
 
+## Required packages
+
 Requirements:
 ```
     django
@@ -16,11 +18,6 @@ Requirements:
     autopep8
 ```
 
-## Run project
-
-### The following steps show how to run project locally(i.e., with DEBUG=True)
-**The following steps assume that you cloned project repository to your working directory**
-
 If you are using pipenv,run in the command line from directory where Pipfile is located:
 ```
     pipenv install
@@ -30,6 +27,11 @@ To activate environment using pipenv, run in the command line in the same direct
 ```
     pipenv shell
 ```
+
+## Run project
+
+### The following steps show how to run project locally(i.e., with DEBUG=True)
+**The following steps assume that you cloned project repository to your working directory**
 
 Generate secret key, using the following code:
 ```python
