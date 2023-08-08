@@ -25,3 +25,12 @@ To activate environment using pipenv, run in the command line:
 ```
     pipenv shell
 ```
+
+In 'articlee.settings.py' add the following imports:
+```python
+    import os
+    from pathlib import Path
+    from django.contrib.messages import constants as messages
+    from django.urls import reverse_lazy
+    import environ
+```
