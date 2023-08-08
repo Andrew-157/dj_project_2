@@ -16,6 +16,7 @@ Requirements:
     autopep8
 ```
 
+### The following steps show how to run project locally(i.e., with DEBUG=True)
 **The following steps assume that you cloned project repository to your working directory**
 
 If you are using pipenv,run in the command line from directory where Pipfile is located:
@@ -37,12 +38,58 @@ Generate secret key, using the following code:
     print(secret_key)
 ```
 
-In directory 'articlee' create file .env(**do not forget to add it to .gitignore**) and add the following line:
+In directory 'articlee' create file .env(**do not forget to add it to .gitignore, if it is not there**) and add the following line:
 ```
     SECRET_KEY=<secret_key_you_generated>
 ```
 
 Then you need to create MySQL database (using MySQL Workbench or any other tool), using SQL statement:
 ```SQL
-    CREATE DATABASE articlee;
+    CREATE DATABASE <your_database_name>;
 ```
+
+Next, go to .env and using credentials of your database, add the following lines:
+```
+    DB_NAME=<your_database_name>
+    DB_USER=<your_database_user>
+    DB_PASSWORD=<your_database_password>
+    DB_HOST=<your_database_host>
+    DB_PORT=<your_database_port>
+```
+
+After that, in command line run:
+```
+    python manage.py migrate
+    python manage.py runserver
+```
+
+Go to your browser at the address: 'http://127.0.0.1:8000/', you should be able to see Articlee's index page
+
+If you want to visit admin site, run the following command:
+```
+    python manage.py createsuperuser
+```
+
+Enter credentials for your admin user, and visit 'http://127.0.0.1:8000/admin',
+login using the same credentials you used when you created admin user.
+
+If you want to run all tests available in the project, in the command line run:
+```
+    python manage.py test
+```
+
+Articlee has over 200 tests written, so you may want run only particular tests.
+
+The following commands will show how to run tests of app "personal" of "articlee" project.
+
+If you want to run tests for whole app, use this command:
+```
+    python manage.py test personal
+```
+
+If you want to run only particular module from 'personal/tests', use this command:
+```
+    python manage.py test personal.test_views
+```
+
+If you want 
