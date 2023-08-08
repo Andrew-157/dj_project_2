@@ -113,7 +113,7 @@ login using the same credentials you used when you created admin user.
 
 ## Each app contains 'tests' directory with `__init__.py` and 3 modules(each module's name starts with 'test')
 
-**Tests for articlee are written using Django's TestCase**
+**Tests for articlee are written using Django's `TestCase`**
 
 That means that each test module contains following import statement:
 ```python
