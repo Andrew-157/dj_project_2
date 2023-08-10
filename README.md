@@ -76,9 +76,9 @@ For `Windows`
 ```
 For `Unix`-based systems
 
-## Run project
+### Run project
 
-### The following steps show how to run project locally(i.e., with DEBUG=True)
+**The following steps show how to run project locally(i.e., with DEBUG=True)**
 
 Generate secret key, using the following code:
 ```python
@@ -116,7 +116,7 @@ After that, in command line run:
 
 Go to your browser at the address: 'http://127.0.0.1:8000/', you should be able to see Articlee's index page
 
-## Admin site
+### Admin site
 
 If you want to visit admin site, run the following command:
 ```
@@ -127,9 +127,9 @@ Enter credentials for your admin user, and visit 'http://127.0.0.1:8000/admin',
 login using the same credentials you used when you created admin user.
 
 
-## Testing
+### Testing
 
-## Each app contains 'tests' directory with `__init__.py` and 3 modules(each module's name starts with 'test')
+**Each app contains 'tests' directory with `__init__.py` and 3 modules(each module's name starts with 'test')**
 
 **Tests for articlee are written using Django's `TestCase`**
 
