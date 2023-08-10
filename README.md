@@ -1,12 +1,15 @@
 # DJANGO PROJECT 'Articlee'
 
-## Usage
+### Usage
 
 Articlee allows you to publish your articles with thumbnail and tags. You can read, comment, react and add to your 'favorites' articles, published by another users. You can also subscribe to other users and search for articles you are interested in.
 
-## Project structure
+### Technologies
+* `Django`
+* `MySQL`
+* `Bootstrap4`
 
-Articlee uses `MySQL` database
+### Project structure
 
 Articlee consists of three apps: 
 - core
@@ -24,7 +27,11 @@ and subscribe to article's author. `public` app also allows user to visit public
 
 `core` app plays role of central app, which is used by the other apps. In `core` app all models, apart from CustomUser model, can be found. Also it contains 'index' and 'become_user' view, error handlers(e.g., 404 or 403) and templates from which templates in other apps extend: 'messages.html', 'navbar.html' and 'header.html'.
 
-## Installation
+### Installation
+
+To work with this project you need Python3.9+ installed on your machine
+
+If you do not have Python installed, visit official documentation and install it: https://www.python.org/downloads/
 
 Clone repository, using command:
 ```
@@ -36,19 +43,19 @@ and go into directory 'dj_project_2'.
 
 Requirements:
 ```
-    django
-    django-crispy-forms
-    django-cleanup
-    crispy-bootstrap4
-    django-taggit
-    pillow
-    mysqlclient
-    django-environ
-    django-debug-toolbar
-    autopep8
+    django==4.2.3
+    django-crispy-forms==2.0
+    django-cleanup==8.0.0
+    crispy-bootstrap4==2022.1
+    django-taggit==4.0.0
+    pillow==10.0.0
+    mysqlclient==2.2.0
+    django-environ==0.10.0
+    django-debug-toolbar==4.1.0
+    autopep8==2.0.2
 ```
 
-If you are using pipenv,run in the command line from directory where Pipfile is located:
+If you are using `pipenv``,run in the command line from directory where Pipfile is located:
 ```
     pipenv install
 ```
@@ -57,6 +64,17 @@ To activate environment using pipenv, run in the command line in the same direct
 ```
     pipenv shell
 ```
+
+You can also use file `requirements.txt` with pip.
+Inside your activated virtual environment, run:
+```
+    pip install -r requirements.txt
+```
+For `Windows`
+```
+    pip3 install -r requirements.txt
+```
+For `Unix`-based systems
 
 ## Run project
 
