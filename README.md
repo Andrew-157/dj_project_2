@@ -43,12 +43,12 @@ and go into directory 'dj_project_2'.
 
 Requirements:
 ```
-    django==4.2.3
+    Django==4.2.3
     django-crispy-forms==2.0
     django-cleanup==8.0.0
     crispy-bootstrap4==2022.1
     django-taggit==4.0.0
-    pillow==10.0.0
+    Pillow==10.0.0
     mysqlclient==2.2.0
     django-environ==0.10.0
     django-debug-toolbar==4.1.0
@@ -171,3 +171,7 @@ To run particular test method(that is test itself,in fact) from any class in mod
 ```
     python manage.py test personal.tests.test_views.PersonalPageViewTest.test_view_uses_correct_template
 ```
+
+### Inspiration
+
+Main inspiration for `Articlee` comes from [Youtube](https://www.youtube.com/).
