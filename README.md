@@ -29,7 +29,7 @@ and subscribe to article's author. `public` app also allows user to visit public
 
 ### Installation
 
-To work with this project you need Python3.9+ installed on your machine
+To work with this project you need `Python` installed on your machine
 
 If you do not have Python installed, visit official documentation and install it: https://www.python.org/downloads/
 
