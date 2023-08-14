@@ -5,8 +5,6 @@ from users.models import CustomUser
 
 
 class UserCreationForm(BaseUserCreationForm):
-    email = forms.EmailField(
-        required=True, help_text='Required. Enter a valid email address.')
     user_image = forms.ImageField(required=False, label='Profile image*',
                                   help_text='You can register without an image.')
 
@@ -29,8 +27,6 @@ class UserCreationForm(BaseUserCreationForm):
 
 
 class UserChangeForm(BaseUserChangeForm):
-    email = forms.EmailField(
-        required=True, help_text='Required. Enter a valid email address.')
     password = None
     user_image = forms.ImageField(label='Profile image*', required=False)
 

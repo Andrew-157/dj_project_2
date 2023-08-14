@@ -16,6 +16,7 @@ def validate_image(image):
 
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        unique=True, help_text='Required. Enter a valid email address.')
     user_image = models.ImageField(null=True, blank=True,
                                    upload_to='users/images', validators=[validate_image])
