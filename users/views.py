@@ -71,8 +71,7 @@ class ChangeUserView(View):
         form = self.form_class(
             request.POST, request.FILES, instance=current_user)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
+            form.save()
             messages.success(
                 request, 'You successfully changed your credentials')
             return redirect('core:index')
