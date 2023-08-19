@@ -5,8 +5,8 @@ from users.models import CustomUser
 
 
 class UserCreationForm(BaseUserCreationForm):
-    user_image = forms.ImageField(required=False, label='Profile image*',
-                                  help_text='You can register without an image.')
+    user_image = forms.ImageField(required=False, label='Profile image',
+                                  help_text='Optional.')
 
     class Meta:
         model = CustomUser
@@ -28,7 +28,8 @@ class UserCreationForm(BaseUserCreationForm):
 
 class UserChangeForm(BaseUserChangeForm):
     password = None
-    user_image = forms.ImageField(label='Profile image*', required=False)
+    user_image = forms.ImageField(label='Profile image', required=False,
+                                  help_text='Optional.')
 
     class Meta:
         model = CustomUser
