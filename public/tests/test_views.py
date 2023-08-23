@@ -9,6 +9,7 @@ from django.db.models.query_utils import Q
 from core.models import Article, SocialMedia, UserDescription,\
     FavoriteArticles, Reaction, Comment, UserReading, Subscription
 
+from public.forms import CommentArticleForm
 from users.models import CustomUser
 
 
@@ -497,11 +498,22 @@ class CommentArticleViewTest(TestCase):
         response = self.client.get(reverse('public:comment-article',
                                            kwargs={'pk': 976}))
         self.assertEqual(response.status_code, 404)
+        response = self.client.post(reverse('public:comment-article',
+                                            kwargs={'pk': 976}))
+        self.assertEqual(response.status_code, 404)
 
     def test_correct_response_to_not_logged_user(self):
         article = Article.objects.get(title='Something1')
         response = self.client.get(reverse('public:comment-article',
                                            kwargs={'pk': article.id}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('public:article-comments',
+                                               kwargs={'pk': article.id}))
+        self.assertEqual(str(messages[0]),
+                         'To leave a comment on this article, please become an authenticated user')
+        response = self.client.post(reverse('public:comment-article',
+                                            kwargs={'pk': article.id}))
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('public:article-comments',
@@ -527,6 +539,8 @@ class CommentArticleViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('article' in response.context)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(
+            response.context['form'], CommentArticleForm))
 
     def test_correct_response_for_logged_user_posting_empty_data(self):
         article = Article.objects.get(title='Something1')
@@ -537,6 +551,10 @@ class CommentArticleViewTest(TestCase):
                                     data={})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'public/comment_article.html')
+        error_message = 'This field is required.'
+        self.assertTrue(error_message.encode() in response.content)
+        decoded_message: str = response.content.decode()
+        self.assertEqual(decoded_message.count(error_message), 1)
 
     def test_correct_response_for_logged_user_posting_no_data(self):
         article = Article.objects.get(title='Something1')
@@ -547,6 +565,10 @@ class CommentArticleViewTest(TestCase):
                                     data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'public/comment_article.html')
+        error_message = 'This field is required.'
+        self.assertTrue(error_message.encode() in response.content)
+        decoded_message: str = response.content.decode()
+        self.assertEqual(decoded_message.count(error_message), 1)
 
     def test_correct_response_after_posting_valid_data_by_logged_user(self):
         article = Article.objects.get(title='Something1')
@@ -653,12 +675,19 @@ class UpdateCommentViewTest(TestCase):
                                            kwargs={'pk': 955}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(reverse('public:update-comment',
+                                            kwargs={'pk': 955}))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_correct_response_for_nonexistent_comment_to_logged_user(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.get(reverse('public:update-comment',
                                            kwargs={'pk': 888}))
+        self.assertEqual(response.status_code, 404)
+        response = self.client.post(reverse('public:update-comment',
+                                            kwargs={'pk': 888}))
         self.assertEqual(response.status_code, 404)
 
     def test_correct_response_to_logged_user_that_does_not_own_comment(self):
@@ -667,6 +696,9 @@ class UpdateCommentViewTest(TestCase):
                                   password='34somepassword34')
         response = self.client.get(reverse('public:update-comment',
                                            kwargs={'pk': comment.id}))
+        self.assertEqual(response.status_code, 403)
+        response = self.client.post(reverse('public:update-comment',
+                                            kwargs={'pk': comment.id}))
         self.assertEqual(response.status_code, 403)
 
     def test_view_uses_correct_template_for_logged_user_that_owns_comment(self):

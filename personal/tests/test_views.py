@@ -382,6 +382,9 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
         response = self.client.get(reverse('personal:update-article-list',
                                            kwargs={'pk': article.id}))
         self.assertEqual(response.status_code, 403)
+        response = self.client.post(reverse('personal:update-article-list',
+                                            kwargs={'pk': article.id}))
+        self.assertEqual(response.status_code, 403)
 
     def test_correct_template_for_logged_user_who_owns_article(self):
         article = Article.objects.get(title='title')
@@ -497,6 +500,9 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
                                   password='34somepassword34')
         response = self.client.get(reverse('personal:update-article-detail',
                                            kwargs={'pk': article.id}))
+        self.assertEqual(response.status_code, 403)
+        response = self.client.post(reverse('personal:update-article-detail',
+                                            kwargs={'pk': article.id}))
         self.assertEqual(response.status_code, 403)
 
     def test_correct_template_for_logged_user_who_owns_article(self):

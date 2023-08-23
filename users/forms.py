@@ -6,7 +6,7 @@ from users.models import CustomUser
 
 class UserCreationForm(BaseUserCreationForm):
     user_image = forms.ImageField(required=False, label='Profile image',
-                                  help_text='Optional.')
+                                  help_text='You can register without an image.')
 
     class Meta:
         model = CustomUser
