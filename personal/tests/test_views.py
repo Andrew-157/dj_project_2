@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from core.models import Article, SocialMedia, UserDescription,\
     FavoriteArticles, Reaction, Comment, UserReading, Subscription
+from personal.forms import PublishUpdateArticleForm, PublishSocialMediaForm, PublishUpdateUserDescriptionForm
 
 from users.models import CustomUser
 
@@ -255,6 +256,9 @@ class PublishArticleViewTest(TestCase):
         response = self.client.get(reverse('personal:publish-article'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(reverse('personal:publish-article'))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_correct_template_for_logged_user(self):
         login = self.client.login(username='User1',
@@ -269,6 +273,8 @@ class PublishArticleViewTest(TestCase):
         response = self.client.get(reverse('personal:publish-article'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(
+            response.context['form'], PublishUpdateArticleForm))
 
     def test_correct_redirect_if_not_valid_data_posted(self):
         login = self.client.login(username='User1',
@@ -289,6 +295,10 @@ class PublishArticleViewTest(TestCase):
                                     data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/publish_article.html')
+        error_message = 'This field is required'
+        self.assertTrue(error_message.encode() in response.content)
+        decoded_content: str = response.content.decode()
+        self.assertEqual(decoded_content.count(error_message), 4)
 
     def test_correct_response_if_empty_data_posted(self):
         login = self.client.login(username='User1',
@@ -297,6 +307,10 @@ class PublishArticleViewTest(TestCase):
                                     data={})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/publish_article.html')
+        error_message = 'This field is required'
+        self.assertTrue(error_message.encode() in response.content)
+        decoded_content: str = response.content.decode()
+        self.assertEqual(decoded_content.count(error_message), 4)
 
     def test_correct_response_after_publishing_article(self):
         login = self.client.login(username='User1',
@@ -349,6 +363,10 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(reverse('personal:update-article-list',
+                                            kwargs={'pk': 999}))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_correct_response_for_nonexistent_movie_for_logged_user(self):
         login = self.client.login(username='User1',
@@ -383,7 +401,11 @@ class UpdateArticleThroughArticlesListViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('article' in response.context)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(
+            response.context['form'], PublishUpdateArticleForm))
         self.assertTrue('send_post_to' in response.context)
+        self.assertEqual(
+            response.context['send_post_to'], 'personal:update-article-list')
 
     def test_correct_response_if_invalid_data_posted_by_logged_user_who_owns_article(self):
         article = Article.objects.get(title='title')
@@ -457,6 +479,10 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(reverse('personal:update-article-detail',
+                                            kwargs={'pk': 999}))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_correct_response_for_nonexistent_movie_for_logged_user(self):
         login = self.client.login(username='User1',
@@ -491,7 +517,11 @@ class UpdateArticleThroughArticleDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('article' in response.context)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(
+            response.context['form'], PublishUpdateArticleForm))
         self.assertTrue('send_post_to' in response.context)
+        self.assertEqual(
+            response.context['send_post_to'], 'personal:update-article-detail')
 
     def test_correct_response_if_invalid_data_posted_by_logged_user_who_owns_article(self):
         article = Article.objects.get(title='title')
@@ -553,8 +583,8 @@ class DeleteArticleViewTest(TestCase):
             image=tempfile.NamedTemporaryFile(suffix=".jpg").name)
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:delete-article',
-                                           kwargs={'pk': 999}))
+        response = self.client.post(reverse('personal:delete-article',
+                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -621,6 +651,9 @@ class AboutPageViewTest(TestCase):
         response = self.client.get(reverse('personal:about-page'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(reverse('personal:about-page'))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_view_uses_correct_template_for_logged_user(self):
         login = self.client.login(username='User1',
@@ -635,6 +668,8 @@ class AboutPageViewTest(TestCase):
         response = self.client.get(reverse('personal:about-page'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(
+            response.context['form'], PublishSocialMediaForm))
         self.assertTrue('social_media_list' in response.context)
         self.assertTrue('description' in response.context)
         self.assertTrue('readings' in response.context)
@@ -674,6 +709,10 @@ class AboutPageViewTest(TestCase):
                                     data={})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/about_page.html')
+        error_message = 'This field is required.'
+        self.assertTrue(error_message.encode() in response.content)
+        decoded_content: str = response.content.decode()
+        self.assertEqual(decoded_content.count(error_message), 2)
 
     def test_correct_response_when_logged_user_posts_no_data_for_link(self):
         login = self.client.login(username='User1',
@@ -682,6 +721,10 @@ class AboutPageViewTest(TestCase):
                                     data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'personal/about_page.html')
+        error_message = 'This field is required.'
+        self.assertTrue(error_message.encode() in response.content)
+        decoded_content: str = response.content.decode()
+        self.assertEqual(decoded_content.count(error_message), 2)
 
     def test_correct_response_when_logged_user_posts_valid_link(self):
         login = self.client.login(username='User1',
@@ -716,8 +759,8 @@ class DeleteSocialMediaViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:social_media-delete',
-                                           kwargs={'pk': 999}))
+        response = self.client.post(reverse('personal:social_media-delete',
+                                            kwargs={'pk': 999}))
         self.assertTrue(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -768,6 +811,9 @@ class PublishUserDescriptionViewTest(TestCase):
 
     def test_correct_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('personal:add-user-description'))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(reverse('personal:add-user-description'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -845,6 +891,10 @@ class UpdateUserDescriptionViewTest(TestCase):
         response = self.client.get(reverse('personal:update-user-description'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(
+            reverse('personal:update-user-description'))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_correct_redirect_for_logged_user_without_description(self):
         login = self.client.login(username='User2',
@@ -917,7 +967,8 @@ class DeleteUserDescriptionViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:delete-user-description'))
+        response = self.client.post(
+            reverse('personal:delete-user-description'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1048,7 +1099,7 @@ class ClearReadingHistoryViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:clear-reading-history'))
+        response = self.client.post(reverse('personal:clear-reading-history'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1091,8 +1142,8 @@ class DeleteUserReadingViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:delete-reading',
-                                           kwargs={'pk': 999}))
+        response = self.client.post(reverse('personal:delete-reading',
+                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1304,7 +1355,7 @@ class ClearLikesViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:clear-likes'))
+        response = self.client.post(reverse('personal:clear-likes'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1362,7 +1413,7 @@ class ClearDislikesViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:clear-dislikes'))
+        response = self.client.post(reverse('personal:clear-dislikes'))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1404,8 +1455,8 @@ class DeleteLikeViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:delete-like',
-                                           kwargs={'pk': 456}))
+        response = self.client.post(reverse('personal:delete-like',
+                                            kwargs={'pk': 456}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1464,8 +1515,8 @@ class DeleteDislikeViewTest(TestCase):
         )
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:delete-dislike',
-                                           kwargs={'pk': 456}))
+        response = self.client.post(reverse('personal:delete-dislike',
+                                            kwargs={'pk': 456}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1611,8 +1662,8 @@ class DeleteFavoriteArticleViewTest(TestCase):
         fav_obj.articles.add(article_1)
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:delete-favorite-article',
-                                           kwargs={'pk': 698}))
+        response = self.client.post(reverse('personal:delete-favorite-article',
+                                            kwargs={'pk': 698}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -1694,8 +1745,8 @@ class ClearFavoritesViewTest(TestCase):
         fav_obj.articles.add(article_1)
 
     def test_correct_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('personal:delete-favorite-article',
-                                           kwargs={'pk': 698}))
+        response = self.client.post(reverse('personal:delete-favorite-article',
+                                            kwargs={'pk': 698}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
