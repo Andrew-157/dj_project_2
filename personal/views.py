@@ -1,9 +1,10 @@
+from typing import Any
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
 from django.db.models import Sum
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -65,19 +66,15 @@ class ArticlesListView(ListView):
 
 
 class ArticleDetailView(DetailView):
-    model = Article
+    queryset = Article.objects.select_related('author').all()
     template_name = 'personal/article_detail.html'
     context_object_name = 'article'
 
-    def get_object(self):
-        article_pk = self.kwargs['pk']
-        article = Article.objects.\
-            filter(pk=article_pk).first()
-        if not article:
-            raise Http404
-        elif article.author != self.request.user:
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        article: Article = self.get_object()
+        if article.author.id != request.user.id:
             raise PermissionDenied
-        return super().get_object()
+        return super().get(request, *args, **kwargs)
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

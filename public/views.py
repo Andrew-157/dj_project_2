@@ -197,7 +197,6 @@ class ArticleDetailView(View):
 
 
 class CommentsByArticleList(ListView):
-    model = Comment
     template_name = 'public/comments_by_article.html'
     context_object_name = 'comments'
 
@@ -489,7 +488,6 @@ class SubscribeUnsubscribeThroughArticleDetail(View):
 
 
 class ArticlesByTag(ListView):
-    model = Article
     context_object_name = 'articles'
     template_name = 'public/articles_by_tag.html'
 
